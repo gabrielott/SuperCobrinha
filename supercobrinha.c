@@ -4,6 +4,7 @@
 #include <locale.h>
 #include <time.h>
 #include <unistd.h>
+#include "snake.h"
 
 #define INITIAL_SIZE 4
 
@@ -160,33 +161,6 @@ int mainmenu(void) {
 }
 
 void startgame(int mode) {
-	typedef struct Snakepart {
-		int y, x;
-		int index;
-		int color;
-	} Snakepart;
-
-	Snakepart *getpartwithindex(Snakepart *s[], int t, int index) {
-		for(int i = 0; i < t; i++) {
-			if(s[i]->index == index) {
-				return s[i];
-			}
-		}
-		return NULL;
-	}
-
-	Snakepart *newpart(int index, int y, int x) {
-		Snakepart p;
-		p.y = y;
-		p.x = x;
-		p.index = index;
-
-		Snakepart *ptr = calloc(1, sizeof(Snakepart));
-		*ptr = p;
-
-		return ptr;
-	}
-
 	WINDOW *game = newwin(maxy * 0.8, maxx, 0, 0);
 	makeborder(game);
 	keypad(game, TRUE);
