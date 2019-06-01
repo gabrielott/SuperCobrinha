@@ -224,7 +224,7 @@ void startgame(int mode) {
 				if(foodx == maxgamex || foodx == 0) valid = 0;
 
 				for(int i = 0; i < index + 1; i++) {
-					if(foodx == snake[i]->x || foody == snake[i]->y) valid = 0;
+					if(foodx == snake[i]->x && foody == snake[i]->y) valid = 0;
 				}
 			}
 
@@ -236,14 +236,13 @@ void startgame(int mode) {
 		Snakepart *tail = getpartwithindex(snake, index + 1, index);
 		
 		if(grow) {
-			grow = 0;
 			index++;
 			snake[index] = newpart(index, tail->y, tail->x);
 			tail = snake[index];
+			grow = 0;
 		} else {
 			mvwprintw(game, tail->y, tail->x, " ");
 		}
-
 
 		switch(direction) {
 			case NORTH:
@@ -268,9 +267,8 @@ void startgame(int mode) {
 		}
 
 		tail->index = 0;
-		mvwprintw(game, tail->y, tail->x, "O");
-
 		head = tail;
+
 		if(head->x == foodx && head->y == foody) {
 			food = 0;
 			grow = 1;
@@ -281,25 +279,27 @@ void startgame(int mode) {
 			if(snake[i]->x == head->x && snake[i]->y == head->y) {
 				return;
 			}
+		}
 
-			if(mode == MODE_BORDER) {
-				if(head->x == maxgamex - 1 || head->x == 0 || head->y == maxgamey - 1 || head->y == 0) {
-					return;
-				}
-			} else if(mode == MODE_BORDERLESS) {
-				if(head->x == maxgamex - 1) {
-					head->x = 1;
-				} else if(head->x == 1) {
-					head->x = maxgamex - 2;
-				}
+		if(mode == MODE_BORDER) {
+			if(head->x == maxgamex - 1 || head->x == 0 || head->y == maxgamey - 1 || head->y == 0) {
+				return;
+			}
+		} else if(mode == MODE_BORDERLESS) {
+			if(head->x == maxgamex - 1) {
+				head->x = 1;
+			} else if(head->x == 0) {
+				head->x = maxgamex - 2;
+			}
 
-				if(head->y == maxgamey - 1) {
-					head->y = 1;
-				} else if(head->y == 1) {
-					head->y = maxgamey - 2;
-				}
+			if(head->y == maxgamey - 1) {
+				head->y = 1;
+			} else if(head->y == 0) {
+				head->y = maxgamey - 2;
 			}
 		}
+		
+		mvwprintw(game, head->y, head->x, "O");
 
 		wrefresh(game);
 		usleep(50 * 1000);
