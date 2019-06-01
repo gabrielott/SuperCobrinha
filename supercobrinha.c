@@ -217,7 +217,6 @@ void startgame(int mode) {
 			while(!valid) {
 				valid = 1;
 
-				srand(time(NULL));
 				foody = rand() % (maxgamey - 1);
 				foodx = rand() % (maxgamex - 1);
 
@@ -303,7 +302,7 @@ void startgame(int mode) {
 		}
 
 		wrefresh(game);
-		usleep(100 * 1000);
+		usleep(50 * 1000);
 	}
 }
 
@@ -318,6 +317,7 @@ int main(void) {
 	updatesize();
 
 	setletters(LTR_COLEMAK);
+	srand(time(NULL));
 
 	int exit = 0;
 	while(!exit) {
