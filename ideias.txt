@@ -1,0 +1,8 @@
+Time attack
+Velocidade variando com a pontuação
+Tabela maiores pontuações
+Mapas
+Níveis de dificuldade (velocidade)
+Menu com pontuação e tempo decorrido
+Obstáculos
+Comidas diferentes
