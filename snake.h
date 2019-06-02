@@ -1,3 +1,6 @@
+#ifndef SNAKE_HEADER
+#define SNAKE_HEADER
+
 typedef struct Snakepart {
 	int y, x;
 	int index;
@@ -7,3 +10,5 @@ typedef struct Snakepart {
 Snakepart *getpartwithindex(Snakepart *s[], int t, int index);
 
 Snakepart *newpart(int index, int y, int x);
+
+#endif
