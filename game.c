@@ -148,12 +148,14 @@ void startgame(int mode) {
 		for(int i = 0; i < maxindex + 1; i++) {
 			if(snake[i] == head) continue;
 			if(snake[i]->x == head->x && snake[i]->y == head->y) {
+				killsnake(snake, maxindex + 1);
 				return;
 			}
 		}
 
 		if(mode == MODE_BORDER) {
 			if(head->x == maxgamex - 1 || head->x == 0 || head->y == maxgamey - 1 || head->y == 0) {
+				killsnake(snake, maxindex + 1);
 				return;
 			}
 		} else if(mode == MODE_BORDERLESS) {

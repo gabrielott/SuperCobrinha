@@ -26,3 +26,9 @@ Snakepart *newpart(int index, int y, int x) {
 
 	return ptr;
 }
+
+void killsnake(Snakepart *s[], int t) {
+	for(int i = 0; i < t; i++) {
+		free(s[i]);
+	}
+}

@@ -11,4 +11,6 @@ Snakepart *getpartwithindex(Snakepart *s[], int t, int index);
 
 Snakepart *newpart(int index, int y, int x);
 
+void killsnake(Snakepart *s[], int t);
+
 #endif
