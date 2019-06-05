@@ -30,23 +30,23 @@ int grow;
 int maxindex;
 
 void initialsetup(void) {
-	game = newwin(maxy * 0.8, maxx, 0, 0);
+	game = newwin(16, 32, (maxy - 16) / 2, (maxx - 32) / 2);
 	makeborder(game);
 	keypad(game, TRUE);
 
-	scoreboard = newwin(maxy * 0.2, maxx, maxy * 0.8 + 1, 0);
+	scoreboard = newwin(5, 5, 15, 0);
 	makeborder(scoreboard);
 
-	maxgamey = 0.8 * maxy;
-	maxgamex = maxx;
+	maxgamey = 16;
+	maxgamex = 32;
 	direction = -1;
 	food = 0;
 	grow = 0;
 	maxindex = INITIAL_SIZE - 1;
 
 	for(int i = 0; i < INITIAL_SIZE; i++) {
-		snake[i] = newpart(i, middley + i, middlex);
-		mvwprintw(game, snake[i]->y, snake[i]->x, "O");
+		snake[i] = newpart(i, maxgamey / 2 + i, maxgamex / 2);
+		mvwprintw(game, snake[i]->y, snake[i]->x, "0");
 	}
 	
 	wrefresh(game);
@@ -80,6 +80,10 @@ void startgame(int mode) {
 				direction = WEST;
 			} else if((g == KEY_RIGHT || g == ltrrght) && direction != WEST) {
 				direction = EAST;
+			} else if(g == '\n') {
+				nodelay(game, FALSE);
+				while(wgetch(game) != '\n');
+				nodelay(game, TRUE);
 			}
 		}
 
@@ -175,6 +179,6 @@ void startgame(int mode) {
 		mvwprintw(game, head->y, head->x, "O");
 
 		wrefresh(game);
-		usleep(50 * 1000);
+		usleep(200 * 1000);
 	}
 }

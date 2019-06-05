@@ -5,6 +5,8 @@
 #include "game.h"
 #include "datamanagement.h"
 
+WINDOW *wmain;
+
 int centerx(WINDOW *w, char *c) {
 	int y, x;
 	getmaxyx(w, y, x);
@@ -32,8 +34,13 @@ void makeborder(WINDOW *w) {
 }
 
 int makeselector(WINDOW *w, int y, int optamt, char *options[]) {
+	int Y, X;
+	getmaxyx(w, Y, X);
+
+	wrefresh(w);
+
 	for(int i = 0; i < optamt; i++) {
-		mvwprintw(w, y + 2 * i, (maxx - strlen(options[i])) / 2, options[i]);
+		mvwprintw(w, y + 2 * i, (X - strlen(options[i])) / 2, options[i]);
 	}
 
 	int selected = 0;
@@ -41,9 +48,9 @@ int makeselector(WINDOW *w, int y, int optamt, char *options[]) {
 	for(;;) {
 		for(int i = 0; i < optamt; i++) {
 			if(selected == i) {
-				mvwchgat(w, y + 2 * i, centerx(w, options[i]), strlen(options[i]), A_STANDOUT, COLOR_RED, NULL);
+				mvwchgat(w, y + 2 * i, (X - strlen(options[i])) / 2, strlen(options[i]), A_STANDOUT, COLOR_RED, NULL);
 			} else {
-				mvwchgat(w, y + 2 * i, centerx(w, options[i]), strlen(options[i]), A_NORMAL, COLOR_RED, NULL);
+				mvwchgat(w, y + 2 * i, (X - strlen(options[i])) / 2, strlen(options[i]), A_NORMAL, COLOR_RED, NULL);
 			}
 		}
 
@@ -61,14 +68,18 @@ int makeselector(WINDOW *w, int y, int optamt, char *options[]) {
 }
 
 void optionsmenu(void) {
-	WINDOW *w = newwin(maxy, maxx, 0, 0);
+	WINDOW *w = newwin(16, 32, (maxy - 16) / 2, (maxx - 32) / 2);
+
+	int y, x;
+	getmaxyx(w, y, x);
+
 	keypad(w, TRUE);
 
 	makeborder(w);
 
 	char *options[] = {"Usar layout Colemak", "Usar layout QWERTY", "Cancelar"};
 
-	switch(makeselector(w, maxy * 0.2, 3, options)) {
+	switch(makeselector(w, y * 0.2, 3, options)) {
 		case 0:
 			setletters(LTR_COLEMAK);
 			saveoptions(LTR_COLEMAK);
@@ -83,26 +94,29 @@ void optionsmenu(void) {
 }
 
 int mainmenu(void) {
-	WINDOW *w = newwin(maxy, maxx, 0, 0);
-	keypad(w, TRUE);
+	wmain = newwin(maxy, maxx, 0, 0);
+	WINDOW *woptions = newwin(16, 32, (maxy - 16) / 2, (maxx - 32) / 2);
+	keypad(wmain, TRUE);
 
-	makeborder(w);
+	makeborder(wmain);
+	makeborder(woptions);
 
-	int py = maxy * 0.2;
+	int py = maxy * 0.1;
 	const int px = (maxx - 72) / 2;
 
-	mvwprintw(w, py++, px, "   _____                                  __         _       __         ");
-	mvwprintw(w, py++, px, "  / ___/__  ______  ___  ______________  / /_  _____(_)___  / /_  ____ _");
-	mvwprintw(w, py++, px, "  \\__ \\/ / / / __ \\/ _ \\/ ___/ ___/ __ \\/ __ \\/ ___/ / __ \\/ __ \\/ __ `/");
-	mvwprintw(w, py++, px, " ___/ / /_/ / /_/ /  __/ /  / /__/ /_/ / /_/ / /  / / / / / / / / /_/ / ");
-	mvwprintw(w, py++, px, "/____/\\__,_/ .___/\\___/_/   \\___/\\____/_.___/_/  /_/_/ /_/_/ /_/\\__,_/  ");
-	mvwprintw(w, py, px, "          /_/                                                           ");
+	mvwprintw(wmain, py++, px, "   _____                                  __         _       __         ");
+	mvwprintw(wmain, py++, px, "  / ___/__  ______  ___  ______________  / /_  _____(_)___  / /_  ____ _");
+	mvwprintw(wmain, py++, px, "  \\__ \\/ / / / __ \\/ _ \\/ ___/ ___/ __ \\/ __ \\/ ___/ / __ \\/ __ \\/ __ `/");
+	mvwprintw(wmain, py++, px, " ___/ / /_/ / /_/ /  __/ /  / /__/ /_/ / /_/ / /  / / / / / / / / /_/ / ");
+	mvwprintw(wmain, py++, px, "/____/\\__,_/ .___/\\___/_/   \\___/\\____/_.___/_/  /_/_/ /_/_/ /_/\\__,_/  ");
+	mvwprintw(wmain, py, px, "          /_/                                                           ");
 
-	mvwprintw(w, maxy - 2, 1, "Layout: %s", layout == LTR_COLEMAK ? "Colemak" : "QWERTY");
+	mvwprintw(wmain, maxy - 2, 1, "Layout: %s", layout == LTR_COLEMAK ? "Colemak" : "QWERTY");
+	wrefresh(wmain);
 
 	char *options[] = {"Sem bordas", "Com bordas", "Opções", "Sair"};
 
-	switch(makeselector(w, maxy * 0.4, 4, options)) {
+	switch(makeselector(woptions, 3, 4, options)) {
 		case 0:
 			startgame(MODE_BORDERLESS);
 			return 0;
