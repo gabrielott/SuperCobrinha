@@ -3,6 +3,7 @@
 
 #include "supercobrinha.h"
 #include "game.h"
+#include "datamanagement.h"
 
 int centerx(WINDOW *w, char *c) {
 	int y, x;
@@ -70,9 +71,11 @@ void optionsmenu(void) {
 	switch(makeselector(w, maxy * 0.2, 3, options)) {
 		case 0:
 			setletters(LTR_COLEMAK);
+			saveoptions(LTR_COLEMAK);
 			break;
 		case 1:
 			setletters(LTR_QWERTY);
+			saveoptions(LTR_QWERTY);
 			break;
 		case 2:
 			return;

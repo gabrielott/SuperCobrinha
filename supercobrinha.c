@@ -2,7 +2,9 @@
 #include <locale.h>
 #include <time.h>
 #include <stdlib.h>
+
 #include "menus.h"
+#include "datamanagement.h"
 
 #define LTR_COLEMAK 1
 #define LTR_QWERTY 2
@@ -43,8 +45,14 @@ int main(void) {
 	curs_set(FALSE);
 	updatesize();
 
-	setletters(LTR_COLEMAK);
+	setupsaves();
 	srand(time(NULL));
+
+	if(loadoptions() == LTR_COLEMAK) {
+		setletters(LTR_COLEMAK);
+	} else {
+		setletters(LTR_QWERTY);
+	}
 
 	int exit = 0;
 	while(!exit) {

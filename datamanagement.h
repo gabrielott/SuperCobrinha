@@ -8,6 +8,10 @@ typedef struct Score {
 
 void setupsaves(void);
 
+void saveoptions(int o);
+
+int loadoptions(void);
+
 void savescore(Score *s);
 
 Score **loadscores(void);

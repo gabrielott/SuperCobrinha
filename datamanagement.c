@@ -33,6 +33,29 @@ void setupsaves(void) {
 	}
 }
 
+void saveoptions(int o) {
+	FILE *f = fopen("options.dat", "w");
+	if(f == NULL) {
+		exit(1);
+	}
+
+	fwrite(&o, sizeof(int), 1, f);
+	fclose(f);
+}
+
+int loadoptions(void) {
+	FILE *f = fopen("options.dat", "r");
+	if(f == NULL) {
+		exit(1);
+	}
+
+	int o;
+	fread(&o, sizeof(int), 1, f);
+
+	fclose(f);
+	return o;
+}
+
 void savescore(Score *s) {
 	FILE *f = fopen("scoreboard.dat", "a");
 	if(f == NULL) {
@@ -54,8 +77,8 @@ Score **loadscores(void) {
 
 	Score **scores = malloc(scoreamnt * sizeof(Score *));
 	for(int i = 0; i < scoreamnt; i++) {
-		Score *s = malloc(sizeof(score));
-		fread(score, sizeof(Score), 1, f);
+		Score *s = malloc(sizeof(Score));
+		fread(s, sizeof(Score), 1, f);
 		scores[i] = s;
 	}
 
