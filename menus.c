@@ -80,7 +80,6 @@ void optionsmenu(void) {
 }
 
 int mainmenu(void) {
-	mvwprintw(wmain, maxy - 2, 1, "Layout: %s", layout == LTR_COLEMAK ? "Colemak" : "QWERTY");
 	char *options[] = {"Sem bordas", "Com bordas", "Opções", "Sair"};
 
 	wclear(inner);
