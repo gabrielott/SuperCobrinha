@@ -33,14 +33,14 @@ void makeborder(WINDOW *w) {
 	}
 }
 
-int makeselector(WINDOW *w, int y, int optamt, char *options[]) {
-	int Y, X;
-	getmaxyx(w, Y, X);
+int makeselector(WINDOW *w, int optamt, char *options[]) {
+	int y, x;
+	getmaxyx(w, y, x);
 
 	wrefresh(w);
 
 	for(int i = 0; i < optamt; i++) {
-		mvwprintw(w, y + 2 * i, (X - strlen(options[i])) / 2, options[i]);
+		mvwprintw(w, (y - optamt * 2) / 2 + i * 2, (x - strlen(options[i])) / 2, options[i]);
 	}
 
 	int selected = 0;
@@ -48,9 +48,9 @@ int makeselector(WINDOW *w, int y, int optamt, char *options[]) {
 	for(;;) {
 		for(int i = 0; i < optamt; i++) {
 			if(selected == i) {
-				mvwchgat(w, y + 2 * i, (X - strlen(options[i])) / 2, strlen(options[i]), A_STANDOUT, COLOR_RED, NULL);
+				mvwchgat(w, (y - optamt * 2) / 2 + i * 2, (x - strlen(options[i])) / 2, strlen(options[i]), A_STANDOUT, COLOR_RED, NULL);
 			} else {
-				mvwchgat(w, y + 2 * i, (X - strlen(options[i])) / 2, strlen(options[i]), A_NORMAL, COLOR_RED, NULL);
+				mvwchgat(w, (y - optamt * 2) / 2 + i * 2, (x - strlen(options[i])) / 2, strlen(options[i]), A_NORMAL, COLOR_RED, NULL);
 			}
 		}
 
@@ -79,7 +79,7 @@ void optionsmenu(void) {
 
 	char *options[] = {"Usar layout Colemak", "Usar layout QWERTY", "Cancelar"};
 
-	switch(makeselector(w, y * 0.2, 3, options)) {
+	switch(makeselector(w, 3, options)) {
 		case 0:
 			setletters(LTR_COLEMAK);
 			saveoptions(LTR_COLEMAK);
@@ -116,7 +116,7 @@ int mainmenu(void) {
 
 	char *options[] = {"Sem bordas", "Com bordas", "Opções", "Sair"};
 
-	switch(makeselector(woptions, 3, 4, options)) {
+	switch(makeselector(woptions, 4, options)) {
 		case 0:
 			startgame(MODE_BORDERLESS);
 			return 0;
