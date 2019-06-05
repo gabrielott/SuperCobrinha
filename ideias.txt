@@ -1,8 +1,62 @@
 Time attack
-Velocidade variando com a pontuação
-Tabela maiores pontuações
+
+Modo de jogo onde um tempo determinado
+eh escolhido e o objetivo e alcancar
+a maior pontuacao dentro deste tempo 
+
+
+Velocidade variando com a pontuacao e tempo
+
+Velocidade da Cobrinha aumenta de acordo com
+a pontuacao (time attack) e o tempo decorrido
+
+
+Tabela maiores pontuacoes
+
+Scoreboard com o historico das maiores
+pontuacoes atingidas dentro do jogo
+(separadas por modo de jogo e mapas)
+
+
 Mapas
+
+Fases diferenciadas por obstaculos
+
+
 Níveis de dificuldade (velocidade)
+
+- Opcao de selecionar velocidade fixa
+- Velocidade aumenta com o tempo
+
+
 Menu com pontuação e tempo decorrido
-Obstáculos
-Comidas diferentes
+
+Janela in-game com a pontuacao atual,
+tempo decorrido e o tamanho da Cobrinha
+
+
+Obstaculos
+
+Criacao de obstaculos (paredes de colisao) nas fases
+
+
+Comidas
+
+Diferentes comidas com pontuacoes especificas
+
+
+Quests
+
+Missoes para liberar fases,
+cores diferentes e sons no jogo
+
+Currency
+
+Sistema de pontos/moedas para liberar
+modos de jogo/fases/cores/sons/itens
+(concorrente com Quests)
+
+Power-ups
+
+Itens especiais in-game que
+modificam a Cobrinha
