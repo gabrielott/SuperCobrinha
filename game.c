@@ -16,13 +16,8 @@
 #define EAST 3
 #define WEST 4
 
-WINDOW *game;
-WINDOW *scoreboard;
-
 Snakepart *snake[100];
 
-int maxgamey;
-int maxgamex;
 int direction;
 int food;
 int foody, foodx;
@@ -30,29 +25,23 @@ int grow;
 int maxindex;
 
 void initialsetup(void) {
-	game = newwin(16, 32, (maxy - 16) / 2, (maxx - 32) / 2);
-	makeborder(game);
-	keypad(game, TRUE);
-
-	scoreboard = newwin(5, 5, 15, 0);
-	makeborder(scoreboard);
-
-	maxgamey = 16;
-	maxgamex = 32;
 	direction = -1;
 	food = 0;
 	grow = 0;
 	maxindex = INITIAL_SIZE - 1;
 
+	wclear(inner);
+	makeborder(inner);
+
 	for(int i = 0; i < INITIAL_SIZE; i++) {
-		snake[i] = newpart(i, maxgamey / 2 + i, maxgamex / 2);
-		mvwprintw(game, snake[i]->y, snake[i]->x, "0");
+		snake[i] = newpart(i, maxiny / 2 + i, maxinx / 2);
+		mvwprintw(inner, snake[i]->y, snake[i]->x, "0");
 	}
 	
-	wrefresh(game);
+	wrefresh(inner);
 
 	while(direction == -1) {
-		const int g = wgetch(game);
+		const int g = wgetch(inner);
 
 		if(g == KEY_UP || g == ' ' || g == '\n' || g == ltrup) {
 			direction = NORTH;
@@ -63,14 +52,14 @@ void initialsetup(void) {
 		}
 	}
 
-	nodelay(game, TRUE);
+	nodelay(inner, TRUE);
 }
 
 void startgame(int mode) {
 	initialsetup();
 
 	for(;;) {
-		const int g = wgetch(game);
+		const int g = wgetch(inner);
 		if(g != ERR) {
 			if((g == KEY_UP || g  == ltrup) && direction != SOUTH) {
 				direction = NORTH;
@@ -81,9 +70,9 @@ void startgame(int mode) {
 			} else if((g == KEY_RIGHT || g == ltrrght) && direction != WEST) {
 				direction = EAST;
 			} else if(g == '\n') {
-				nodelay(game, FALSE);
-				while(wgetch(game) != '\n');
-				nodelay(game, TRUE);
+				nodelay(inner, FALSE);
+				while(wgetch(inner) != '\n');
+				nodelay(inner, TRUE);
 			}
 		}
 
@@ -92,18 +81,18 @@ void startgame(int mode) {
 			while(!valid) {
 				valid = 1;
 
-				foody = rand() % (maxgamey - 1);
-				foodx = rand() % (maxgamex - 1);
+				foody = rand() % (maxiny - 1);
+				foodx = rand() % (maxinx - 1);
 
-				if(foody == maxgamey || foody == 0) valid = 0;
-				if(foodx == maxgamex || foodx == 0) valid = 0;
+				if(foody == maxiny || foody == 0) valid = 0;
+				if(foodx == maxinx || foodx == 0) valid = 0;
 
 				for(int i = 0; i < maxindex + 1; i++) {
 					if(foodx == snake[i]->x && foody == snake[i]->y) valid = 0;
 				}
 			}
 
-			mvwprintw(game, foody, foodx, "x");
+			mvwprintw(inner, foody, foodx, "x");
 			food = 1;
 		}
 
@@ -116,7 +105,7 @@ void startgame(int mode) {
 			tail = snake[maxindex];
 			grow = 0;
 		} else {
-			mvwprintw(game, tail->y, tail->x, " ");
+			mvwprintw(inner, tail->y, tail->x, " ");
 		}
 
 		switch(direction) {
@@ -158,27 +147,27 @@ void startgame(int mode) {
 		}
 
 		if(mode == MODE_BORDER) {
-			if(head->x == maxgamex - 1 || head->x == 0 || head->y == maxgamey - 1 || head->y == 0) {
+			if(head->x == maxinx - 1 || head->x == 0 || head->y == maxiny - 1 || head->y == 0) {
 				killsnake(snake, maxindex + 1);
 				return;
 			}
 		} else if(mode == MODE_BORDERLESS) {
-			if(head->x == maxgamex - 1) {
+			if(head->x == maxinx - 1) {
 				head->x = 1;
 			} else if(head->x == 0) {
-				head->x = maxgamex - 2;
+				head->x = maxinx - 2;
 			}
 
-			if(head->y == maxgamey - 1) {
+			if(head->y == maxiny - 1) {
 				head->y = 1;
 			} else if(head->y == 0) {
-				head->y = maxgamey - 2;
+				head->y = maxiny - 2;
 			}
 		}
 		
-		mvwprintw(game, head->y, head->x, "O");
+		mvwprintw(inner, head->y, head->x, "O");
 
-		wrefresh(game);
+		wrefresh(inner);
 		usleep(200 * 1000);
 	}
 }

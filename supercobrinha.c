@@ -9,13 +9,17 @@
 #define LTR_COLEMAK 1
 #define LTR_QWERTY 2
 
-int maxx, maxy;
+int maxy, maxx;
+int maxiny, maxinx;
 int middlex, middley;
 int ltrup, ltrdwn, ltrrght, ltrlft;
 int layout;
 
+WINDOW *wmain, *inner;
+
 void updatesize(void) {
-	getmaxyx(stdscr, maxy, maxx);
+	getmaxyx(wmain, maxy, maxx);
+	getmaxyx(inner, maxiny, maxinx);
 	middlex = maxx / 2;
 	middley = maxy / 2;
 }
@@ -43,10 +47,26 @@ int main(void) {
 	cbreak();
 	noecho();
 	curs_set(FALSE);
-	updatesize();
 
+	wmain = newwin(LINES, COLS, 0, 0);
+	inner = newwin(16, 32, (LINES - 16) / 2, (COLS - 32) / 2);
+
+	keypad(inner, TRUE);
+	updatesize();
 	setupsaves();
 	srand(time(NULL));
+
+	int py = maxy * 0.1;
+	const int px = (maxx - 72) / 2;
+
+	makeborder(wmain);
+	mvwprintw(wmain, py++, px, "   _____                                  __         _       __         ");
+	mvwprintw(wmain, py++, px, "  / ___/__  ______  ___  ______________  / /_  _____(_)___  / /_  ____ _");
+	mvwprintw(wmain, py++, px, "  \\__ \\/ / / / __ \\/ _ \\/ ___/ ___/ __ \\/ __ \\/ ___/ / __ \\/ __ \\/ __ `/");
+	mvwprintw(wmain, py++, px, " ___/ / /_/ / /_/ /  __/ /  / /__/ /_/ / /_/ / /  / / / / / / / / /_/ / ");
+	mvwprintw(wmain, py++, px, "/____/\\__,_/ .___/\\___/_/   \\___/\\____/_.___/_/  /_/_/ /_/_/ /_/\\__,_/  ");
+	mvwprintw(wmain, py, px, "          /_/                                                           ");
+	wrefresh(wmain);
 
 	if(loadoptions() == LTR_COLEMAK) {
 		setletters(LTR_COLEMAK);
