@@ -60,3 +60,5 @@ Power-ups
 
 Itens especiais in-game que
 modificam a Cobrinha
+
+HIGH SCORE JP 75
