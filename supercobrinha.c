@@ -58,8 +58,9 @@ int main(void) {
 	if(maxy < 30 || maxx < 90) {
 		mvwprintw(wmain, middley - 2, (maxx - 25) / 2, "Favor ampliar o terminal,");
 		mvwprintw(wmain, middley - 1, (maxx - 25) / 2, "pressione algo para sair.");
-		while(wgetch(wmain));
+		while(!wgetch(wmain));
 		endwin();
+		return 0;
 	}
 
 	keypad(inner, TRUE);
