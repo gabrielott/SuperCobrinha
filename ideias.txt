@@ -62,3 +62,4 @@ Itens especiais in-game que
 modificam a Cobrinha
 
 HIGH SCORE JPC 75
+HIGH SCORE JPC 10 - TIME ATK BORD 30
