@@ -21,9 +21,10 @@
 Snakepart *snake[100];
 
 time_t start;
+int cont = 0;
 int timerx, timery;
 int direction;
-int food;
+int food, score = 0;
 int foody, foodx;
 int grow;
 int maxindex;
@@ -65,12 +66,11 @@ void initialsetup(void) {
 void startgame(int mode, int times) {
 	initialsetup();
 	start = time(NULL);
-
+	timerx = ((COLS - 32) / 2) - 12;
+	timery = 8;
 	for(;;) {
 
 		if(mode == MODE_TIMEATK){
-			timerx = ((COLS - 32) / 2) - 12;
-			timery = 8;
 			mvwprintw(wmain, timery, timerx, "Tempo: %li", start + times - time(NULL));
 			if((start+times - time(NULL)) <10)
 				mvwprintw(wmain,timery,timerx+8," ");
@@ -79,13 +79,21 @@ void startgame(int mode, int times) {
 			wrefresh(wmain);
 			if(start+times == time(NULL)){
 				killsnake(snake, maxindex + 1);
-				mvwprintw(wmain,15,(COLS - 10) / 2,"voce faleceu");
+				mvwprintw(wmain,15,(COLS - 10) / 2,"Tempo Acabou");
 				while(!wgetch(wmain));
 				mvwprintw(wmain,timery,timerx,"          ");
+				score = 0;
+				cont = 0;
+				mvwprintw(wmain,timery+2,timerx,"          ");
 				wrefresh(wmain);
 				return;
 			}
 		}
+		mvwprintw(wmain, timery+2, timerx,"Score: %d", score);
+		wrefresh(wmain);
+		if(cont == 0)	
+			score = -1;
+		cont = 1;
 
 		const int g = wgetch(inner);
 		if(g != ERR) {
@@ -119,7 +127,7 @@ void startgame(int mode, int times) {
 					if(foodx == snake[i]->x && foody == snake[i]->y) valid = 0;
 				}
 			}
-
+			score++;
 			mvwprintw(inner, foody, foodx, "x");
 			food = 1;
 		}
@@ -197,10 +205,13 @@ void startgame(int mode, int times) {
 				mvwprintw(wmain,15,(COLS - 10) / 2,"voce faleceu");
 				//mvwprintw(wmain,17,(COLS - 20) / 2,"score: ");
 				while(!wgetch(wmain));
+				score = 0;
+				cont = 0;
+				mvwprintw(wmain,timery+2,timerx,"          ");
 				if(mode == MODE_TIMEATK){
 					mvwprintw(wmain,timery,timerx,"          ");
-					wrefresh(wmain);
 				}
+				wrefresh(wmain);
 				return;
 			}
 		}
@@ -210,6 +221,10 @@ void startgame(int mode, int times) {
 				killsnake(snake, maxindex + 1);
 				mvwprintw(wmain,15,(COLS - 10) / 2,"voce faleceu");
 				while(!wgetch(wmain));
+				mvwprintw(wmain,timery+2,timerx,"          ");
+				score = 0;
+				cont = 0;
+				wrefresh(wmain);
 				return;
 			}
 		} else if(mode == MODE_BORDERLESS || mode == MODE_TIMEATK) {
