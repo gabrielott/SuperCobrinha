@@ -23,6 +23,7 @@
 Snakepart *snake[100];
 
 time_t start;
+int score = 0;
 int timerx, timery;
 int direction;
 int grow;
