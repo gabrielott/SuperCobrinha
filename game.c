@@ -21,7 +21,6 @@
 Snakepart *snake[100];
 
 time_t start;
-int cont = 0;
 int timerx, timery;
 int direction;
 int food, score = 0;
@@ -83,7 +82,6 @@ void startgame(int mode, int times) {
 				while(!wgetch(wmain));
 				mvwprintw(wmain,timery,timerx,"          ");
 				score = 0;
-				cont = 0;
 				mvwprintw(wmain,timery+2,timerx,"          ");
 				wrefresh(wmain);
 				return;
@@ -91,10 +89,7 @@ void startgame(int mode, int times) {
 		}
 		mvwprintw(wmain, timery+2, timerx,"Score: %d", score);
 		wrefresh(wmain);
-		if(cont == 0)	
-			score = -1;
-		cont = 1;
-
+		
 		const int g = wgetch(inner);
 		if(g != ERR) {
 			if((g == KEY_UP || g  == ltrup) && direction != SOUTH) {
@@ -127,7 +122,6 @@ void startgame(int mode, int times) {
 					if(foodx == snake[i]->x && foody == snake[i]->y) valid = 0;
 				}
 			}
-			score++;
 			mvwprintw(inner, foody, foodx, "x");
 			food = 1;
 		}
@@ -191,6 +185,7 @@ void startgame(int mode, int times) {
 
 		if(head->x == foodx && head->y == foody) {
 			food = 0;
+			score++;
 			grow = 1;
 		}
 
@@ -206,7 +201,6 @@ void startgame(int mode, int times) {
 				//mvwprintw(wmain,17,(COLS - 20) / 2,"score: ");
 				while(!wgetch(wmain));
 				score = 0;
-				cont = 0;
 				mvwprintw(wmain,timery+2,timerx,"          ");
 				if(mode == MODE_TIMEATK){
 					mvwprintw(wmain,timery,timerx,"          ");
@@ -223,7 +217,6 @@ void startgame(int mode, int times) {
 				while(!wgetch(wmain));
 				mvwprintw(wmain,timery+2,timerx,"          ");
 				score = 0;
-				cont = 0;
 				wrefresh(wmain);
 				return;
 			}
