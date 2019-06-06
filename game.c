@@ -11,6 +11,7 @@
 
 #define MODE_BORDER 1
 #define MODE_BORDERLESS 2
+#define MODE_TIMEATK 3
 
 #define NORTH 1
 #define SOUTH 2
@@ -20,6 +21,7 @@
 Snakepart *snake[100];
 
 time_t start;
+int timerpos;
 int direction;
 int food;
 int foody, foodx;
@@ -33,7 +35,6 @@ void initialsetup(void) {
 	food = 0;
 	grow = 0;
 	quest = 0;
-	start = time(NULL);
 	maxindex = INITIAL_SIZE - 1;
 
 	wclear(inner);
@@ -61,18 +62,29 @@ void initialsetup(void) {
 	nodelay(inner, TRUE);
 }
 
-void startgame(int mode) {
+void startgame(int mode, int times) {
 	initialsetup();
+	start = time(NULL);
 
 	for(;;) {
 
-		//if(mode == MODE_TIMEATK){
-			mvwprintw(inner, 7, ((COLS - 32) / 2) - 6, "%li", start + 4 - time(NULL));
-			if(start+4 == time(NULL)){
+		if(mode == MODE_TIMEATK){
+			timerpos = ((COLS - 32) / 2) - 5;
+			mvwprintw(wmain, 7, timerpos, "%li", start + times - time(NULL));
+			if((start+times - time(NULL)) <10)
+				mvwprintw(wmain,7,timerpos+1," ");
+			if((start+times - time(NULL)) <100)
+				mvwprintw(wmain,7,timerpos+2," ");
+			wrefresh(wmain);
+			if(start+times == time(NULL)){
 				killsnake(snake, maxindex + 1);
+				mvwprintw(wmain,15,(COLS - 10) / 2,"voce faleceu");
+				while(!wgetch(wmain));
+				mvwprintw(wmain,7,timerpos,"   ");
+				wrefresh(wmain);
 				return;
 			}
-		//}
+		}
 
 		const int g = wgetch(inner);
 		if(g != ERR) {
@@ -184,6 +196,10 @@ void startgame(int mode) {
 				mvwprintw(wmain,15,(COLS - 10) / 2,"voce faleceu");
 				//mvwprintw(wmain,17,(COLS - 20) / 2,"score: ");
 				while(!wgetch(wmain));
+				if(mode == MODE_TIMEATK){
+					mvwprintw(wmain,7,timerpos,"   ");
+					wrefresh(wmain);
+				}
 				return;
 			}
 		}
@@ -195,7 +211,7 @@ void startgame(int mode) {
 				while(!wgetch(wmain));
 				return;
 			}
-		} else if(mode == MODE_BORDERLESS) {
+		} else if(mode == MODE_BORDERLESS || mode == MODE_TIMEATK) {
 			if(head->x == maxinx - 1) {
 				head->x = 1;
 			} else if(head->x == 0) {
