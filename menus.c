@@ -58,6 +58,29 @@ int makeselector(WINDOW *w, int optamt, char *options[]) {
 		}
 	}
 }
+int optionsTIMES(void) {
+	wclear(inner);
+	makeborder(inner);
+	int times;
+	char *optionsTIME[] = {"30", "60", "180", "300"};
+
+	switch(makeselector(inner, 4, optionsTIME)) {
+		case 0:
+			times = 30;
+			break;
+		case 1:
+			times = 60;
+			break;
+		case 2:
+			times = 101;
+			break;
+		case 3:
+			times = 300;
+			break;
+	}
+	return times;
+}
+
 
 void optionsmenu(void) {
 	wclear(inner);
@@ -80,21 +103,25 @@ void optionsmenu(void) {
 }
 
 int mainmenu(void) {
-	char *options[] = {"Sem bordas", "Com bordas", "Opções", "Sair"};
-
+	int times;
+	char *options[] = {"Sem bordas", "Com bordas","Time Attack", "Opções", "Sair"};
 	wclear(inner);
 	makeborder(inner);
-	switch(makeselector(inner, 4, options)) {
+	switch(makeselector(inner, 5, options)) {
 		case 0:
-			startgame(MODE_BORDERLESS);
+			startgame(MODE_BORDERLESS, 0);
 			return 0;
 		case 1:
-			startgame(MODE_BORDER);
+			startgame(MODE_BORDER, 0);
 			return 0;
 		case 2:
-			optionsmenu();
+			times = optionsTIMES();
+			startgame(MODE_TIMEATK, times);
 			return 0;
 		case 3:
+			optionsmenu();
+			return 0;
+		case 4:
 			return 1;
 		default:
 			return 0;
