@@ -3,9 +3,10 @@
 
 #define MODE_BORDER 1
 #define MODE_BORDERLESS 2
+#define MODE_TIMEATK 3
 
 void initialsetup(void);
 
-void startgame(int mode);
+void startgame(int mode, int times);
 
 #endif
