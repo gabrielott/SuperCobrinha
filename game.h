@@ -7,6 +7,6 @@
 
 void initialsetup(void);
 
-void startgame(int mode, int times);
+void startgame(int mode, int times, int bord);
 
 #endif
