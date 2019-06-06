@@ -72,7 +72,7 @@ int optionsTIMES(void) {
 			times = 60;
 			break;
 		case 2:
-			times = 101;
+			times = 180;
 			break;
 		case 3:
 			times = 300;

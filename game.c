@@ -21,7 +21,7 @@
 Snakepart *snake[100];
 
 time_t start;
-int timerpos;
+int timerx, timery;
 int direction;
 int food;
 int foody, foodx;
@@ -69,18 +69,19 @@ void startgame(int mode, int times) {
 	for(;;) {
 
 		if(mode == MODE_TIMEATK){
-			timerpos = ((COLS - 32) / 2) - 5;
-			mvwprintw(wmain, 7, timerpos, "%li", start + times - time(NULL));
+			timerx = ((COLS - 32) / 2) - 12;
+			timery = 8;
+			mvwprintw(wmain, timery, timerx, "Tempo: %li", start + times - time(NULL));
 			if((start+times - time(NULL)) <10)
-				mvwprintw(wmain,7,timerpos+1," ");
+				mvwprintw(wmain,timery,timerx+8," ");
 			if((start+times - time(NULL)) <100)
-				mvwprintw(wmain,7,timerpos+2," ");
+				mvwprintw(wmain,timery,timerx+9," ");
 			wrefresh(wmain);
 			if(start+times == time(NULL)){
 				killsnake(snake, maxindex + 1);
 				mvwprintw(wmain,15,(COLS - 10) / 2,"voce faleceu");
 				while(!wgetch(wmain));
-				mvwprintw(wmain,7,timerpos,"   ");
+				mvwprintw(wmain,timery,timerx,"          ");
 				wrefresh(wmain);
 				return;
 			}
@@ -197,7 +198,7 @@ void startgame(int mode, int times) {
 				//mvwprintw(wmain,17,(COLS - 20) / 2,"score: ");
 				while(!wgetch(wmain));
 				if(mode == MODE_TIMEATK){
-					mvwprintw(wmain,7,timerpos,"   ");
+					mvwprintw(wmain,timery,timerx,"          ");
 					wrefresh(wmain);
 				}
 				return;
