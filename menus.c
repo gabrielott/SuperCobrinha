@@ -62,9 +62,9 @@ int optionsTIMES(void) {
 	wclear(inner);
 	makeborder(inner);
 	int times;
-	char *optionsTIME[] = {"30", "60", "180", "300"};
+	char *optionsTIME[] = {"30", "60", "180", "300", "Voltar"};
 
-	switch(makeselector(inner, 4, optionsTIME)) {
+	switch(makeselector(inner, 5, optionsTIME)) {
 		case 0:
 			times = 30;
 			break;
@@ -76,6 +76,9 @@ int optionsTIMES(void) {
 			break;
 		case 3:
 			times = 300;
+			break;
+		case 4:
+			times = 0;
 			break;
 	}
 	return times;
@@ -116,6 +119,8 @@ int mainmenu(void) {
 			return 0;
 		case 2:
 			times = optionsTIMES();
+			if(times == 0)
+				return 0;
 			startgame(MODE_TIMEATK, times);
 			return 0;
 		case 3:
