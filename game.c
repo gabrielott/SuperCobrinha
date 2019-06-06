@@ -6,8 +6,10 @@
 #include "supercobrinha.h"
 #include "menus.h"
 #include "snake.h"
+#include "food.h"
 
 #define INITIAL_SIZE 4
+#define FOOD_NUM 1
 
 #define MODE_BORDER 1
 #define MODE_BORDERLESS 2
@@ -21,18 +23,14 @@ Snakepart *snake[100];
 
 time_t start;
 int direction;
-int food;
-int foody, foodx;
 int grow;
 int maxindex;
-int quest;
-int questy, questx;
+
+Food *foods[FOOD_NUM];
 
 void initialsetup(void) {
 	direction = -1;
-	food = 0;
 	grow = 0;
-	quest = 0;
 	start = time(NULL);
 	maxindex = INITIAL_SIZE - 1;
 
@@ -43,6 +41,8 @@ void initialsetup(void) {
 		snake[i] = newpart(i, maxiny / 2 + i, maxinx / 2);
 		mvwprintw(inner, snake[i]->y, snake[i]->x, "0");
 	}
+
+	foods[0] = newfood('X', TRUE, 0);
 	
 	wrefresh(inner);
 
@@ -65,15 +65,6 @@ void startgame(int mode) {
 	initialsetup();
 
 	for(;;) {
-
-		//if(mode == MODE_TIMEATK){
-			mvwprintw(inner, 7, ((COLS - 32) / 2) - 6, "%li", start + 4 - time(NULL));
-			if(start+4 == time(NULL)){
-				killsnake(snake, maxindex + 1);
-				return;
-			}
-		//}
-
 		const int g = wgetch(inner);
 		if(g != ERR) {
 			if((g == KEY_UP || g  == ltrup) && direction != SOUTH) {
@@ -91,44 +82,8 @@ void startgame(int mode) {
 			}
 		}
 
-		if(!food) {
-			int valid = 0;
-			while(!valid) {
-				valid = 1;
-
-				foody = rand() % (maxiny - 1);
-				foodx = rand() % (maxinx - 1);
-
-				if(foody == maxiny || foody == 0) valid = 0;
-				if(foodx == maxinx || foodx == 0) valid = 0;
-
-				for(int i = 0; i < maxindex + 1; i++) {
-					if(foodx == snake[i]->x && foody == snake[i]->y) valid = 0;
-				}
-			}
-
-			mvwprintw(inner, foody, foodx, "x");
-			food = 1;
-		}
-
-		if(!quest && (rand() % 100) == 0) {
-			int valid = 0;
-			while(!valid) {
-				valid = 1;
-
-				questy = rand() % (maxiny - 1);
-				questx = rand() % (maxinx - 1);
-
-				if(questy == maxiny || questy == 0) valid = 0;
-				if(questx == maxinx || questx == 0) valid = 0;
-
-				for(int i = 0; i < maxindex + 1; i++) {
-					if(questx == snake[i]->x && questy == snake[i]->y) valid = 0;
-				}
-			}
-
-			mvwprintw(inner, questy, questx, "!");
-			quest = 1;
+		for(int i = 0; i < FOOD_NUM; i++) {
+			generatefood(inner, foods[i]);
 		}
 
 		Snakepart *head = getpartwithindex(snake, maxindex + 1, 0);
@@ -168,13 +123,8 @@ void startgame(int mode) {
 		tail->index = 0;
 		head = tail;
 
-		if(head->x == foodx && head->y == foody) {
-			food = 0;
-			grow = 1;
-		}
-
-		if(head->x == questx && head->y == questy) {
-			quest = 0;
+		for(int i = 0; i < FOOD_NUM; i++) {
+			if(checkfoodcolision(foods[i], head)) grow = 1;
 		}
 
 		for(int i = 0; i < maxindex + 1; i++) {
