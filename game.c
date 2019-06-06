@@ -62,7 +62,7 @@ void initialsetup(void) {
 	nodelay(inner, TRUE);
 }
 
-void startgame(int mode, int times) {
+void startgame(int mode, int times, int bord) {
 	initialsetup();
 	start = time(NULL);
 	timerx = ((COLS - 32) / 2) - 12;
@@ -198,7 +198,6 @@ void startgame(int mode, int times) {
 			if(snake[i]->x == head->x && snake[i]->y == head->y) {
 				killsnake(snake, maxindex + 1);
 				mvwprintw(wmain,15,(COLS - 10) / 2,"voce faleceu");
-				//mvwprintw(wmain,17,(COLS - 20) / 2,"score: ");
 				while(!wgetch(wmain));
 				score = 0;
 				mvwprintw(wmain,timery+2,timerx,"          ");
@@ -210,17 +209,20 @@ void startgame(int mode, int times) {
 			}
 		}
 
-		if(mode == MODE_BORDER) {
+		if(mode == MODE_BORDER || bord == 1) {
 			if(head->x == maxinx - 1 || head->x == 0 || head->y == maxiny - 1 || head->y == 0) {
 				killsnake(snake, maxindex + 1);
 				mvwprintw(wmain,15,(COLS - 10) / 2,"voce faleceu");
 				while(!wgetch(wmain));
 				mvwprintw(wmain,timery+2,timerx,"          ");
 				score = 0;
+				if(mode == MODE_TIMEATK){
+					mvwprintw(wmain,timery,timerx,"          ");
+				}
 				wrefresh(wmain);
 				return;
 			}
-		} else if(mode == MODE_BORDERLESS || mode == MODE_TIMEATK) {
+		} else if(mode == MODE_BORDERLESS || bord == 0) {
 			if(head->x == maxinx - 1) {
 				head->x = 1;
 			} else if(head->x == 0) {

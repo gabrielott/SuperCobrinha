@@ -83,6 +83,30 @@ int optionsTIMES(void) {
 	}
 	return times;
 }
+void options2(void) {
+	int times;
+	wclear(inner);
+	makeborder(inner);
+
+	char *options[] = {"Borda", "Sem Borda", "Voltar"};
+
+	switch(makeselector(inner, 3, options)) {
+		case 0:
+			times = optionsTIMES();
+			if(times == 0)
+				options2();
+			startgame(MODE_TIMEATK, times, 1);
+			break;
+		case 1:
+			times = optionsTIMES();
+			if(times == 0)
+				options2();
+			startgame(MODE_TIMEATK, times, 0);
+			break;
+		case 2:
+			return;
+	}
+}
 
 
 void optionsmenu(void) {
@@ -112,16 +136,13 @@ int mainmenu(void) {
 	makeborder(inner);
 	switch(makeselector(inner, 5, options)) {
 		case 0:
-			startgame(MODE_BORDERLESS, 0);
+			startgame(MODE_BORDERLESS, 0, 0);
 			return 0;
 		case 1:
-			startgame(MODE_BORDER, 0);
+			startgame(MODE_BORDER, 0, 0);
 			return 0;
 		case 2:
-			times = optionsTIMES();
-			if(times == 0)
-				return 0;
-			startgame(MODE_TIMEATK, times);
+			options2();
 			return 0;
 		case 3:
 			optionsmenu();
