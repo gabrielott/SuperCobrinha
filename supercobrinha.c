@@ -51,14 +51,22 @@ int main(void) {
 	curs_set(FALSE);
 
 	wmain = newwin(LINES, COLS, 0, 0);
-	inner = newwin(16, 32, (LINES - 16) / 2, (COLS - 32) / 2);
+
+	if(LINES < 23){ //checa se o terminal eh ou esta menor que o tamanho mínimo para rodar o jogo
+		mvwprintw(wmain, 1, 1, "Favor ampliar o terminal,\n pressione enter para sair");
+		while(wgetch(wmain) != '\n');
+		endwin();
+		return 0;
+	}
+	
+	inner = newwin(16, 32, 7, (COLS - 32) / 2);
 
 	keypad(inner, TRUE);
 	updatesize();
 	setupsaves();
 	srand(time(NULL));
 
-	int py = maxy * 0.1;
+	int py = 1;
 	const int px = (maxx - 72) / 2;
 
 	makeborder(wmain);

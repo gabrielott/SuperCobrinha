@@ -1,6 +1,7 @@
 #include <ncurses.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include "supercobrinha.h"
 #include "menus.h"
@@ -18,16 +19,21 @@
 
 Snakepart *snake[100];
 
+time_t start;
 int direction;
 int food;
 int foody, foodx;
 int grow;
 int maxindex;
+int quest;
+int questy, questx;
 
 void initialsetup(void) {
 	direction = -1;
 	food = 0;
 	grow = 0;
+	quest = 0;
+	start = time(NULL);
 	maxindex = INITIAL_SIZE - 1;
 
 	wclear(inner);
@@ -59,6 +65,15 @@ void startgame(int mode) {
 	initialsetup();
 
 	for(;;) {
+
+		//if(mode == MODE_TIMEATK){
+			mvwprintw(inner, 7, ((COLS - 32) / 2) - 6, "%li", start + 4 - time(NULL));
+			if(start+4 == time(NULL)){
+				killsnake(snake, maxindex + 1);
+				return;
+			}
+		//}
+
 		const int g = wgetch(inner);
 		if(g != ERR) {
 			if((g == KEY_UP || g  == ltrup) && direction != SOUTH) {
@@ -94,6 +109,26 @@ void startgame(int mode) {
 
 			mvwprintw(inner, foody, foodx, "x");
 			food = 1;
+		}
+
+		if(!quest && (rand() % 100) == 0) {
+			int valid = 0;
+			while(!valid) {
+				valid = 1;
+
+				questy = rand() % (maxiny - 1);
+				questx = rand() % (maxinx - 1);
+
+				if(questy == maxiny || questy == 0) valid = 0;
+				if(questx == maxinx || questx == 0) valid = 0;
+
+				for(int i = 0; i < maxindex + 1; i++) {
+					if(questx == snake[i]->x && questy == snake[i]->y) valid = 0;
+				}
+			}
+
+			mvwprintw(inner, questy, questx, "!");
+			quest = 1;
 		}
 
 		Snakepart *head = getpartwithindex(snake, maxindex + 1, 0);
@@ -138,10 +173,17 @@ void startgame(int mode) {
 			grow = 1;
 		}
 
+		if(head->x == questx && head->y == questy) {
+			quest = 0;
+		}
+
 		for(int i = 0; i < maxindex + 1; i++) {
 			if(snake[i] == head) continue;
 			if(snake[i]->x == head->x && snake[i]->y == head->y) {
 				killsnake(snake, maxindex + 1);
+				mvwprintw(wmain,15,(COLS - 10) / 2,"voce faleceu");
+				//mvwprintw(wmain,17,(COLS - 20) / 2,"score: ");
+				while(!wgetch(wmain));
 				return;
 			}
 		}
@@ -149,6 +191,8 @@ void startgame(int mode) {
 		if(mode == MODE_BORDER) {
 			if(head->x == maxinx - 1 || head->x == 0 || head->y == maxiny - 1 || head->y == 0) {
 				killsnake(snake, maxindex + 1);
+				mvwprintw(wmain,15,(COLS - 10) / 2,"voce faleceu");
+				while(!wgetch(wmain));
 				return;
 			}
 		} else if(mode == MODE_BORDERLESS) {
