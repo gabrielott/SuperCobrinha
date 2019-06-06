@@ -5,27 +5,27 @@
 #include "game.h"
 #include "datamanagement.h"
 
-void makeborder(WINDOW *w) {
+void makeborder(WINDOW *w) { //desenha as bordas nas janelas
 	int x, y;
 	getmaxyx(w, y, x);
 
-	mvwprintw(w, 0, 0, "+");
+	mvwprintw(w, 0, 0, "+"); //os cantos
 	mvwprintw(w, 0, x - 1, "+");
 	mvwprintw(w, y - 1, 0, "+");
 	mvwprintw(w, y - 1, x - 1, "+");
 
-	for(int i = 1; i < x - 1; i++) {
+	for(int i = 1; i < x - 1; i++) { //borda superior e inferior
 		mvwprintw(w, 0, i, "=");
 		mvwprintw(w, y - 1, i, "=");
 	}
 
-	for(int i = 1; i < y - 1; i++) {
+	for(int i = 1; i < y - 1; i++) { //borda esquerda e direita
 		mvwprintw(w, i, 0, "|");
 		mvwprintw(w, i, x - 1, "|");
 	}
 }
 
-int makeselector(WINDOW *w, int optamt, char *options[]) {
+int makeselector(WINDOW *w, int optamt, char *options[]) { //funcao que permite selecionar opcoes dadas em um menu
 	int y, x;
 	getmaxyx(w, y, x);
 
@@ -58,7 +58,8 @@ int makeselector(WINDOW *w, int optamt, char *options[]) {
 		}
 	}
 }
-int optionsTIMES(void) {
+
+int optionsTIMES(void) { //opcoes de tempo para o modo time attack
 	wclear(inner);
 	makeborder(inner);
 	int times;
@@ -83,7 +84,7 @@ int optionsTIMES(void) {
 	}
 	return times;
 }
-void options2(void) {
+void options2(void) { //opcoes de borda para modo time attack
 	int times;
 	wclear(inner);
 	makeborder(inner);
@@ -109,9 +110,9 @@ void options2(void) {
 }
 
 
-void optionsmenu(void) {
-	wclear(inner);
-	makeborder(inner);
+void optionsmenu(void) { //opcoes de teclado
+	wclear(inner); //limpa janela
+	makeborder(inner); //cria borda da janela inner
 
 	char *options[] = {"Usar layout Colemak", "Usar layout QWERTY", "Cancelar"};
 
@@ -129,11 +130,11 @@ void optionsmenu(void) {
 	}
 }
 
-int mainmenu(void) {
+int mainmenu(void) { //menu principal
 	int times;
 	char *options[] = {"Sem bordas", "Com bordas","Time Attack", "Opções", "Sair"};
-	wclear(inner);
-	makeborder(inner);
+	wclear(inner); //limpa janela
+	makeborder(inner); //cria borda da janela inner
 	switch(makeselector(inner, 5, options)) {
 		case 0:
 			startgame(MODE_BORDERLESS, 0, 0);

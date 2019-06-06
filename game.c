@@ -8,8 +8,8 @@
 #include "snake.h"
 #include "food.h"
 
-#define INITIAL_SIZE 4
-#define FOOD_NUM 1
+#define INITIAL_SIZE 4 //tamanho inicial da cobra
+#define FOOD_NUM 1 //quantidade de comidas geradas por vez
 
 #define MODE_BORDER 1
 #define MODE_BORDERLESS 2
@@ -20,18 +20,18 @@
 #define EAST 3
 #define WEST 4
 
-Snakepart *snake[100];
+Snakepart *snake[100]; //a SuperCobrinha
 
-time_t start;
-int score = 0;
-int timerx, timery;
-int direction;
-int grow;
-int maxindex;
+time_t start; //long int que guarda o tempo atual do computador no momento em que a partida se inicia
+int score = 0; //placar
+int timerx, timery; //coordenadas de posicionamento do timer
+int direction; //direcao atual da cobrinha
+int grow; //variavel que diz se a cobrinha deve(1) ou nao(0) aumentar na proxima iteracao
+int maxindex; //indice da cauda da cobrinha
 
 Food *foods[FOOD_NUM];
 
-void initialsetup(void) {
+void initialsetup(void) { //setup inicial do jogo
 	direction = -1;
 	grow = 0;
 	maxindex = INITIAL_SIZE - 1;
@@ -49,7 +49,7 @@ void initialsetup(void) {
 	wrefresh(inner);
 
 	while(direction == -1) {
-		const int g = wgetch(inner);
+		const int g = wgetch(inner); //aguarda input inicial para comecar jogo
 
 		if(g == KEY_UP || g == ' ' || g == '\n' || g == ltrup) {
 			direction = NORTH;
@@ -66,7 +66,7 @@ void initialsetup(void) {
 void startgame(int mode, int times, int bord) {
 	initialsetup();
 	start = time(NULL);
-	timerx = ((COLS - 32) / 2) - 12;
+	timerx = ((COLS - 32) / 2) - 12; //pega coordenadas to timer e do score
 	timery = 8;
 	for(;;) {
 		if(mode == MODE_TIMEATK){
@@ -198,9 +198,9 @@ void startgame(int mode, int times, int bord) {
 			}
 		}
 		
-		mvwprintw(inner, head->y, head->x, "O");
+		mvwprintw(inner, head->y, head->x, "O"); //imprime a cabeca da cobra na tela
 
 		wrefresh(inner);
-		usleep(200 * 1000);
+		usleep(200 * 1000); //tempo que a cobrinha leva para se mover, em microsegundos
 	}
 }
