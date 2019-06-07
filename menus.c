@@ -96,7 +96,7 @@ void options2(void) {
 			if(times == 0)
 				options2();
             if(times != 0)
-                startgame(MODE_TIMEATK, times, 0);
+                startgame(MODE_TIMEATK, times, 1);
 			return;
 		case 1:
 			times = optionsTIMES();
@@ -132,7 +132,6 @@ void optionsmenu(void) {
 }
 
 int mainmenu(void) {
-	int times;
 	char *options[] = {"Sem bordas", "Com bordas","Time Attack", "Opções", "Sair"};
 	wclear(inner);
 	makeborder(inner);
