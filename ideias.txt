@@ -6,6 +6,7 @@
 
 -Bugs conhecidos-
 1. No jogo, ao segurar a seta/wasd/wars, o conjunto [Nodelay + wgetch] na funcao de alterar a direcao da cobra trava a entrada de novas direcoes por alguns segundos.
+2. No menu principal, opções aparece escrito estranho no linux e o highlight nele pega tbm dois espaços pra direita
 
 Time attack
 
