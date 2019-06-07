@@ -1,3 +1,12 @@
+-Itens pendentes, estritamente necessarios para o jogo estar "completo"-
+1. creditos (nossos nomes)
+2. guardar Highscore
+3. Cabeca da cobrinha
+4. Exibir tempo do modo time attack em formato hh:mm:ss 
+
+-Bugs conhecidos-
+1. No jogo, ao segurar a seta/wasd/wars, o conjunto [Nodelay + wgetch] na funcao de alterar a direcao da cobra trava a entrada de novas direcoes por alguns segundos.
+
 Time attack
 
 Modo de jogo onde um tempo determinado
