@@ -135,7 +135,6 @@ void optionsmenu(void) { //opcoes de teclado
 }
 
 int mainmenu(void) { //menu principal
-	int times;
 	char *options[] = {"Sem bordas", "Com bordas","Time Attack", "Opções", "Sair"};
 	wclear(inner); //limpa janela
 	makeborder(inner); //cria borda da janela inner
