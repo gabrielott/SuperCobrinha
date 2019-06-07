@@ -95,16 +95,18 @@ void options2(void) {
 			times = optionsTIMES();
 			if(times == 0)
 				options2();
-			startgame(MODE_TIMEATK, times, 1);
-			break;
+            if(times != 0)
+                startgame(MODE_TIMEATK, times, 0);
+			return;
 		case 1:
 			times = optionsTIMES();
 			if(times == 0)
 				options2();
-			startgame(MODE_TIMEATK, times, 0);
-			break;
-		case 2:
+            if(times != 0)
+                startgame(MODE_TIMEATK, times, 0);
 			return;
+		case 2:
+            return;
 	}
 }
 
