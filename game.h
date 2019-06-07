@@ -12,6 +12,6 @@ Snakepart *snake[100];
 
 void initialsetup(void);
 
-void startgame(int mode, int times, int bord);
+void startgame(int mode, int times, int brd);
 
 #endif

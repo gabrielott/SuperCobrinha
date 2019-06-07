@@ -41,7 +41,7 @@ void initialsetup(void) { //setup inicial do jogo
 
 	for(int i = 0; i < INITIAL_SIZE; i++) { //cria a cobrinha com tamanho inicial INITIAL_SIZE, INITIAL_SIZE precisa ser menor que 14
 		snake[i] = newpart(i, maxiny / 2 + i, maxinx / 2);
-		mvwprintw(inner, snake[i]->y, snake[i]->x, "0");
+		mvwaddch(inner, snake[i]->y, snake[i]->x, ACS_BLOCK);
 	}
 
 	foods[0] = newfood('X', TRUE, 0);
@@ -63,11 +63,11 @@ void initialsetup(void) { //setup inicial do jogo
 	nodelay(inner, TRUE);
 }
 
-void startgame(int mode, int times, int bord) {
+void startgame(int mode, int times, int brd) {
 	initialsetup(); //chama o setup inicial
 	start = time(NULL); //guarda o tempo atual do computador no instante que o jogo se inicia
 
-	timerx = ((COLS - 32) / 2) - 12; //pega coordenadas to timer, usadas tambem para o score
+	timerx = ((maxx - 32) / 2) - 12; //pega coordenadas to timer, usadas tambem para o score
 	timery = 8;
 
 	for(;;) {
@@ -80,7 +80,7 @@ void startgame(int mode, int times, int bord) {
 			wrefresh(wmain);
 			if(start+times == time(NULL)){ //morte por tempo limite
 				killsnake(snake, maxindex + 1);
-				mvwprintw(wmain,15,(COLS - 10) / 2,"Seu tempo acabou");
+				mvwprintw(wmain,15,(maxx - 10) / 2,"Seu tempo acabou");
 				while(!wgetch(wmain));
 				mvwprintw(wmain,timery,timerx,"          ");
 				score = 0;
@@ -162,7 +162,7 @@ void startgame(int mode, int times, int bord) {
 			if(snake[i] == head) continue;
 			if(snake[i]->x == head->x && snake[i]->y == head->y) { //morte por colisao consigo mesmo
 				killsnake(snake, maxindex + 1);
-				mvwprintw(wmain,15,(COLS - 10) / 2,"voce faleceu");
+				mvwprintw(wmain,15,(maxx - 10) / 2,"voce faleceu");
 				while(!wgetch(wmain));
 				score = 0;
 				mvwprintw(wmain,timery+2,timerx,"          ");
@@ -174,10 +174,10 @@ void startgame(int mode, int times, int bord) {
 			}
 		}
 
-		if(mode == MODE_BORDER || bord == 1) {
+		if(mode == MODE_BORDER || brd == 1) {
 			if(head->x == maxinx - 1 || head->x == 0 || head->y == maxiny - 1 || head->y == 0) { //morte por colisao na parede
 				killsnake(snake, maxindex + 1);
-				mvwprintw(wmain,15,(COLS - 10) / 2,"voce faleceu");
+				mvwprintw(wmain,15,(maxx - 10) / 2,"voce faleceu");
 				while(!wgetch(wmain));
 				mvwprintw(wmain,timery+2,timerx,"          ");
 				score = 0;
@@ -187,7 +187,7 @@ void startgame(int mode, int times, int bord) {
 				wrefresh(wmain);
 				return;
 			}
-		} else if(mode == MODE_BORDERLESS || bord == 0) { //teleporte do modo sem bordas
+		} else if(mode == MODE_BORDERLESS || brd == 0) { //teleporte do modo sem bordas
 			if(head->x == maxinx - 1) {
 				head->x = 1;
 			} else if(head->x == 0) {
@@ -201,7 +201,7 @@ void startgame(int mode, int times, int bord) {
 			}
 		}
 		
-		mvwprintw(inner, head->y, head->x, "0"); //imprime a cabeca da cobra na tela
+		mvwaddch(inner, head->y, head->x, ACS_BLOCK); //imprime a cabeca da cobra na tela
 
 		wrefresh(inner);
 		usleep(200 * 1000); //tempo que a cobrinha leva para se mover, em microsegundos

@@ -9,19 +9,19 @@ void makeborder(WINDOW *w) { //desenha as bordas nas janelas
 	int x, y;
 	getmaxyx(w, y, x);
 
-	mvwprintw(w, 0, 0, "+"); //os cantos
-	mvwprintw(w, 0, x - 1, "+");
-	mvwprintw(w, y - 1, 0, "+");
-	mvwprintw(w, y - 1, x - 1, "+");
+	mvwaddch(w, 0, 0, ACS_ULCORNER);
+	mvwaddch(w, 0, x - 1, ACS_URCORNER);
+	mvwaddch(w, y - 1, 0, ACS_LLCORNER);
+	mvwaddch(w, y - 1, x - 1, ACS_LRCORNER);
 
-	for(int i = 1; i < x - 1; i++) { //borda superior e inferior
-		mvwprintw(w, 0, i, "=");
-		mvwprintw(w, y - 1, i, "=");
+	for(int i = 1; i < x - 1; i++) {
+		mvwaddch(w, 0, i, ACS_HLINE);
+		mvwaddch(w, y - 1, i, ACS_HLINE);
 	}
 
 	for(int i = 1; i < y - 1; i++) { //borda esquerda e direita
-		mvwprintw(w, i, 0, "|");
-		mvwprintw(w, i, x - 1, "|");
+		mvwaddch(w, i, 0, ACS_VLINE);
+		mvwaddch(w, i, x - 1, ACS_VLINE);
 	}
 }
 
