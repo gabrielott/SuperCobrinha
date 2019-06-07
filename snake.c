@@ -6,7 +6,7 @@ typedef struct Snakepart {
 	int color;
 } Snakepart;
 
-Snakepart *getpartwithindex(Snakepart *s[], int t, int index) { //dado um indice, retorna a parte da cobrinha
+Snakepart *getpartwithindex(Snakepart *s[], int t, int index) {
 	for(int i = 0; i < t; i++) {
 		if(s[i]->index == index) {
 			return s[i];
@@ -15,7 +15,7 @@ Snakepart *getpartwithindex(Snakepart *s[], int t, int index) { //dado um indice
 	return NULL;
 }
 
-Snakepart *newpart(int index, int y, int x) { //cria um novo elemento da cobrinha
+Snakepart *newpart(int index, int y, int x) {
 	Snakepart p;
 	p.y = y;
 	p.x = x;
@@ -27,7 +27,7 @@ Snakepart *newpart(int index, int y, int x) { //cria um novo elemento da cobrinh
 	return ptr;
 }
 
-void killsnake(Snakepart *s[], int t) { //limpa a memoria utilizada para a cobrinha
+void killsnake(Snakepart *s[], int t) {
 	for(int i = 0; i < t; i++) {
 		free(s[i]);
 	}

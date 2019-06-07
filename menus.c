@@ -5,7 +5,7 @@
 #include "game.h"
 #include "datamanagement.h"
 
-void makeborder(WINDOW *w) { //desenha as bordas nas janelas
+void makeborder(WINDOW *w) {
 	int x, y;
 	getmaxyx(w, y, x);
 
@@ -19,26 +19,26 @@ void makeborder(WINDOW *w) { //desenha as bordas nas janelas
 		mvwaddch(w, y - 1, i, ACS_HLINE);
 	}
 
-	for(int i = 1; i < y - 1; i++) { //borda esquerda e direita
+	for(int i = 1; i < y - 1; i++) {
 		mvwaddch(w, i, 0, ACS_VLINE);
 		mvwaddch(w, i, x - 1, ACS_VLINE);
 	}
 }
 
-int makeselector(WINDOW *w, int optamt, char *options[]) { //funcao que permite selecionar opcoes dadas em um menu
+int makeselector(WINDOW *w, int optamt, char *options[]) {
 	int y, x;
 	getmaxyx(w, y, x);
 
 	wrefresh(w);
 
-	for(int i = 0; i < optamt; i++) { //imprime as opcoes do menu
+	for(int i = 0; i < optamt; i++) {
 		mvwprintw(w, (y - optamt * 2) / 2 + i * 2, (x - strlen(options[i])) / 2, options[i]);
 	}
 
-	int selected = 0; //inicializa o menu com a primeira opcao selecionada
+	int selected = 0;
 
-	for(;;) { //mantem usuario no menu ate que alguma opcao seja selecionada
-		for(int i = 0; i < optamt; i++) {  //destaca opcao selecionada, ainda sem usar cores
+	for(;;) {
+		for(int i = 0; i < optamt; i++) { 
 			if(selected == i) {
 				mvwchgat(w, (y - optamt * 2) / 2 + i * 2, (x - strlen(options[i])) / 2, strlen(options[i]), A_STANDOUT, COLOR_RED, NULL);
 			} else {
@@ -49,47 +49,49 @@ int makeselector(WINDOW *w, int optamt, char *options[]) { //funcao que permite 
 		wrefresh(w);
 
 		int g = wgetch(w);
-		if((g == KEY_UP || g == ltrup) && selected > 0) { //desloca seletor para cima
+		if((g == KEY_UP || g == ltrup) && selected > 0) {
 			selected--;
-		} else if((g == KEY_UP || g == ltrup) && selected == 0) { //desloca seletor para cima dando a volta no menu
+		} else if((g == KEY_UP || g == ltrup) && selected == 0) {
 			selected = optamt - 1;
-		} else if((g == KEY_DOWN || g == ltrdwn) && selected < optamt - 1) { //desloca seletor para baixo
+		} else if((g == KEY_DOWN || g == ltrdwn) && selected < optamt - 1) {
 			selected++;
-		} else if((g == KEY_DOWN || g == ltrdwn) && selected == optamt - 1) { //desloca seletor para baixo
+		} else if((g == KEY_DOWN || g == ltrdwn) && selected == optamt - 1) {
 			selected = 0;
-		} else if(g == ' ' || g == '\n') { //realiza a funcao selecionada quando enter for pressionado
+		} else if(g == ' ' || g == '\n') {
 			return selected;
 		}
 	}
 }
 
-int optionsTIMES(void) { //opcoes de tempo para o modo time attack
+int timeatkmenu(int border) {
 	wclear(inner);
 	makeborder(inner);
-	int times;
-	char *optionsTIME[] = {"30", "60", "180", "300", "Voltar"};
 
-	switch(makeselector(inner, 5, optionsTIME)) {
+	char *options[] = {"30", "60", "180", "300", "Voltar"};
+
+	int time;
+	switch(makeselector(inner, 5, options)) {
 		case 0:
-			times = 30;
+			time = 30;
 			break;
 		case 1:
-			times = 60;
+			time = 60;
 			break;
 		case 2:
-			times = 180;
+			time = 180;
 			break;
 		case 3:
-			times = 300;
+			time = 300;
 			break;
 		case 4:
-			times = 0;
-			break;
+			time = 0;
+			return 1;
 	}
-	return times;
+	startgame(MODE_TIMEATK, border, time);
+	return 0;
 }
-void options2(void) { //opcoes de borda para modo time attack
-	int times;
+
+int bordermenu(void) {
 	wclear(inner);
 	makeborder(inner);
 
@@ -97,28 +99,20 @@ void options2(void) { //opcoes de borda para modo time attack
 
 	switch(makeselector(inner, 3, options)) {
 		case 0:
-			times = optionsTIMES();
-			if(times == 0)
-				options2();
-            if(times != 0)
-                startgame(MODE_TIMEATK, times, 1);
-			return;
+			return BORDER;
 		case 1:
-			times = optionsTIMES();
-			if(times == 0)
-				options2();
-            if(times != 0)
-                startgame(MODE_TIMEATK, times, 0);
-			return;
+			return BORDERLESS;
 		case 2:
-            return;
+			return 0;
+		default:
+			return 0;
 	}
 }
 
 
-void optionsmenu(void) { //opcoes de teclado
-	wclear(inner); //limpa janela
-	makeborder(inner); //cria borda da janela inner
+void optionsmenu(void) {
+	wclear(inner);
+	makeborder(inner);
 
 	char *options[] = {"Usar layout Colemak", "Usar layout QWERTY", "Cancelar"};
 
@@ -136,25 +130,31 @@ void optionsmenu(void) { //opcoes de teclado
 	}
 }
 
-int mainmenu(void) { //menu principal
-	char *options[] = {"Sem bordas", "Com bordas","Time Attack", "Opções", "Sair"};
-	wclear(inner); //limpa janela
-	makeborder(inner); //cria borda da janela inner
-	switch(makeselector(inner, 5, options)) {
+int mainmenu(void) {
+	wclear(inner);
+	makeborder(inner);
+
+	char *options[] = {"Clássico", "Time Attack", "Opções", "Sair"};
+
+	int ans = makeselector(inner, 4, options);
+	if(ans == 3) return 1;
+
+	int border = bordermenu();
+	if(border == 0) return 0;
+
+	switch(ans) {
 		case 0:
-			startgame(MODE_BORDERLESS, 0, 0);
+			startgame(MODE_CLASSIC, border, 0);
 			return 0;
 		case 1:
-			startgame(MODE_BORDER, 0, 0);
+			while(timeatkmenu(border)) {
+				border = bordermenu();
+				if(border == 0) break;
+			}
 			return 0;
 		case 2:
-			options2();
-			return 0;
-		case 3:
 			optionsmenu();
 			return 0;
-		case 4:
-			return 1;
 		default:
 			return 0;
 	}
