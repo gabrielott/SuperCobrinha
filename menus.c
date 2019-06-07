@@ -31,14 +31,14 @@ int makeselector(WINDOW *w, int optamt, char *options[]) { //funcao que permite 
 
 	wrefresh(w);
 
-	for(int i = 0; i < optamt; i++) {
+	for(int i = 0; i < optamt; i++) { //imprime as opcoes do menu
 		mvwprintw(w, (y - optamt * 2) / 2 + i * 2, (x - strlen(options[i])) / 2, options[i]);
 	}
 
-	int selected = 0;
+	int selected = 0; //inicializa o menu com a primeira opcao selecionada
 
-	for(;;) {
-		for(int i = 0; i < optamt; i++) {
+	for(;;) { //mantem usuario no menu ate que alguma opcao seja selecionada
+		for(int i = 0; i < optamt; i++) {  //destaca opcao selecionada, ainda sem usar cores
 			if(selected == i) {
 				mvwchgat(w, (y - optamt * 2) / 2 + i * 2, (x - strlen(options[i])) / 2, strlen(options[i]), A_STANDOUT, COLOR_RED, NULL);
 			} else {
@@ -49,11 +49,15 @@ int makeselector(WINDOW *w, int optamt, char *options[]) { //funcao que permite 
 		wrefresh(w);
 
 		int g = wgetch(w);
-		if((g == KEY_UP || g == ltrup) && selected > 0) {
+		if((g == KEY_UP || g == ltrup) && selected > 0) { //desloca seletor para cima
 			selected--;
-		} else if((g == KEY_DOWN || g == ltrdwn) && selected < optamt - 1) {
+		} else if((g == KEY_UP || g == ltrup) && selected == 0) { //desloca seletor para cima dando a volta no menu
+			selected = optamt - 1;
+		} else if((g == KEY_DOWN || g == ltrdwn) && selected < optamt - 1) { //desloca seletor para baixo
 			selected++;
-		} else if(g == ' ' || g == '\n') {
+		} else if((g == KEY_DOWN || g == ltrdwn) && selected == optamt - 1) { //desloca seletor para baixo
+			selected = 0;
+		} else if(g == ' ' || g == '\n') { //realiza a funcao selecionada quando enter for pressionado
 			return selected;
 		}
 	}
