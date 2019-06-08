@@ -90,15 +90,16 @@ void deathclear(int type) {
 
 	// Armazena highscore (work in progress)
 	if(score > 0){
-		char player[30];
+		char player[20];
 		mvwprintw(inner, maxiny/2 - 1, (maxinx - strlen("Novo Highscore!")) / 2, "Novo Highscore!");
 		mvwprintw(inner, maxiny/2 + 1, (maxinx - strlen("Digite um nome:")) / 2, "Digite um nome:");
 		wrefresh(inner);
 		echo();
+		curs_set(TRUE);
 		mvwscanw(inner, maxiny/2 + 2, (maxinx - strlen("Novo Highscore!")) / 2, "%s", player);
+		curs_set(FALSE);
 		noecho();
 	}
-	wgetch(inner);
 
 	// Limpa a cobrinha, o score e a wmain
 	killsnake(snake, maxindex + 1);
