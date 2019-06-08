@@ -1,6 +1,7 @@
 #include <ncurses.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 #include "supercobrinha.h"
@@ -46,6 +47,7 @@ void initialsetup(void) {
 	
 	// Inicializao de todas as comidas
 	foods[0] = newfood('o', TRUE, 0);
+	//foods[1] = newfood('!', TRUE, 7);
 
 	// Desenho do estado inicial do campo de jogo
 	wclear(inner);
@@ -74,9 +76,34 @@ void initialsetup(void) {
 	nodelay(inner, TRUE);
 }
 
-void deathclear() {
-	mvwprintw(wmain,timery,timerx,"            ");
+void deathclear(int type) {
+	//exibe a tela de morte adequada
+	char *mortes[] = {"Voce faleceu", "Seu tempo acabou"};
+	mvwprintw(inner, maxiny/2, (maxinx - strlen(mortes[type])) / 2, mortes[type]);
+	wrefresh(inner);
+
+	//aguarda que qualquer tecla seja pressionada para sair
+	nodelay(inner, FALSE);
+	wgetch(inner);
+	wclear(inner);
+	makeborder(inner);
+
+	// Armazena highscore (work in progress)
+	if(score > 0){
+		char player[30];
+		mvwprintw(inner, maxiny/2 - 1, (maxinx - strlen("Novo Highscore!")) / 2, "Novo Highscore!");
+		mvwprintw(inner, maxiny/2 + 1, (maxinx - strlen("Digite um nome:")) / 2, "Digite um nome:");
+		wrefresh(inner);
+		echo();
+		mvwscanw(inner, maxiny/2 + 2, (maxinx - strlen("Novo Highscore!")) / 2, "%s", player);
+		noecho();
+	}
+	wgetch(inner);
+
+	// Limpa a cobrinha, o score e a wmain
+	killsnake(snake, maxindex + 1);
 	score = 0;
+	mvwprintw(wmain,timery,timerx,"            ");
 	mvwprintw(wmain,timery+2,timerx,"          ");
 	wrefresh(wmain);
 }
@@ -84,7 +111,7 @@ void deathclear() {
 void startgame(int mode, int border, int times) {
 	initialsetup();
 
-	//tempo precisa ser inicializado aqui
+	// Tempo a partir do qual a partida comeca
 	start = time(NULL);
 
 	// Loop principal
@@ -180,10 +207,7 @@ void startgame(int mode, int border, int times) {
 		for(int i = 0; i < maxindex + 1; i++) {
 			if(snake[i] == head) continue;
 			if(snake[i]->x == head->x && snake[i]->y == head->y) {
-				killsnake(snake, maxindex + 1);
-				mvwprintw(wmain,15,(maxx - 10) / 2,"voce faleceu");
-				wgetch(wmain);
-				deathclear();
+				deathclear(0);
 				return;
 			}
 		}
@@ -191,10 +215,7 @@ void startgame(int mode, int border, int times) {
 		// Verifica colisao com borda
 		if(border == BORDER) {
 			if(head->x == maxinx - 1 || head->x == 0 || head->y == maxiny - 1 || head->y == 0) {
-				killsnake(snake, maxindex + 1);
-				mvwprintw(wmain,15,(maxx - 10) / 2,"voce faleceu");
-				wgetch(wmain);
-				deathclear();
+				deathclear(0);
 				return;
 			}
 
@@ -216,20 +237,17 @@ void startgame(int mode, int border, int times) {
 		// Exibe o tempo de jogo
 		mvwprintw(wmain, timery, timerx, "Tempo:  %li:%li", gametime/60, gametime%60);
 		if(gametime % 60 <10){
-			mvwprintw(wmain,timery,timerx+10,"0%li", gametime%60);
+			mvwprintw(wmain, timery, timerx+10, "0%li", gametime%60);
 		}
 		if(gametime / 60 <10){
-			mvwprintw(wmain,timery,timerx+7,"0");
+			mvwprintw(wmain, timery, timerx+7, "0");
 		}
 		wrefresh(wmain);
 
-		// modo Time attack
+		// Verifica se acabou o tempo do modo Time attack
 		if (mode == MODE_TIMEATK) {
 			if(start + times <= time(NULL)){
-				killsnake(snake, maxindex + 1);
-				mvwprintw(wmain,15,(maxx - 10) / 2,"Seu tempo acabou");
-				wgetch(wmain);
-				deathclear();
+				deathclear(1);
 				return;
 			}
 		}

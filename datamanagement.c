@@ -7,6 +7,7 @@
 typedef struct Score {
 	char *name;
 	int points;
+	long int gametime;
 } Score;
 
 void setupsaves(void) {
