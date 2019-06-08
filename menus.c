@@ -138,26 +138,30 @@ void credits(void) {
 }
 
 void optionsmenu(void) {
-	wclear(inner);
-	makeborder(inner);
+	int exit = 0;
+	while(!exit) {
+		wclear(inner);
+		makeborder(inner);
 
-	char *options[] = {"Usar layout Colemak", "Usar layout QWERTY", "Creditos", "Cancelar"};
+		char *options[] = {"Usar layout Colemak", "Usar layout QWERTY", "Creditos", "Cancelar"};
 
-	switch(makeselector(inner, 4, options)) {
-		case 0:
-			setletters(LTR_COLEMAK);
-			saveoptions(LTR_COLEMAK);
-			break;
-		case 1:
-			setletters(LTR_QWERTY);
-			saveoptions(LTR_QWERTY);
-			break;
-		case 2:
-			credits();
-			optionsmenu();
-			return;
-		case 3:
-			return;
+		exit = 1;
+		switch(makeselector(inner, 4, options)) {
+			case 0:
+				setletters(LTR_COLEMAK);
+				saveoptions(LTR_COLEMAK);
+				break;
+			case 1:
+				setletters(LTR_QWERTY);
+				saveoptions(LTR_QWERTY);
+				break;
+			case 2:
+				credits();
+				exit = 0;
+				break;
+			case 3:
+				break;
+		}
 	}
 }
 
