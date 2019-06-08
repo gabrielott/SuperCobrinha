@@ -38,7 +38,7 @@ void setletters(int l) {
 		ltrlft = 'a';
 		ltrrght = 'd';
 	}
-	mvwprintw(wmain, maxy - 2, 1, "Layout: %s", layout == LTR_COLEMAK ? "Colemak" : "QWERTY");
+	mvwprintw(wmain, maxy - 2, 1, "Layout: %s", layout == LTR_COLEMAK ? "Colemak" : "QWERTY ");
 	wrefresh(wmain);
 }
 
