@@ -1,5 +1,7 @@
 #include <ncurses.h>
 #include <string.h>
+#include <time.h>
+#include <unistd.h>
 
 #include "supercobrinha.h"
 #include "game.h"
@@ -67,7 +69,7 @@ int timeatkmenu(int border) {
 	wclear(inner);
 	makeborder(inner);
 
-	char *options[] = {"30", "60", "180", "300", "Voltar"};
+	char *options[] = {"00:30", "01:00", "03:00", "05:00", "Voltar"};
 
 	int time;
 	switch(makeselector(inner, 5, options)) {
@@ -109,14 +111,39 @@ int bordermenu(void) {
 	}
 }
 
+void credits(void) {
+	wclear(inner);
+	makeborder(inner);
+
+	wrefresh(inner);
+	nodelay(inner, TRUE);
+
+	char *nomes[] = {"Filipe Castelo", "Gabriel Ottoboni", "João Pedro", "Rodrigo Delpreti"};
+	int i, n = -1;
+	for (i=14*4-1;i>=0;i--){
+		if(wgetch(inner) != ERR){
+			return;
+		}
+		if(((i+1)% 14) == 0){
+			n++;
+		}
+		mvwprintw(inner,1+(i%14),(maxinx - strlen(nomes[n])) / 2,nomes[n]);
+		mvwprintw(inner,1+((i+1)%14),(maxinx - strlen("                         ")) / 2,"                         ");
+		wrefresh(inner);
+		nodelay(inner, FALSE);
+		usleep(500000);
+		nodelay(inner, TRUE);
+	}
+	return;
+}
 
 void optionsmenu(void) {
 	wclear(inner);
 	makeborder(inner);
 
-	char *options[] = {"Usar layout Colemak", "Usar layout QWERTY", "Cancelar"};
+	char *options[] = {"Usar layout Colemak", "Usar layout QWERTY", "Creditos", "Cancelar"};
 
-	switch(makeselector(inner, 3, options)) {
+	switch(makeselector(inner, 4, options)) {
 		case 0:
 			setletters(LTR_COLEMAK);
 			saveoptions(LTR_COLEMAK);
@@ -126,6 +153,10 @@ void optionsmenu(void) {
 			saveoptions(LTR_QWERTY);
 			break;
 		case 2:
+			credits();
+			optionsmenu();
+			return;
+		case 3:
 			return;
 	}
 }
@@ -141,7 +172,7 @@ int mainmenu(void) {
 
 	if(ans == 3) return 1;
 	if(ans != 2) {
-		border = bordermenu();
+		border = bordermenu()
 		if(border == 0) return 0;
 	}
 
@@ -161,4 +192,5 @@ int mainmenu(void) {
 		default:
 			return 0;
 	}
+	return 0;
 }
