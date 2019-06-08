@@ -1,5 +1,6 @@
 #include <ncurses.h>
 #include <string.h>
+#include <time.h>
 #include <unistd.h>
 
 #include "supercobrinha.h"
@@ -68,7 +69,7 @@ int timeatkmenu(int border) {
 	wclear(inner);
 	makeborder(inner);
 
-	char *options[] = {"30", "60", "180", "300", "Voltar"};
+	char *options[] = {"00:30", "01:00", "03:00", "05:00", "Voltar"};
 
 	int time;
 	switch(makeselector(inner, 5, options)) {
@@ -115,18 +116,23 @@ void credits(void) {
 	makeborder(inner);
 
 	wrefresh(inner);
+	nodelay(inner, TRUE);
 
 	char *nomes[] = {"Filipe Castelo", "Gabriel Ottoboni", "João Pedro", "Rodrigo Delpreti"};
-
 	int i, n = -1;
 	for (i=14*4-1;i>=0;i--){
+		if(wgetch(inner) != ERR){
+			return;
+		}
 		if(((i+1)% 14) == 0){
 			n++;
 		}
 		mvwprintw(inner,1+(i%14),(maxinx - strlen(nomes[n])) / 2,nomes[n]);
 		mvwprintw(inner,1+((i+1)%14),(maxinx - strlen("                         ")) / 2,"                         ");
 		wrefresh(inner);
-		usleep(600 * 1000);
+		nodelay(inner, FALSE);
+		usleep(500000);
+		nodelay(inner, TRUE);
 	}
 	return;
 }

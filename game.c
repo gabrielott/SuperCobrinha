@@ -41,7 +41,7 @@ void initialsetup(void) {
 	start = time(NULL);
 
 	// Inicializao de todas as comidas
-	foods[0] = newfood('X', TRUE, 0);
+	foods[0] = newfood('o', TRUE, 0);
 
 	// Desenho do estado inicial do campo de jogo
 	wclear(inner);
@@ -73,7 +73,7 @@ void initialsetup(void) {
 void startgame(int mode, int border, int times) {
 	initialsetup();
 
-	timerx = ((maxx - 32) / 2) - 12;
+	timerx = ((maxx - 32) / 2) - 14;
 	timery = 8;
 
 	// Loop principal
@@ -93,11 +93,13 @@ void startgame(int mode, int border, int times) {
 			} else if((g == KEY_RIGHT || g == ltrrght) && direction != WEST) {
 				direction = EAST;
 			} else if(g == '\n') {
+				// softpause quando enter for pressionado
 				nodelay(inner, FALSE);
 				while(wgetch(inner) != '\n');
 				nodelay(inner, TRUE);
 			}
 		}
+		cbreak();
 
 		// Tenta gerar todas as comidas
 		for(int i = 0; i < FOOD_NUM; i++) {
@@ -157,11 +159,11 @@ void startgame(int mode, int border, int times) {
 			if(snake[i]->x == head->x && snake[i]->y == head->y) {
 				killsnake(snake, maxindex + 1);
 				mvwprintw(wmain,15,(maxx - 10) / 2,"voce faleceu");
-				while(!wgetch(wmain));
+				wgetch(wmain);
 				score = 0;
 				mvwprintw(wmain,timery+2,timerx,"          ");
 				if(mode == MODE_TIMEATK){
-					mvwprintw(wmain,timery,timerx,"          ");
+					mvwprintw(wmain,timery,timerx,"            ");
 				}
 				wrefresh(wmain);
 				return;
@@ -173,11 +175,11 @@ void startgame(int mode, int border, int times) {
 			if(head->x == maxinx - 1 || head->x == 0 || head->y == maxiny - 1 || head->y == 0) {
 				killsnake(snake, maxindex + 1);
 				mvwprintw(wmain,15,(maxx - 10) / 2,"voce faleceu");
-				while(!wgetch(wmain));
+				wgetch(wmain);
 				mvwprintw(wmain,timery+2,timerx,"          ");
 				score = 0;
 				if(mode == MODE_TIMEATK){
-					mvwprintw(wmain,timery,timerx,"          ");
+					mvwprintw(wmain,timery,timerx,"            ");
 				}
 				wrefresh(wmain);
 				return;
@@ -200,17 +202,17 @@ void startgame(int mode, int border, int times) {
 
 		// Time attack
 		if (mode == MODE_TIMEATK) {
-			mvwprintw(wmain, timery, timerx, "Tempo: %li", start + times - time(NULL));
-			if((start+times - time(NULL)) <10)
-				mvwprintw(wmain,timery,timerx+8," ");
-			if((start+times - time(NULL)) <100)
-				mvwprintw(wmain,timery,timerx+9," ");
+			mvwprintw(wmain, timery, timerx, "Tempo:  %li:%li", (start + times - time(NULL))/60, (start + times - time(NULL))%60);
+			if((start+times - time(NULL))%60 <10)
+				mvwprintw(wmain,timery,timerx+10,"0%li",(start + times - time(NULL))%60);
+			if((start+times - time(NULL))/60 <10)
+				mvwprintw(wmain,timery,timerx+7,"0");
 			wrefresh(wmain);
 			if(start+times == time(NULL)){
 				killsnake(snake, maxindex + 1);
 				mvwprintw(wmain,15,(maxx - 10) / 2,"Seu tempo acabou");
-				while(!wgetch(wmain));
-				mvwprintw(wmain,timery,timerx,"          ");
+				wgetch(wmain);
+				mvwprintw(wmain,timery,timerx,"            ");
 				score = 0;
 				mvwprintw(wmain,timery+2,timerx,"          ");
 				wrefresh(wmain);
