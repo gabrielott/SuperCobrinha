@@ -1,5 +1,6 @@
 #include <ncurses.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "supercobrinha.h"
 #include "game.h"
@@ -109,14 +110,34 @@ int bordermenu(void) {
 	}
 }
 
+void credits(void) {
+	wclear(inner);
+	makeborder(inner);
+
+	wrefresh(inner);
+
+	char *nomes[] = {"Filipe Castelo", "Gabriel Ottoboni", "João Pedro", "Rodrigo Delpreti"};
+
+	int i, n = -1;
+	for (i=14*4-1;i>=0;i--){
+		if(((i+1)% 14) == 0){
+			n++;
+		}
+		mvwprintw(inner,1+(i%14),(maxinx - strlen(nomes[n])) / 2,nomes[n]);
+		mvwprintw(inner,1+((i+1)%14),(maxinx - strlen("                         ")) / 2,"                         ");
+		wrefresh(inner);
+		usleep(600 * 1000);
+	}
+	return;
+}
 
 void optionsmenu(void) {
 	wclear(inner);
 	makeborder(inner);
 
-	char *options[] = {"Usar layout Colemak", "Usar layout QWERTY", "Cancelar"};
+	char *options[] = {"Usar layout Colemak", "Usar layout QWERTY", "Creditos", "Cancelar"};
 
-	switch(makeselector(inner, 3, options)) {
+	switch(makeselector(inner, 4, options)) {
 		case 0:
 			setletters(LTR_COLEMAK);
 			saveoptions(LTR_COLEMAK);
@@ -126,6 +147,10 @@ void optionsmenu(void) {
 			saveoptions(LTR_QWERTY);
 			break;
 		case 2:
+			credits();
+			optionsmenu();
+			return;
+		case 3:
 			return;
 	}
 }
@@ -139,18 +164,18 @@ int mainmenu(void) {
 	int ans = makeselector(inner, 4, options);
 	if(ans == 3) return 1;
 
-	int border = bordermenu();
-	if(border == 0) return 0;
+	int border = 1;
 
 	switch(ans) {
 		case 0:
+			border = bordermenu();
+			if(border == 0) break;
 			startgame(MODE_CLASSIC, border, 0);
 			return 0;
 		case 1:
-			while(timeatkmenu(border)) {
-				border = bordermenu();
-				if(border == 0) break;
-			}
+			border = bordermenu();
+			if(border == 0) break;
+			timeatkmenu(border);
 			return 0;
 		case 2:
 			optionsmenu();
@@ -158,4 +183,5 @@ int mainmenu(void) {
 		default:
 			return 0;
 	}
+	return 0;
 }
