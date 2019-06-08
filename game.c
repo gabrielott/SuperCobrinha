@@ -234,7 +234,6 @@ void startgame(int mode, int border, int times) {
 			}
 		}
 
-		
 		mvwaddch(inner, head->y, head->x, ACS_BLOCK);
 
 		wrefresh(inner);

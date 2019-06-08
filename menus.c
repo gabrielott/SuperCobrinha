@@ -172,7 +172,7 @@ int mainmenu(void) {
 
 	if(ans == 3) return 1;
 	if(ans != 2) {
-		border = bordermenu()
+		border = bordermenu();
 		if(border == 0) return 0;
 	}
 
