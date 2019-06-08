@@ -89,7 +89,7 @@ int timeatkmenu(int border) {
 			time = 0;
 			return 1;
 	}
-	startgame(MODE_TIMEATK, border, time);
+	while(!startgame(MODE_TIMEATK, border, time));
 	return 0;
 }
 
@@ -137,13 +137,76 @@ void credits(void) {
 	return;
 }
 
+void savescoremenu(void) {
+	wclear(inner);
+	makeborder(inner);
+
+	char *mensagem = "Digite suas iniciais";
+	mvwprintw(inner, 3, (maxinx - strlen(mensagem)) / 2, mensagem);
+	mvwprintw(inner, maxiny / 2, (maxinx - 5) / 2, "_ _ _");
+
+	nodelay(inner, FALSE);
+	curs_set(TRUE);
+	wmove(inner, maxiny / 2, (maxinx - 5) / 2);
+	wrefresh(inner);
+
+	int charn = 0;
+	int done = 0;
+	int g = wgetch(inner);
+	char letters[3];
+
+	while(g != '\n' || !done) {
+		if(g == KEY_BACKSPACE && charn >= 0) {
+			mvwaddch(inner, maxiny / 2, (maxinx - 5) / 2 + charn * 2, '_');
+			if(charn > 0) charn--;
+			wmove(inner, maxiny / 2, (maxinx - 5) / 2 + charn * 2);
+			done = 0;
+
+		// Verifica se o caracter eh um numero ou letra
+		} else if(charn <= 2 && ((g >= 48 && g <= 57) || (g >= 65 && g <= 90) || (g >= 97 && g <= 122))) {
+			if(g >= 97 && g <= 122) g -= 32;
+			mvwaddch(inner, maxiny / 2, (maxinx - 5) / 2 + charn * 2, g);
+
+			if(charn == 2) done = 1;
+
+			if(charn < 2) charn++;
+			wmove(inner, maxiny / 2, (maxinx - 5) / 2 + charn * 2);
+			letters[charn] = g;
+		}
+		wrefresh(inner);
+		g = wgetch(inner);
+	}
+
+}
+
+int gameovermenu(void) {
+	wclear(inner);
+	makeborder(inner);
+
+	char *mensagem = "Voce perdeu";
+	mvwprintw(inner, 3, (maxinx - strlen(mensagem)) / 2, mensagem);
+
+	char *options[] = {"Salvar score", "Tentar novamente", "Voltar ao menu principal"};
+
+	switch(makeselector(inner, 3, options)) {
+		case 0:
+			savescoremenu();
+		case 1:
+			return 0;
+		case 2:
+			return 1;
+		default:
+			return 1;
+	}
+}
+
 void optionsmenu(void) {
 	int exit = 0;
 	while(!exit) {
 		wclear(inner);
 		makeborder(inner);
 
-		char *options[] = {"Usar layout Colemak", "Usar layout QWERTY", "Creditos", "Cancelar"};
+		char *options[] = {"Usar layout Colemak", "Usar layout QWERTY", "Créditos", "Voltar"};
 
 		exit = 1;
 		switch(makeselector(inner, 4, options)) {
@@ -182,7 +245,7 @@ int mainmenu(void) {
 
 	switch(ans) {
 		case 0:
-			startgame(MODE_CLASSIC, border, 0);
+			while(!startgame(MODE_CLASSIC, border, 0));
 			return 0;
 		case 1:
 			while(timeatkmenu(border)) {

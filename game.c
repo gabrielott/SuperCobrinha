@@ -26,7 +26,7 @@ Snakepart *snake[100];
 
 time_t start;
 time_t gametime;
-int score = 0;
+int score;
 int timerx, timery;
 int direction;
 int grow;
@@ -38,6 +38,7 @@ void initialsetup(void) {
 	// Inicializacao de variaveis
 	direction = -1;
 	grow = 0;
+	score = 0;
 	maxindex = INITIAL_SIZE - 1;
 
 	// coordenadas do timer e do placar
@@ -76,12 +77,11 @@ void initialsetup(void) {
 
 void deathclear() {
 	mvwprintw(wmain,timery,timerx,"            ");
-	score = 0;
 	mvwprintw(wmain,timery+2,timerx,"          ");
 	wrefresh(wmain);
 }
 
-void startgame(int mode, int border, int times) {
+int startgame(int mode, int border, int times) {
 	initialsetup();
 
 	//tempo precisa ser inicializado aqui
@@ -181,10 +181,8 @@ void startgame(int mode, int border, int times) {
 			if(snake[i] == head) continue;
 			if(snake[i]->x == head->x && snake[i]->y == head->y) {
 				killsnake(snake, maxindex + 1);
-				mvwprintw(wmain,15,(maxx - 10) / 2,"voce faleceu");
-				wgetch(wmain);
 				deathclear();
-				return;
+				return gameovermenu();
 			}
 		}
 
@@ -192,10 +190,8 @@ void startgame(int mode, int border, int times) {
 		if(border == BORDER) {
 			if(head->x == maxinx - 1 || head->x == 0 || head->y == maxiny - 1 || head->y == 0) {
 				killsnake(snake, maxindex + 1);
-				mvwprintw(wmain,15,(maxx - 10) / 2,"voce faleceu");
-				wgetch(wmain);
 				deathclear();
-				return;
+				return gameovermenu();
 			}
 
 		// Faz a cobra "dar a volta"
@@ -227,10 +223,8 @@ void startgame(int mode, int border, int times) {
 		if (mode == MODE_TIMEATK) {
 			if(start + times <= time(NULL)){
 				killsnake(snake, maxindex + 1);
-				mvwprintw(wmain,15,(maxx - 10) / 2,"Seu tempo acabou");
-				wgetch(wmain);
 				deathclear();
-				return;
+				return gameovermenu();
 			}
 		}
 
