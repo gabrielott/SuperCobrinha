@@ -25,6 +25,7 @@
 Snakepart *snake[100];
 
 time_t start;
+time_t gametime;
 int score = 0;
 int timerx, timery;
 int direction;
@@ -38,8 +39,11 @@ void initialsetup(void) {
 	direction = -1;
 	grow = 0;
 	maxindex = INITIAL_SIZE - 1;
-	start = time(NULL);
 
+	// coordenadas do timer e do placar
+	timerx = ((maxx - 32) / 2) - 14;
+	timery = 8;
+	
 	// Inicializao de todas as comidas
 	foods[0] = newfood('o', TRUE, 0);
 
@@ -70,17 +74,32 @@ void initialsetup(void) {
 	nodelay(inner, TRUE);
 }
 
+void deathclear() {
+	mvwprintw(wmain,timery,timerx,"            ");
+	score = 0;
+	mvwprintw(wmain,timery+2,timerx,"          ");
+	wrefresh(wmain);
+}
+
 void startgame(int mode, int border, int times) {
 	initialsetup();
 
-	timerx = ((maxx - 32) / 2) - 14;
-	timery = 8;
+	//tempo precisa ser inicializado aqui
+	start = time(NULL);
 
 	// Loop principal
 	for(;;) {
 		mvwprintw(wmain, timery+2, timerx,"Score: %d", score);
 		wrefresh(wmain);
-		
+
+		// Atualiza o tempo de jogo
+		if (mode == MODE_TIMEATK) {
+			gametime = start + times - time(NULL);
+		} else {
+			gametime = time(NULL) - start;
+		}
+
+
 		// Atualiza a direcao da cobrinha
 		const int g = wgetch(inner);
 		if(g != ERR) {
@@ -96,10 +115,14 @@ void startgame(int mode, int border, int times) {
 				// softpause quando enter for pressionado
 				nodelay(inner, FALSE);
 				while(wgetch(inner) != '\n');
+				if (mode == MODE_TIMEATK){
+					start = time(NULL) - (times - gametime);
+				} else {
+					start = time(NULL) - gametime;
+				}
 				nodelay(inner, TRUE);
 			}
 		}
-		cbreak();
 
 		// Tenta gerar todas as comidas
 		for(int i = 0; i < FOOD_NUM; i++) {
@@ -160,12 +183,7 @@ void startgame(int mode, int border, int times) {
 				killsnake(snake, maxindex + 1);
 				mvwprintw(wmain,15,(maxx - 10) / 2,"voce faleceu");
 				wgetch(wmain);
-				score = 0;
-				mvwprintw(wmain,timery+2,timerx,"          ");
-				if(mode == MODE_TIMEATK){
-					mvwprintw(wmain,timery,timerx,"            ");
-				}
-				wrefresh(wmain);
+				deathclear();
 				return;
 			}
 		}
@@ -176,12 +194,7 @@ void startgame(int mode, int border, int times) {
 				killsnake(snake, maxindex + 1);
 				mvwprintw(wmain,15,(maxx - 10) / 2,"voce faleceu");
 				wgetch(wmain);
-				mvwprintw(wmain,timery+2,timerx,"          ");
-				score = 0;
-				if(mode == MODE_TIMEATK){
-					mvwprintw(wmain,timery,timerx,"            ");
-				}
-				wrefresh(wmain);
+				deathclear();
 				return;
 			}
 
@@ -199,23 +212,24 @@ void startgame(int mode, int border, int times) {
 				head->y = maxiny - 2;
 			}
 		}
+		
+		// Exibe o tempo de jogo
+		mvwprintw(wmain, timery, timerx, "Tempo:  %li:%li", gametime/60, gametime%60);
+		if(gametime % 60 <10){
+			mvwprintw(wmain,timery,timerx+10,"0%li", gametime%60);
+		}
+		if(gametime / 60 <10){
+			mvwprintw(wmain,timery,timerx+7,"0");
+		}
+		wrefresh(wmain);
 
-		// Time attack
+		// modo Time attack
 		if (mode == MODE_TIMEATK) {
-			mvwprintw(wmain, timery, timerx, "Tempo:  %li:%li", (start + times - time(NULL))/60, (start + times - time(NULL))%60);
-			if((start+times - time(NULL))%60 <10)
-				mvwprintw(wmain,timery,timerx+10,"0%li",(start + times - time(NULL))%60);
-			if((start+times - time(NULL))/60 <10)
-				mvwprintw(wmain,timery,timerx+7,"0");
-			wrefresh(wmain);
-			if(start+times == time(NULL)){
+			if(start + times <= time(NULL)){
 				killsnake(snake, maxindex + 1);
 				mvwprintw(wmain,15,(maxx - 10) / 2,"Seu tempo acabou");
 				wgetch(wmain);
-				mvwprintw(wmain,timery,timerx,"            ");
-				score = 0;
-				mvwprintw(wmain,timery+2,timerx,"          ");
-				wrefresh(wmain);
+				deathclear();
 				return;
 			}
 		}
