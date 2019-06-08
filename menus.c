@@ -137,10 +137,13 @@ int mainmenu(void) {
 	char *options[] = {"Clássico", "Time Attack", "Opções", "Sair"};
 
 	int ans = makeselector(inner, 4, options);
-	if(ans == 3) return 1;
+	int border;
 
-	int border = bordermenu();
-	if(border == 0) return 0;
+	if(ans == 3) return 1;
+	if(ans != 2) {
+		border = bordermenu();
+		if(border == 0) return 0;
+	}
 
 	switch(ans) {
 		case 0:
