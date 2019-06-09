@@ -109,6 +109,10 @@ void deathclear(int type) {
 	wrefresh(wmain);
 }
 
+// Correcao de bug de multiplos inputs, variaveis usadas
+int g, k, cont = 0;
+int fila[2] = {0, 0};
+
 void startgame(int mode, int border, int times) {
 	initialsetup();
 
@@ -127,9 +131,25 @@ void startgame(int mode, int border, int times) {
 			gametime = time(NULL) - start;
 		}
 
+		// Correcao de bug de multiplos inputs
+		// Adiciona na fila de execucao
+		while ((k = wgetch(inner)) != ERR){
+			fila[cont] = k;
+			if (cont < 1){
+				cont++;
+			}
+		}
+		// Executa input conforme a ordem da fila de execucao
+		if (fila[0] != 0){
+			g = fila[0];
+			fila[0] = fila[1];
+			fila[1] = 0;
+			if (cont > 0){	
+				cont--;
+			}
+		}
 
 		// Atualiza a direcao da cobrinha
-		const int g = wgetch(inner);
 		if(g != ERR) {
 			if((g == KEY_UP || g  == ltrup) && direction != SOUTH) {
 				direction = NORTH;
