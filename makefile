@@ -4,4 +4,4 @@ SRC = $(wildcard $(SRC_DIR)/*.c)
 CFLAGS = -Wall -lncursesw
 
 out: 
-	$(CC) -o out $(CFLAGS) $(SRC)
+	$(CC) -o out $(SRC) $(CFLAGS) 
