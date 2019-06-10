@@ -118,7 +118,7 @@ void credits(void) {
 	wrefresh(inner);
 	nodelay(inner, TRUE);
 
-	char *nomes[] = {"Filipe Castelo", "Gabriel Ottoboni", "João Pedro", "Rodrigo Delpreti"};
+	char *nomes[] = {"Filipe Castelo", "Gabriel Ottoboni", "João Pedro Silva", "Rodrigo Delpreti"};
 	int i, n = -1;
 	for (i=14*4-1;i>=0;i--){
 		if(wgetch(inner) != ERR){
