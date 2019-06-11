@@ -177,26 +177,53 @@ void savescoremenu(void) {
 		g = wgetch(inner);
 	}
 
+	curs_set(FALSE);
+
+	Score s;
+	s.name = letters;
+	s.points = score;
+	savescore(&s);
 }
 
 int gameovermenu(void) {
-	wclear(inner);
-	makeborder(inner);
+	int exit = 0;
+	int salvo = 0;
+	while(!exit) {
+		wclear(inner);
+		makeborder(inner);
 
-	char *mensagem = "Voce perdeu";
-	mvwprintw(inner, 3, (maxinx - strlen(mensagem)) / 2, mensagem);
+		char *mensagem = "Voce perdeu";
+		mvwprintw(inner, 3, (maxinx - strlen(mensagem)) / 2, mensagem);
 
-	char *options[] = {"Salvar score", "Tentar novamente", "Voltar ao menu principal"};
+		exit = 1;
+		if(salvo) {
+			char *options[] = {"Tentar novamente", "Voltar ao menu principal"};
 
-	switch(makeselector(inner, 3, options)) {
-		case 0:
-			savescoremenu();
-		case 1:
-			return 0;
-		case 2:
-			return 1;
-		default:
-			return 1;
+			switch(makeselector(inner, 2, options)) {
+				case 0:
+					return 0;
+				case 1:
+					return 1;
+				default:
+					return 1;
+			}
+		} else {
+			char *options[] = {"Salvar score", "Tentar novamente", "Voltar ao menu principal"};
+
+			switch(makeselector(inner, 3, options)) {
+				case 0:
+					savescoremenu();
+					exit = 0;
+					salvo = 1;
+					break;
+				case 1:
+					return 0;
+				case 2:
+					return 1;
+				default:
+					return 1;
+			}
+		}
 	}
 }
 

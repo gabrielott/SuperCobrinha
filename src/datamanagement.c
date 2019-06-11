@@ -11,7 +11,7 @@ typedef struct Score {
 
 void setupsaves(void) {
 	if(access("options.dat", F_OK) == -1) {
-		FILE *f = fopen("options.dat", "w");
+		FILE *f = fopen("options.dat", "wb");
 		if(f == NULL) {
 			exit(1);
 		}
@@ -22,19 +22,15 @@ void setupsaves(void) {
 	}
 
 	if(access("scoreboard.dat", F_OK) == -1) {
-		FILE *f = fopen("scoreboard.dat", "w");
+		FILE *f = fopen("scoreboard.dat", "wb");
 		if(f == NULL) {
 			exit(1);
 		}
-
-		int scores = 0;
-		fwrite(&scores, sizeof(int), 1, f);
-		fclose(f);
 	}
 }
 
 void saveoptions(int o) {
-	FILE *f = fopen("options.dat", "w");
+	FILE *f = fopen("options.dat", "wb");
 	if(f == NULL) {
 		exit(1);
 	}
@@ -44,7 +40,7 @@ void saveoptions(int o) {
 }
 
 int loadoptions(void) {
-	FILE *f = fopen("options.dat", "r");
+	FILE *f = fopen("options.dat", "rb");
 	if(f == NULL) {
 		exit(1);
 	}
@@ -57,7 +53,7 @@ int loadoptions(void) {
 }
 
 void savescore(Score *s) {
-	FILE *f = fopen("scoreboard.dat", "a");
+	FILE *f = fopen("scoreboard.dat", "ab");
 	if(f == NULL) {
 		exit(1);
 	}
@@ -72,15 +68,8 @@ Score **loadscores(void) {
 		return NULL;
 	}
 
-	int scoreamnt;
-	fread(&scoreamnt, sizeof(int), 1, f);
-
-	Score **scores = malloc(scoreamnt * sizeof(Score *));
-	for(int i = 0; i < scoreamnt; i++) {
-		Score *s = malloc(sizeof(Score));
-		fread(s, sizeof(Score), 1, f);
-		scores[i] = s;
-	}
+	Score **scores = malloc(10 * sizeof(Score *));
+	while(fread(scores, sizeof(Score), 10, f) == 10);
 
 	fclose(f);
 	return scores;

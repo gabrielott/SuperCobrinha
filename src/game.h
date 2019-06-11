@@ -13,6 +13,9 @@
 // Index do ultimo pedaco da cobrinha
 int maxindex;
 
+//Pontuacao do jogo
+int score;
+
 // Array de ponteiros de cada parte da cobra
 Snakepart *snake[100];
 
