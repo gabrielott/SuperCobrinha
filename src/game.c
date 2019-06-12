@@ -21,7 +21,7 @@
 #define SOUTH 2
 #define EAST 3
 #define WEST 4
-
+int level = 2;
 Snakepart *snake[100];
 
 time_t start;
@@ -52,7 +52,7 @@ void initialsetup(void) {
 	makeborder(inner);
 
 	for(int i = 0; i < INITIAL_SIZE; i++) {
-		snake[i] = newpart(i, maxiny / 2 + i, maxinx / 2);
+		snake[i] = newpart(i, 11 + i, maxinx / 2);
 		mvwaddch(inner, snake[i]->y, snake[i]->x, ACS_BLOCK);
 	}
 
@@ -72,6 +72,22 @@ void initialsetup(void) {
 	}
 
 	nodelay(inner, TRUE);
+}
+
+void block(int y, int x, int y2, int x2){
+	if(y2 == 0){
+		for(int i = x; i < x2; i++){
+			mvwaddch(inner, y, i, ACS_HLINE);
+
+		}
+	}
+	if(x2 == 0){
+		for(int i = y; i < y2; i++){
+			mvwaddch(inner, i, x, ACS_VLINE);
+		}
+
+	}
+
 }
 
 void deathclear() {
@@ -123,6 +139,49 @@ void startgame(int mode, int border, int times) {
 				nodelay(inner, TRUE);
 			}
 		}
+		switch(level){
+			case 1:
+				block(4, 6, 6, 0);
+				mvwaddch(inner, 3, 6, ACS_ULCORNER);
+				block(3, 7, 0, 11);
+				block(10, 6, 12, 0);
+				mvwaddch(inner, 12, 6, ACS_LLCORNER);
+				block(12, 7, 0, 11);
+				block(4, 26, 6, 0);
+				mvwaddch(inner, 3, 26, ACS_URCORNER);
+				block(3, 22, 0, 26);
+				block(10, 26, 12, 0);
+				mvwaddch(inner, 12, 26, ACS_LRCORNER);
+				block(12, 22, 0, 26);
+				break;
+			case 2:
+				block(4, 6, 6, 0);
+				mvwaddch(inner, 3, 6, ACS_ULCORNER);
+				block(3, 7, 0, 11);
+				block(10, 6, 12, 0);
+				mvwaddch(inner, 12, 6, ACS_LLCORNER);
+				block(12, 7, 0, 11);
+				block(4, 26, 6, 0);
+				mvwaddch(inner, 3, 26, ACS_URCORNER);
+				block(3, 22, 0, 26);
+				block(10, 26, 12, 0);
+				mvwaddch(inner, 12, 26, ACS_LRCORNER);
+				block(12, 22, 0, 26);
+				mvwaddch(inner, 8, 16, ACS_PLUS);
+				block(8, 12, 0, 16);
+				block(8, 17, 0, 21);
+				block(6, 16, 8, 0);
+				block(9, 16, 11, 0);
+				break;	
+			case 3:
+
+			case 4:
+
+			case 5:
+
+			default:
+				break;
+		} 
 
 		// Tenta gerar todas as comidas
 		for(int i = 0; i < FOOD_NUM; i++) {

@@ -146,7 +146,7 @@ void optionsmenu(void) {
 		char *options[] = {"Usar layout Colemak", "Usar layout QWERTY", "Creditos", "Cancelar"};
 
 		exit = 1;
-		switch(makeselector(inner, 4, options)) {
+		switch(makeselector(inner, 5, options)) {
 			case 0:
 				setletters(LTR_COLEMAK);
 				saveoptions(LTR_COLEMAK);
@@ -159,7 +159,7 @@ void optionsmenu(void) {
 				credits();
 				exit = 0;
 				break;
-			case 3:
+			case 4:
 				break;
 		}
 	}
@@ -169,7 +169,7 @@ int mainmenu(void) {
 	wclear(inner);
 	makeborder(inner);
 
-	char *options[] = {"Clássico", "Time Attack", "Opções", "Sair"};
+	char *options[] = {"Clássico", "Time Attack", "Niveis", "Opções", "Sair"};
 
 	int ans = makeselector(inner, 4, options);
 	int border;
