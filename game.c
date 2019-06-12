@@ -23,6 +23,8 @@
 #define EAST 3
 #define WEST 4
 
+#define maxque 2
+
 Snakepart *snake[100];
 
 time_t start;
@@ -32,6 +34,8 @@ int timerx, timery;
 int direction;
 int grow;
 int maxindex;
+int g = 0, cont = 0;
+int fila[maxque + 1];
 
 Food *foods[FOOD_NUM];
 
@@ -40,6 +44,11 @@ void initialsetup(void) {
 	direction = -1;
 	grow = 0;
 	maxindex = INITIAL_SIZE - 1;
+
+	// Inicializacao da queue
+	for (int i = 0; i <= maxque; i++) {
+		fila[i] = 0;
+	}
 
 	// coordenadas do timer e do placar
 	timerx = ((maxx - 32) / 2) - 14;
@@ -109,10 +118,6 @@ void deathclear(int type) {
 	wrefresh(wmain);
 }
 
-// Correcao de bug de multiplos inputs, variaveis usadas
-int g, k, cont = 0;
-int fila[2] = {0, 0};
-
 void startgame(int mode, int border, int times) {
 	initialsetup();
 
@@ -132,44 +137,46 @@ void startgame(int mode, int border, int times) {
 		}
 
 		// Correcao de bug de multiplos inputs
-		// Adiciona na fila de execucao
-		while ((k = wgetch(inner)) != ERR){
-			fila[cont] = k;
-			if (cont < 1){
+		// Adiciona caracter pressionado na fila de execucao
+		while ((fila[cont] = wgetch(inner)) != ERR){
+			if (cont < maxque){
 				cont++;
 			}
 		}
 		// Executa input conforme a ordem da fila de execucao
-		if (fila[0] != 0){
+		if (fila[0] != 0 && fila[0] != ERR){
+			// Captura o primeiro da fila para execucao
 			g = fila[0];
-			fila[0] = fila[1];
-			fila[1] = 0;
+			// Anda com a fila
+			for (int i = 0; i < maxque; i++){
+				fila[i] = fila[i+1];
+			}
+			// Esvazia o final da fila
+			fila[maxque] = 0;
 			if (cont > 0){	
 				cont--;
 			}
 		}
 
 		// Atualiza a direcao da cobrinha
-		if(g != ERR) {
-			if((g == KEY_UP || g  == ltrup) && direction != SOUTH) {
-				direction = NORTH;
-			} else if((g == KEY_DOWN || g == ltrdwn) && direction != NORTH) {
-				direction = SOUTH;
-			} else if((g == KEY_LEFT || g == ltrlft) && direction != EAST) {
-				direction = WEST;
-			} else if((g == KEY_RIGHT || g == ltrrght) && direction != WEST) {
-				direction = EAST;
-			} else if(g == '\n') {
-				// softpause quando enter for pressionado
-				nodelay(inner, FALSE);
-				while(wgetch(inner) != '\n');
-				if (mode == MODE_TIMEATK){
-					start = time(NULL) - (times - gametime);
-				} else {
-					start = time(NULL) - gametime;
-				}
-				nodelay(inner, TRUE);
+		if((g == KEY_UP || g  == ltrup) && direction != SOUTH) {
+			direction = NORTH;
+		} else if((g == KEY_DOWN || g == ltrdwn) && direction != NORTH) {
+			direction = SOUTH;
+		} else if((g == KEY_LEFT || g == ltrlft) && direction != EAST) {
+			direction = WEST;
+		} else if((g == KEY_RIGHT || g == ltrrght) && direction != WEST) {
+			direction = EAST;
+		} else if(g == '\n') {
+			// softpause quando enter for pressionado
+			nodelay(inner, FALSE);
+			while(wgetch(inner) != '\n');
+			if (mode == MODE_TIMEATK){
+				start = time(NULL) - (times - gametime);
+			} else {
+				start = time(NULL) - gametime;
 			}
+			nodelay(inner, TRUE);
 		}
 
 		// Tenta gerar todas as comidas
