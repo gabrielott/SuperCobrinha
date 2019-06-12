@@ -8,6 +8,12 @@ typedef struct Score {
 
 	// Numero de pontos do score
 	int points;
+
+	// Modo do jogo ao qual o score referencia
+	int mode;
+
+	// Borda do jogo ao qual o score referencia
+	int border;
 } Score;
 
 // Verifica a existencia dos arquivos de salvamento. Caso algum deles nao exista,

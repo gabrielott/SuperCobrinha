@@ -182,7 +182,7 @@ int startgame(int mode, int border, int times) {
 			if(snake[i]->x == head->x && snake[i]->y == head->y) {
 				killsnake(snake, maxindex + 1);
 				deathclear();
-				return gameovermenu();
+				return gameovermenu(mode, border);
 			}
 		}
 
@@ -191,7 +191,7 @@ int startgame(int mode, int border, int times) {
 			if(head->x == maxinx - 1 || head->x == 0 || head->y == maxiny - 1 || head->y == 0) {
 				killsnake(snake, maxindex + 1);
 				deathclear();
-				return gameovermenu();
+				return gameovermenu(mode, border);
 			}
 
 		// Faz a cobra "dar a volta"
@@ -224,7 +224,7 @@ int startgame(int mode, int border, int times) {
 			if(start + times <= time(NULL)){
 				killsnake(snake, maxindex + 1);
 				deathclear();
-				return gameovermenu();
+				return gameovermenu(mode, border);
 			}
 		}
 

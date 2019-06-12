@@ -137,7 +137,7 @@ void credits(void) {
 	return;
 }
 
-void savescoremenu(void) {
+void savescoremenu(int mode, int border) {
 	wclear(inner);
 	makeborder(inner);
 
@@ -182,10 +182,85 @@ void savescoremenu(void) {
 	Score s;
 	s.name = letters;
 	s.points = score;
+	s.mode = mode;
+	s.border = border;
 	savescore(&s);
 }
 
-int gameovermenu(void) {
+void scoreboardmenu(void) {
+	int distanceuntiltab(char *tabs[], int tab) {
+		int distance = 0;
+		for(int i = 0; i < tab - 1; i++) {
+			distance += strlen(tabs[i]) + 1;
+		}
+		return distance;
+	}
+
+	wclear(inner);
+	makeborder(inner);
+
+	char *title = "Hi-scores";
+	mvwprintw(inner, 1, (maxinx - strlen(title)) / 2, title);
+
+	const int tabamnt = 2;
+	char *tabs[] = {"Clássico", "Time Attack"};
+	int totallen = tabamnt - 1;
+
+	for(int i = 0; i < tabamnt; i++) {
+		totallen += strlen(tabs[i]);
+	}
+
+	for(int i = 0; i < tabamnt; i++) {
+		mvwprintw(inner, 3, (maxinx - totallen) / 2 + distanceuntiltab(tabs, i + 1), i == tabamnt - 1 ? "%s" : "%s|", tabs[i]);
+	}
+
+	nodelay(inner, TRUE);
+
+	int selected = 0;
+	for(;;) {
+		for(int i = 0; i < tabamnt; i++) { 
+			if(selected == i) {
+				mvwchgat(inner, 3, (maxinx - totallen) / 2 + distanceuntiltab(tabs, i + 1), strlen(tabs[i]), A_STANDOUT, COLOR_RED, NULL);
+			} else {
+				mvwchgat(inner, 3, (maxinx - totallen) / 2 + distanceuntiltab(tabs, i + 1), strlen(tabs[i]), A_NORMAL, COLOR_RED, NULL);
+			}
+		}
+
+		wrefresh(inner);
+
+		int g = wgetch(inner);
+		if((g == KEY_RIGHT || g == ltrrght) && selected >= 0 && selected < tabamnt - 1) {
+			selected++;
+		} else if((g == KEY_RIGHT || g == ltrrght) && selected == tabamnt - 1) {
+			selected = 0;
+		} else if((g == KEY_LEFT || g == ltrlft) && selected <= tabamnt - 1 && selected > 0) {
+			selected--;
+		} else if((g == KEY_LEFT || g == ltrlft) && selected == 0) {
+			selected = tabamnt - 1;
+		} else if(g == ' ' || g == '\n') {
+			// Sei la
+		}
+	}
+
+	Score **scores = loadscores();
+	if(scores == NULL) {
+	}
+
+//	for(int i = 0; i < 10; i++) {
+//		Score *maior;
+//		for(int ii = 0; ii < 10; ii++) {
+//			if(ii == 0) {
+//				maior = scores[ii];
+//				continue;
+//			}
+//
+//			if(scores[ii] > maior) maior = scores[ii];
+//		}
+//		mvwprintw(inner, 4 + i, 1, "%s --- %d", score.name, score.points);
+//	}
+}
+
+int gameovermenu(int mode, int border) {
 	int exit = 0;
 	int salvo = 0;
 	while(!exit) {
@@ -212,7 +287,7 @@ int gameovermenu(void) {
 
 			switch(makeselector(inner, 3, options)) {
 				case 0:
-					savescoremenu();
+					savescoremenu(mode, border);
 					exit = 0;
 					salvo = 1;
 					break;
@@ -259,13 +334,13 @@ int mainmenu(void) {
 	wclear(inner);
 	makeborder(inner);
 
-	char *options[] = {"Clássico", "Time Attack", "Opções", "Sair"};
+	char *options[] = {"Clássico", "Time Attack", "Scoreboard", "Opções", "Sair"};
 
-	int ans = makeselector(inner, 4, options);
+	int ans = makeselector(inner, 5, options);
 	int border;
 
-	if(ans == 3) return 1;
-	if(ans != 2) {
+	if(ans == 4) return 1;
+	if(ans != 3 && ans != 2) {
 		border = bordermenu();
 		if(border == 0) return 0;
 	}
@@ -281,10 +356,13 @@ int mainmenu(void) {
 			}
 			return 0;
 		case 2:
+			scoreboardmenu();
+			return 0;
+		case 3:
 			optionsmenu();
 			return 0;
-		default:
-			return 0;
+		case 4:
+			return 1;
 	}
 	return 0;
 }

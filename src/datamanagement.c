@@ -7,6 +7,8 @@
 typedef struct Score {
 	char *name;
 	int points;
+	int mode;
+	int border;
 } Score;
 
 void setupsaves(void) {
@@ -62,14 +64,27 @@ void savescore(Score *s) {
 	fclose(f);
 }
 
-Score **loadscores(void) {
+Score **loadscores(int mode, int border) {
 	FILE *f = fopen("scoreboard.dat", "r");
 	if(f == NULL) {
 		return NULL;
 	}
 
+	int amount = 0;
 	Score **scores = malloc(10 * sizeof(Score *));
-	while(fread(scores, sizeof(Score), 10, f) == 10);
+//	while(!feof(f)) {
+//		Score s;
+//		fread(&s, sizeof(Score), 1, f);
+//
+//		if(s.mode != mode) continue;
+//		if(s.border != border) continue;
+//
+//		for(int i = 0; i < amount; i++) {
+//			if(s > scores[i]) {
+//
+//			}
+//		}
+//	}
 
 	fclose(f);
 	return scores;
