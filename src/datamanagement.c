@@ -9,6 +9,7 @@ typedef struct Score {
 	int points;
 	int mode;
 	int border;
+	long gametime;
 } Score;
 
 void setupsaves(void) {

@@ -1,6 +1,7 @@
 #include <ncurses.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 #include "supercobrinha.h"
@@ -22,6 +23,8 @@
 #define EAST 3
 #define WEST 4
 
+#define maxque 2
+
 Snakepart *snake[100];
 
 time_t start;
@@ -31,6 +34,8 @@ int timerx, timery;
 int direction;
 int grow;
 int maxindex;
+int g = 0, cont = 0;
+int fila[maxque + 1];
 
 Food *foods[FOOD_NUM];
 
@@ -41,12 +46,18 @@ void initialsetup(void) {
 	score = 0;
 	maxindex = INITIAL_SIZE - 1;
 
+	// Inicializacao da queue
+	for (int i = 0; i <= maxque; i++) {
+		fila[i] = 0;
+	}
+
 	// coordenadas do timer e do placar
 	timerx = ((maxx - 32) / 2) - 14;
 	timery = 8;
 	
 	// Inicializao de todas as comidas
 	foods[0] = newfood('o', TRUE, 0);
+	//foods[1] = newfood('!', TRUE, 7);
 
 	// Desenho do estado inicial do campo de jogo
 	wclear(inner);
@@ -76,6 +87,7 @@ void initialsetup(void) {
 }
 
 void deathclear() {
+	killsnake(snake, maxindex + 1);
 	mvwprintw(wmain,timery,timerx,"            ");
 	mvwprintw(wmain,timery+2,timerx,"          ");
 	wrefresh(wmain);
@@ -84,7 +96,7 @@ void deathclear() {
 int startgame(int mode, int border, int times) {
 	initialsetup();
 
-	//tempo precisa ser inicializado aqui
+	// Tempo a partir do qual a partida comeca
 	start = time(NULL);
 
 	// Loop principal
@@ -99,29 +111,47 @@ int startgame(int mode, int border, int times) {
 			gametime = time(NULL) - start;
 		}
 
+		// Correcao de bug de multiplos inputs
+		// Adiciona caracter pressionado na fila de execucao
+		while ((fila[cont] = wgetch(inner)) != ERR){
+			if (cont < maxque){
+				cont++;
+			}
+		}
+		// Executa input conforme a ordem da fila de execucao
+		if (fila[0] != 0 && fila[0] != ERR){
+			// Captura o primeiro da fila para execucao
+			g = fila[0];
+			// Anda com a fila
+			for (int i = 0; i < maxque; i++){
+				fila[i] = fila[i+1];
+			}
+			// Esvazia o final da fila
+			fila[maxque] = 0;
+			if (cont > 0){	
+				cont--;
+			}
+		}
 
 		// Atualiza a direcao da cobrinha
-		const int g = wgetch(inner);
-		if(g != ERR) {
-			if((g == KEY_UP || g  == ltrup) && direction != SOUTH) {
-				direction = NORTH;
-			} else if((g == KEY_DOWN || g == ltrdwn) && direction != NORTH) {
-				direction = SOUTH;
-			} else if((g == KEY_LEFT || g == ltrlft) && direction != EAST) {
-				direction = WEST;
-			} else if((g == KEY_RIGHT || g == ltrrght) && direction != WEST) {
-				direction = EAST;
-			} else if(g == '\n') {
-				// softpause quando enter for pressionado
-				nodelay(inner, FALSE);
-				while(wgetch(inner) != '\n');
-				if (mode == MODE_TIMEATK){
-					start = time(NULL) - (times - gametime);
-				} else {
-					start = time(NULL) - gametime;
-				}
-				nodelay(inner, TRUE);
+		if((g == KEY_UP || g  == ltrup) && direction != SOUTH) {
+			direction = NORTH;
+		} else if((g == KEY_DOWN || g == ltrdwn) && direction != NORTH) {
+			direction = SOUTH;
+		} else if((g == KEY_LEFT || g == ltrlft) && direction != EAST) {
+			direction = WEST;
+		} else if((g == KEY_RIGHT || g == ltrrght) && direction != WEST) {
+			direction = EAST;
+		} else if(g == '\n') {
+			// softpause quando enter for pressionado
+			nodelay(inner, FALSE);
+			while(wgetch(inner) != '\n');
+			if (mode == MODE_TIMEATK){
+				start = time(NULL) - (times - gametime);
+			} else {
+				start = time(NULL) - gametime;
 			}
+			nodelay(inner, TRUE);
 		}
 
 		// Tenta gerar todas as comidas
@@ -180,7 +210,6 @@ int startgame(int mode, int border, int times) {
 		for(int i = 0; i < maxindex + 1; i++) {
 			if(snake[i] == head) continue;
 			if(snake[i]->x == head->x && snake[i]->y == head->y) {
-				killsnake(snake, maxindex + 1);
 				deathclear();
 				return gameovermenu(mode, border);
 			}
@@ -189,7 +218,6 @@ int startgame(int mode, int border, int times) {
 		// Verifica colisao com borda
 		if(border == BORDER) {
 			if(head->x == maxinx - 1 || head->x == 0 || head->y == maxiny - 1 || head->y == 0) {
-				killsnake(snake, maxindex + 1);
 				deathclear();
 				return gameovermenu(mode, border);
 			}
@@ -212,17 +240,16 @@ int startgame(int mode, int border, int times) {
 		// Exibe o tempo de jogo
 		mvwprintw(wmain, timery, timerx, "Tempo:  %li:%li", gametime/60, gametime%60);
 		if(gametime % 60 <10){
-			mvwprintw(wmain,timery,timerx+10,"0%li", gametime%60);
+			mvwprintw(wmain, timery, timerx+10, "0%li", gametime%60);
 		}
 		if(gametime / 60 <10){
-			mvwprintw(wmain,timery,timerx+7,"0");
+			mvwprintw(wmain, timery, timerx+7, "0");
 		}
 		wrefresh(wmain);
 
-		// modo Time attack
+		// Verifica se acabou o tempo do modo Time attack
 		if (mode == MODE_TIMEATK) {
 			if(start + times <= time(NULL)){
-				killsnake(snake, maxindex + 1);
 				deathclear();
 				return gameovermenu(mode, border);
 			}
