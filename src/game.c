@@ -36,6 +36,7 @@ int grow;
 int maxindex;
 int g = 0, cont = 0;
 int fila[maxque + 1];
+int gamespeed = 1;
 
 Food *foods[FOOD_NUM];
 
@@ -71,13 +72,13 @@ void initialsetup(void) {
 
 	// Espera o jogador fazer o movimento inicial
 	while(direction == -1) {
-		const int g = wgetch(inner);
+		const int g2 = wgetch(inner);
 
-		if(g == KEY_UP || g == ' ' || g == '\n' || g == ltrup) {
+		if(g2 == KEY_UP || g2 == ' ' || g2 == '\n' || g2 == ltrup) {
 			direction = NORTH;
-		} else if(g == KEY_LEFT || g == ltrlft) {
+		} else if(g2 == KEY_LEFT || g2 == ltrlft) {
 			direction = WEST;
-		} else if(g == KEY_RIGHT || g == ltrrght) {
+		} else if(g2 == KEY_RIGHT || g2 == ltrrght) {
 			direction = EAST;
 		}
 	}
@@ -169,15 +170,14 @@ void startgame(int mode, int border, int times) {
 			direction = EAST;
 		} else if(g == '\n') {
 			// softpause quando enter for pressionado
-			nodelay(inner, FALSE);
 			while(wgetch(inner) != '\n');
 			if (mode == MODE_TIMEATK){
 				start = time(NULL) - (times - gametime);
 			} else {
 				start = time(NULL) - gametime;
 			}
-			nodelay(inner, TRUE);
 		}
+		g = 0;
 
 		// Tenta gerar todas as comidas
 		for(int i = 0; i < FOOD_NUM; i++) {
@@ -186,7 +186,7 @@ void startgame(int mode, int border, int times) {
 
 		Snakepart *head = getpartwithindex(snake, maxindex + 1, 0);
 		Snakepart *tail = getpartwithindex(snake, maxindex + 1, maxindex);
-		
+
 		// Verifica se a cobrinha deve crescer
 		if(grow) {
 			maxindex++;
@@ -280,9 +280,11 @@ void startgame(int mode, int border, int times) {
 			}
 		}
 
+		// Desenha a cabeca da cobrinha
 		mvwaddch(inner, head->y, head->x, ACS_BLOCK);
-
 		wrefresh(inner);
-		usleep(200 * 1000);
+
+		// Velocidade do jogo
+		usleep(200000*gamespeed);
 	}
 }
