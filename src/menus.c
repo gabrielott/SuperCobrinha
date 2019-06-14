@@ -111,33 +111,53 @@ int bordermenu(void) {
 	}
 }
 
-void credits(void) {
-	wclear(inner);
-	makeborder(inner);
+void printcred(WINDOW *w, int i, char *nomes[], int n) {
+	// Printa a linha correspondente e limpa a linha inferior
+	mvwprintw(w,1+(i%14),(maxinx - strlen(nomes[n])) / 2,nomes[n]);
+	mvwprintw(w,1+((i+1)%14),(maxinx - strlen("                         ")) / 2,"                         ");
+}
 
-	wrefresh(inner);
+void credits(void) {
 	nodelay(inner, TRUE);
 
-	char *nomes[] = {"SUPERCOBRINHA", "A game designed by:", "Filipe Castelo", "Gabriel Ottoboni", "João Pedro Silva", "Rodrigo Delpreti", " ", "Thank you for playing!"};
-	int i, n = 0;
-	for (i = 14*8-1; i >= 0; i--) {
+	char *nomes[] = {"SUPERCOBRINHA", "A game designed by:", "Filipe Castelo", "Gabriel Ottoboni", "João Pedro Silva", "Rodrigo Delpreti", "Thank you for playing!"};
+	int i;
+	int setup = 14*5-1; // 111
+	for (i = setup; i >= 0; i--) {
+
+		// Prepara a janela para os creditos serem exibidos
+		wclear(inner);
+		makeborder(inner);
+		wrefresh(inner);
 
 		// Sai dos creditos se qualquer tecla for pressionada
 		if(wgetch(inner) != ERR) {
 			return;
 		}
 
-		// Printa a linha correspondente e limpa a linha inferior
-		mvwprintw(inner,1+(i%14),(maxinx - strlen(nomes[n])) / 2,nomes[n]);
-		mvwprintw(inner,1+((i+1)%14),(maxinx - strlen("                         ")) / 2,"                         ");
+		// Verifica qual parte dos creditos deve ser printada de cada vez
+		if (i > setup - 8) {
+			printcred(inner, i-6, nomes, 0);
+		} if (i < setup - 1 && i > setup - 16) {
+			printcred(inner, i+2, nomes, 1);
+		} if (i < setup - 5 && i > setup - 20) {
+			printcred(inner, i+6, nomes, 2);
+		} if (i < setup - 8 && i > setup - 23) {
+			printcred(inner, i+9, nomes, 3);
+		} if (i < setup - 11 && i > setup - 26) {
+			printcred(inner, i+12, nomes, 4);
+		} if (i < setup - 14 && i > setup - 29) {
+			printcred(inner, i+15, nomes, 5);
+		} if (i < setup - 25) {
+			if (i <= setup - 33) {
+				printcred(inner, setup-6, nomes, 6);
+			} else {
+				printcred(inner, i+26, nomes, 6);
+			}
+		}
 		wrefresh(inner);
 
-		// Passa para o próximo nome
-		if((i % 14) + 1 == 1) {
-			n++;
-		}
-
-		usleep(300000);
+		usleep(450000);
 	}
 	return;
 }
