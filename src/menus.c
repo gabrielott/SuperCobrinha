@@ -118,21 +118,26 @@ void credits(void) {
 	wrefresh(inner);
 	nodelay(inner, TRUE);
 
-	char *nomes[] = {"Filipe Castelo", "Gabriel Ottoboni", "João Pedro Silva", "Rodrigo Delpreti"};
-	int i, n = -1;
-	for (i=14*4-1;i>=0;i--){
-		if(wgetch(inner) != ERR){
+	char *nomes[] = {"SUPERCOBRINHA", "A game designed by:", "Filipe Castelo", "Gabriel Ottoboni", "João Pedro Silva", "Rodrigo Delpreti", " ", "Thank you for playing!"};
+	int i, n = 0;
+	for (i = 14*8-1; i >= 0; i--) {
+
+		// Sai dos creditos se qualquer tecla for pressionada
+		if(wgetch(inner) != ERR) {
 			return;
 		}
-		if(((i+1)% 14) == 0){
-			n++;
-		}
+
+		// Printa a linha correspondente e limpa a linha inferior
 		mvwprintw(inner,1+(i%14),(maxinx - strlen(nomes[n])) / 2,nomes[n]);
 		mvwprintw(inner,1+((i+1)%14),(maxinx - strlen("                         ")) / 2,"                         ");
 		wrefresh(inner);
-		nodelay(inner, FALSE);
-		usleep(500000);
-		nodelay(inner, TRUE);
+
+		// Passa para o próximo nome
+		if((i % 14) + 1 == 1) {
+			n++;
+		}
+
+		usleep(300000);
 	}
 	return;
 }
