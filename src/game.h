@@ -13,6 +13,9 @@
 // Index do ultimo pedaco da cobrinha
 int maxindex;
 
+//Pontuacao do jogo
+int score;
+
 // Array de ponteiros de cada parte da cobra
 Snakepart *snake[100];
 
@@ -20,6 +23,6 @@ Snakepart *snake[100];
 void initialsetup(void);
 
 // Inicia o jogo. 
-void startgame(int mode, int border, int times);
+int startgame(int mode, int border, int times);
 
 #endif

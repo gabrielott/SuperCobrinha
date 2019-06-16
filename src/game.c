@@ -29,7 +29,7 @@ Snakepart *snake[100];
 
 time_t start;
 time_t gametime;
-int score = 0;
+int score;
 int timerx, timery;
 int direction;
 int grow;
@@ -44,6 +44,7 @@ void initialsetup(void) {
 	// Inicializacao de variaveis
 	direction = -1;
 	grow = 0;
+	score = 0;
 	maxindex = INITIAL_SIZE - 1;
 
 	// Inicializacao da queue
@@ -86,40 +87,14 @@ void initialsetup(void) {
 	nodelay(inner, TRUE);
 }
 
-void deathclear(int type) {
-	//exibe a tela de morte adequada
-	char *mortes[] = {"Voce faleceu", "Seu tempo acabou"};
-	mvwprintw(inner, maxiny/2, (maxinx - strlen(mortes[type])) / 2, mortes[type]);
-	wrefresh(inner);
-
-	//aguarda que qualquer tecla seja pressionada para sair
-	nodelay(inner, FALSE);
-	wgetch(inner);
-	wclear(inner);
-	makeborder(inner);
-
-	// Armazena highscore (work in progress)
-	if(score > 0){
-		char player[20];
-		mvwprintw(inner, maxiny/2 - 1, (maxinx - strlen("Novo Highscore!")) / 2, "Novo Highscore!");
-		mvwprintw(inner, maxiny/2 + 1, (maxinx - strlen("Digite um nome:")) / 2, "Digite um nome:");
-		wrefresh(inner);
-		echo();
-		curs_set(TRUE);
-		mvwscanw(inner, maxiny/2 + 2, (maxinx - strlen("Novo Highscore!")) / 2, "%s", player);
-		curs_set(FALSE);
-		noecho();
-	}
-
-	// Limpa a cobrinha, o score e a wmain
+void deathclear() {
 	killsnake(snake, maxindex + 1);
-	score = 0;
 	mvwprintw(wmain,timery,timerx,"            ");
 	mvwprintw(wmain,timery+2,timerx,"          ");
 	wrefresh(wmain);
 }
 
-void startgame(int mode, int border, int times) {
+int startgame(int mode, int border, int times) {
 	initialsetup();
 
 	// Tempo a partir do qual a partida comeca
@@ -235,16 +210,16 @@ void startgame(int mode, int border, int times) {
 		for(int i = 0; i < maxindex + 1; i++) {
 			if(snake[i] == head) continue;
 			if(snake[i]->x == head->x && snake[i]->y == head->y) {
-				deathclear(0);
-				return;
+				deathclear();
+				return gameovermenu(mode, border, times, gametime);
 			}
 		}
 
 		// Verifica colisao com borda
 		if(border == BORDER) {
 			if(head->x == maxinx - 1 || head->x == 0 || head->y == maxiny - 1 || head->y == 0) {
-				deathclear(0);
-				return;
+				deathclear();
+				return gameovermenu(mode, border, times, gametime);
 			}
 
 		// Faz a cobra "dar a volta"
@@ -275,8 +250,8 @@ void startgame(int mode, int border, int times) {
 		// Verifica se acabou o tempo do modo Time attack
 		if (mode == MODE_TIMEATK) {
 			if(start + times <= time(NULL)){
-				deathclear(1);
-				return;
+				deathclear();
+				return gameovermenu(mode, border, times, gametime);
 			}
 		}
 
