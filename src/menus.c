@@ -137,7 +137,7 @@ void credits(void) {
 	return;
 }
 
-void savescoremenu(int mode, int border) {
+void savescoremenu(int mode, int border, int times, time_t totaltime) {
 	wclear(inner);
 	makeborder(inner);
 
@@ -153,7 +153,7 @@ void savescoremenu(int mode, int border) {
 	int charn = 0;
 	int done = 0;
 	int g = wgetch(inner);
-	char letters[3];
+	char letters[4];
 
 	while(g != '\n' || !done) {
 		if(g == KEY_BACKSPACE && charn >= 0) {
@@ -166,24 +166,27 @@ void savescoremenu(int mode, int border) {
 		} else if(charn <= 2 && ((g >= 48 && g <= 57) || (g >= 65 && g <= 90) || (g >= 97 && g <= 122))) {
 			if(g >= 97 && g <= 122) g -= 32;
 			mvwaddch(inner, maxiny / 2, (maxinx - 5) / 2 + charn * 2, g);
+			letters[charn] = g;
 
 			if(charn == 2) done = 1;
 
 			if(charn < 2) charn++;
 			wmove(inner, maxiny / 2, (maxinx - 5) / 2 + charn * 2);
-			letters[charn] = g;
 		}
 		wrefresh(inner);
 		g = wgetch(inner);
 	}
 
 	curs_set(FALSE);
+	letters[3] = '\0';
 
 	Score s;
-	s.name = letters;
+	strcpy(s.name, letters);
 	s.points = score;
 	s.mode = mode;
 	s.border = border;
+	s.times = times;
+	s.totaltime = totaltime;
 	savescore(&s);
 }
 
@@ -214,9 +217,12 @@ void scoreboardmenu(void) {
 		mvwprintw(inner, 3, (maxinx - totallen) / 2 + distanceuntiltab(tabs, i + 1), i == tabamnt - 1 ? "%s" : "%s|", tabs[i]);
 	}
 
-	nodelay(inner, TRUE);
 
+	nodelay(inner, FALSE);
 	int selected = 0;
+	int border = BORDER;
+	int gtime = 0;
+	int times[] = {30, 60, 180, 300};
 	for(;;) {
 		for(int i = 0; i < tabamnt; i++) { 
 			if(selected == i) {
@@ -224,6 +230,29 @@ void scoreboardmenu(void) {
 			} else {
 				mvwchgat(inner, 3, (maxinx - totallen) / 2 + distanceuntiltab(tabs, i + 1), strlen(tabs[i]), A_NORMAL, COLOR_RED, NULL);
 			}
+		}
+
+		Score *scores[10];
+		int size;
+		switch(selected) {
+			case 0:
+				size = loadscores(scores, MODE_CLASSIC, border, times[gtime]);
+				mvwprintw(inner, 1, maxinx - 5, "    ");
+				break;
+			case 1:
+				size = loadscores(scores, MODE_TIMEATK, border, times[gtime]);
+				mvwprintw(inner, 1, maxinx - 5, "%03ds", times[gtime]);
+				break;
+		}
+
+		mvwprintw(inner, 1, 1, "%s", border == BORDER ? "Borda" : "     ");
+
+		for(int i = 0; i < 10; i++) {
+			mvwprintw(inner, 5 + i, 2, "                      ");
+		}
+
+		for(int i = 0; i < size; i++) {
+			mvwprintw(inner, 5 + i, 2, "%d - %s %d", i + 1, scores[i]->name, scores[i]->points);
 		}
 
 		wrefresh(inner);
@@ -237,30 +266,18 @@ void scoreboardmenu(void) {
 			selected--;
 		} else if((g == KEY_LEFT || g == ltrlft) && selected == 0) {
 			selected = tabamnt - 1;
+		} else if(g == KEY_UP || g == ltrup) {
+			border = border == BORDER ? BORDERLESS : BORDER;
+		} else if(g == KEY_DOWN || g == ltrdwn) {
+			gtime = gtime == 3 ? 0 : gtime + 1;
 		} else if(g == ' ' || g == '\n') {
-			// Sei la
+			return;
 		}
-	}
 
-	Score **scores = loadscores();
-	if(scores == NULL) {
 	}
-
-//	for(int i = 0; i < 10; i++) {
-//		Score *maior;
-//		for(int ii = 0; ii < 10; ii++) {
-//			if(ii == 0) {
-//				maior = scores[ii];
-//				continue;
-//			}
-//
-//			if(scores[ii] > maior) maior = scores[ii];
-//		}
-//		mvwprintw(inner, 4 + i, 1, "%s --- %d", score.name, score.points);
-//	}
 }
 
-int gameovermenu(int mode, int border) {
+int gameovermenu(int mode, int border, int times, time_t totaltime) {
 	int exit = 0;
 	int salvo = 0;
 	while(!exit) {
@@ -287,7 +304,7 @@ int gameovermenu(int mode, int border) {
 
 			switch(makeselector(inner, 3, options)) {
 				case 0:
-					savescoremenu(mode, border);
+					savescoremenu(mode, border, times, totaltime);
 					exit = 0;
 					salvo = 1;
 					break;
@@ -300,6 +317,7 @@ int gameovermenu(int mode, int border) {
 			}
 		}
 	}
+	return 1;
 }
 
 void optionsmenu(void) {

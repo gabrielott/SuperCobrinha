@@ -4,7 +4,7 @@
 // Definicao do tipo Score, representacao de um recorde feito por um jogador.
 typedef struct Score {
 	// Nome de quem fez o score
-	char *name;
+	char name[4];
 
 	// Numero de pontos do score
 	int points;
@@ -14,6 +14,12 @@ typedef struct Score {
 
 	// Borda do jogo ao qual o score referencia
 	int border;
+	
+	// Tempo selectionado para o time attack
+	int times;
+
+	// Tempo total de jogo
+	time_t totaltime;
 } Score;
 
 // Verifica a existencia dos arquivos de salvamento. Caso algum deles nao exista,
@@ -30,7 +36,10 @@ int loadoptions(void);
 // Recebe um argumento do tipo Score e adiciona ele ao arquivo scoreboard.dat.
 void savescore(Score *s);
 
-// Le o arquivo scoreboard.dat e retorna o que foi lido como um array de Score *.
-Score **loadscores(void);
+// Le o arquivo scoreboard.dat, e escreve ponteiros para os 10 melhores scores em ordem
+// decrescente de certo modo, tipo de borda e tempo no ponteiro passado como primeiro
+// argumento. Caso nao hajam 10 scores para serem carregados, a funcao carregara o maior
+// numero disponivel, esse numero eh o valor retornado pela funcao.
+int loadscores(Score **ptr, int mode, int border, int totaltime);
 
 #endif
