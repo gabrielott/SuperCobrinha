@@ -290,15 +290,15 @@ void scoreboardmenu(void) {
 	}
 }
 
-int gameovermenu(int mode, int border, int times, time_t totaltime) {
+int gameovermenu(int mode, int border, int times, time_t totaltime, int deathcase) {
 	int exit = 0;
 	int salvo = 0;
 	while(!exit) {
 		wclear(inner);
 		makeborder(inner);
 
-		char *mensagem = "Voce perdeu";
-		mvwprintw(inner, 3, (maxinx - strlen(mensagem)) / 2, mensagem);
+		char *mensagem[] = {"Voce perdeu", "O tempo acabou"};
+		mvwprintw(inner, 3, (maxinx - strlen(mensagem[deathcase])) / 2, mensagem[deathcase]);
 
 		exit = 1;
 		if(salvo) {

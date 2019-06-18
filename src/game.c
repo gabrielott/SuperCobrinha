@@ -25,7 +25,7 @@
 
 #define maxque 2
 
-Snakepart *snake[100];
+Snakepart *snake[30*14];
 
 time_t start;
 time_t gametime;
@@ -114,11 +114,27 @@ int startgame(int mode, int border, int times) {
 
 		// Correcao de bug de multiplos inputs
 		// Adiciona caracter pressionado na fila de execucao
-		while ((fila[cont] = wgetch(inner)) != ERR){
+		while ((fila[cont] = wgetch(inner)) != ERR) {
+            // softpause quando enter for pressionado
+            if(fila[cont] == '\n') {
+			    while(wgetch(inner) != '\n');
+                // Limpa a fila para evitar que a cobra se mova apos o pause
+                for (int i = 0; i <= maxque; i++) {
+		            fila[i] = 0;
+	            }
+                // Ajusta timer
+			    if (mode == MODE_TIMEATK) {
+				    start = time(NULL) - (times - gametime);
+			    } else {
+				    start = time(NULL) - gametime;
+			    }
+            }
+            // Avanca o indice da fila
 			if (cont < maxque){
-				cont++;
+			    cont++;
 			}
 		}
+
 		// Executa input conforme a ordem da fila de execucao
 		if (fila[0] != 0 && fila[0] != ERR){
 			// Captura o primeiro da fila para execucao
@@ -143,14 +159,6 @@ int startgame(int mode, int border, int times) {
 			direction = WEST;
 		} else if((g == KEY_RIGHT || g == ltrrght) && direction != WEST) {
 			direction = EAST;
-		} else if(g == '\n') {
-			// softpause quando enter for pressionado
-			while(wgetch(inner) != '\n');
-			if (mode == MODE_TIMEATK){
-				start = time(NULL) - (times - gametime);
-			} else {
-				start = time(NULL) - gametime;
-			}
 		}
 		g = 0;
 
@@ -211,7 +219,7 @@ int startgame(int mode, int border, int times) {
 			if(snake[i] == head) continue;
 			if(snake[i]->x == head->x && snake[i]->y == head->y) {
 				deathclear();
-				return gameovermenu(mode, border, times, gametime);
+				return gameovermenu(mode, border, times, gametime, 0);
 			}
 		}
 
@@ -219,7 +227,7 @@ int startgame(int mode, int border, int times) {
 		if(border == BORDER) {
 			if(head->x == maxinx - 1 || head->x == 0 || head->y == maxiny - 1 || head->y == 0) {
 				deathclear();
-				return gameovermenu(mode, border, times, gametime);
+				return gameovermenu(mode, border, times, gametime, 0);
 			}
 
 		// Faz a cobra "dar a volta"
@@ -251,7 +259,7 @@ int startgame(int mode, int border, int times) {
 		if (mode == MODE_TIMEATK) {
 			if(start + times <= time(NULL)){
 				deathclear();
-				return gameovermenu(mode, border, times, gametime);
+				return gameovermenu(mode, border, times, gametime, 1);
 			}
 		}
 
@@ -260,6 +268,6 @@ int startgame(int mode, int border, int times) {
 		wrefresh(inner);
 
 		// Velocidade do jogo
-		usleep(200000*gamespeed);
+		usleep(200000/gamespeed);
 	}
 }

@@ -13,6 +13,6 @@ int makeselector(WINDOW *w, int optamt, char *options[]);
 int mainmenu(void);
 
 // Exibe o menu de gameover
-int gameovermenu(int mode, int border, int times, time_t totaltime);
+int gameovermenu(int mode, int border, int times, time_t totaltime, int deathcase);
 
 #endif
