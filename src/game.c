@@ -51,6 +51,7 @@ void initialsetup(void) {
 	for (int i = 0; i <= maxque; i++) {
 		fila[i] = 0;
 	}
+	g = 0;
 
 	// coordenadas do timer e do placar
 	timerx = ((maxx - 32) / 2) - 14;
@@ -87,11 +88,12 @@ void initialsetup(void) {
 	nodelay(inner, TRUE);
 }
 
-void deathclear() {
+void deathclear(int deathmode) {
+	char *mensagem[] = {"Voce perdeu", "O tempo acabou"};
+	mvwprintw(inner, 3, (maxinx - strlen(mensagem[deathmode])) / 2, mensagem[deathmode]);
+	wrefresh(inner);
 	killsnake(snake, maxindex + 1);
-	mvwprintw(wmain,timery,timerx,"            ");
-	mvwprintw(wmain,timery+2,timerx,"          ");
-	wrefresh(wmain);
+	while(wgetch(inner) == ERR);
 }
 
 int startgame(int mode, int border, int times) {
@@ -115,22 +117,28 @@ int startgame(int mode, int border, int times) {
 		// Correcao de bug de multiplos inputs
 		// Adiciona caracter pressionado na fila de execucao
 		while ((fila[cont] = wgetch(inner)) != ERR) {
-            // softpause quando enter for pressionado
-            if(fila[cont] == '\n') {
-			    while(wgetch(inner) != '\n');
-                // Limpa a fila para evitar que a cobra se mova apos o pause
+            // Pause quando enter ou a barra de espaco forem pressionados
+            if(fila[cont] == '\n' || fila[cont] == ' ') {
+            	mvwprintw(wmain, timery+4, timerx, "Jogo Pausado");
+            	wrefresh(wmain);
+			    while(wgetch(inner) != '\n' && wgetch(inner) != ' ');
+                // Zera a fila para evitar que a cobra se mova apos o pause
                 for (int i = 0; i <= maxque; i++) {
 		            fila[i] = 0;
 	            }
+	            cont = 0;
                 // Ajusta timer
 			    if (mode == MODE_TIMEATK) {
 				    start = time(NULL) - (times - gametime);
 			    } else {
 				    start = time(NULL) - gametime;
 			    }
+			    // Limpa o status de jogo pausado
+			    mvwprintw(wmain, timery+4, timerx, "            ");
+            	wrefresh(wmain);
             }
             // Avanca o indice da fila
-			if (cont < maxque){
+			else if (cont < maxque) {
 			    cont++;
 			}
 		}
@@ -160,7 +168,6 @@ int startgame(int mode, int border, int times) {
 		} else if((g == KEY_RIGHT || g == ltrrght) && direction != WEST) {
 			direction = EAST;
 		}
-		g = 0;
 
 		// Tenta gerar todas as comidas
 		for(int i = 0; i < FOOD_NUM; i++) {
@@ -218,7 +225,7 @@ int startgame(int mode, int border, int times) {
 		for(int i = 0; i < maxindex + 1; i++) {
 			if(snake[i] == head) continue;
 			if(snake[i]->x == head->x && snake[i]->y == head->y) {
-				deathclear();
+				deathclear(0);
 				return gameovermenu(mode, border, times, gametime, 0);
 			}
 		}
@@ -226,7 +233,7 @@ int startgame(int mode, int border, int times) {
 		// Verifica colisao com borda
 		if(border == BORDER) {
 			if(head->x == maxinx - 1 || head->x == 0 || head->y == maxiny - 1 || head->y == 0) {
-				deathclear();
+				deathclear(0);
 				return gameovermenu(mode, border, times, gametime, 0);
 			}
 
@@ -258,7 +265,7 @@ int startgame(int mode, int border, int times) {
 		// Verifica se acabou o tempo do modo Time attack
 		if (mode == MODE_TIMEATK) {
 			if(start + times <= time(NULL)){
-				deathclear();
+				deathclear(1);
 				return gameovermenu(mode, border, times, gametime, 1);
 			}
 		}

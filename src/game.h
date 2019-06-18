@@ -16,8 +16,11 @@ int maxindex;
 //Pontuacao do jogo
 int score;
 
+// Coordenadas do timer
+int timerx, timery;
+
 // Array de ponteiros de cada parte da cobra
-Snakepart *snake[100];
+Snakepart *snake[30*14];
 
 // Desenha o mapa inicial do jogo e inicializa as variaveis necessarias
 void initialsetup(void);

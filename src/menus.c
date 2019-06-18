@@ -290,6 +290,12 @@ void scoreboardmenu(void) {
 	}
 }
 
+void gameoverclear(void) {
+	mvwprintw(wmain,timery,timerx,"            ");
+	mvwprintw(wmain,timery+2,timerx,"          ");
+	wrefresh(wmain);
+}
+
 int gameovermenu(int mode, int border, int times, time_t totaltime, int deathcase) {
 	int exit = 0;
 	int salvo = 0;
@@ -306,10 +312,13 @@ int gameovermenu(int mode, int border, int times, time_t totaltime, int deathcas
 
 			switch(makeselector(inner, 2, options)) {
 				case 0:
+					gameoverclear();
 					return 0;
 				case 1:
+					gameoverclear();
 					return 1;
 				default:
+					gameoverclear();
 					return 1;
 			}
 		} else {
@@ -322,10 +331,13 @@ int gameovermenu(int mode, int border, int times, time_t totaltime, int deathcas
 					salvo = 1;
 					break;
 				case 1:
+					gameoverclear();
 					return 0;
 				case 2:
+					gameoverclear();
 					return 1;
 				default:
+					gameoverclear();
 					return 1;
 			}
 		}
