@@ -11,6 +11,7 @@ void makeborder(WINDOW *w) {
 	int x, y;
 	getmaxyx(w, y, x);
 
+	wattron(w, COLOR_PAIR(GREEN));
 	mvwaddch(w, 0, 0, ACS_ULCORNER);
 	mvwaddch(w, 0, x - 1, ACS_URCORNER);
 	mvwaddch(w, y - 1, 0, ACS_LLCORNER);
@@ -25,6 +26,7 @@ void makeborder(WINDOW *w) {
 		mvwaddch(w, i, 0, ACS_VLINE);
 		mvwaddch(w, i, x - 1, ACS_VLINE);
 	}
+	wattroff(w, COLOR_PAIR(GREEN));
 }
 
 int makeselector(WINDOW *w, int optamt, char *options[]) {
@@ -42,9 +44,9 @@ int makeselector(WINDOW *w, int optamt, char *options[]) {
 	for(;;) {
 		for(int i = 0; i < optamt; i++) { 
 			if(selected == i) {
-				mvwchgat(w, (y - optamt * 2) / 2 + i * 2, (x - strlen(options[i])) / 2, strlen(options[i]), A_STANDOUT, COLOR_RED, NULL);
+				mvwchgat(w, (y - optamt * 2) / 2 + i * 2, (x - strlen(options[i])) / 2, strlen(options[i]), A_STANDOUT, YELLOW, NULL);
 			} else {
-				mvwchgat(w, (y - optamt * 2) / 2 + i * 2, (x - strlen(options[i])) / 2, strlen(options[i]), A_NORMAL, COLOR_RED, NULL);
+				mvwchgat(w, (y - optamt * 2) / 2 + i * 2, (x - strlen(options[i])) / 2, strlen(options[i]), A_NORMAL, WHITE, NULL);
 			}
 		}
 

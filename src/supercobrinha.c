@@ -9,6 +9,12 @@
 #define LTR_COLEMAK 1
 #define LTR_QWERTY 2
 
+#define WHITE 1
+#define GREEN 2
+#define YELLOW 3
+#define RED 4
+#define CYAN 5
+
 int maxy, maxx;
 int maxiny, maxinx;
 int middlex, middley;
@@ -50,6 +56,13 @@ int main(void) {
 	noecho();
 	curs_set(FALSE);
 
+	start_color();
+	init_pair(WHITE, COLOR_WHITE, COLOR_BLACK);
+	init_pair(GREEN, COLOR_GREEN, COLOR_BLACK);
+	init_pair(YELLOW, COLOR_YELLOW, COLOR_BLACK);
+	init_pair(RED, COLOR_RED, COLOR_BLACK);
+	init_pair(CYAN, COLOR_CYAN, COLOR_BLACK);
+
 	wmain = newwin(LINES, COLS, 0, 0);
 	inner = newwin(16, 32, 7, (COLS - 32) / 2);
 
@@ -71,12 +84,14 @@ int main(void) {
 	const int px = (maxx - 72) / 2;
 
 	makeborder(wmain);
+	wattron(wmain, COLOR_PAIR(CYAN));
 	mvwprintw(wmain, py++, px, "   _____                                  __         _       __         ");
 	mvwprintw(wmain, py++, px, "  / ___/__  ______  ___  ______________  / /_  _____(_)___  / /_  ____ _");
 	mvwprintw(wmain, py++, px, "  \\__ \\/ / / / __ \\/ _ \\/ ___/ ___/ __ \\/ __ \\/ ___/ / __ \\/ __ \\/ __ `/");
 	mvwprintw(wmain, py++, px, " ___/ / /_/ / /_/ /  __/ /  / /__/ /_/ / /_/ / /  / / / / / / / / /_/ / ");
 	mvwprintw(wmain, py++, px, "/____/\\__,_/ .___/\\___/_/   \\___/\\____/_.___/_/  /_/_/ /_/_/ /_/\\__,_/  ");
 	mvwprintw(wmain, py, px, "          /_/                                                           ");
+	wattroff(wmain, COLOR_PAIR(CYAN));
 	wrefresh(wmain);
 
 	if(loadoptions() == LTR_COLEMAK) {

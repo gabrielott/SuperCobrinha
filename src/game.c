@@ -67,7 +67,9 @@ void initialsetup(void) {
 
 	for(int i = 0; i < INITIAL_SIZE; i++) {
 		snake[i] = newpart(i, maxiny / 2 + i, maxinx / 2);
+		wattron(inner, COLOR_PAIR(i == 0 ? RED : GREEN));
 		mvwaddch(inner, snake[i]->y, snake[i]->x, ACS_BLOCK);
+		wattroff(inner, COLOR_PAIR(i == 0 ? RED : GREEN));
 	}
 
 	wrefresh(inner);
@@ -210,6 +212,7 @@ int startgame(int mode, int border, int times) {
 			snake[i]->index++;
 		}
 
+		Snakepart *oldhead = head;
 		tail->index = 0;
 		head = tail;
 
@@ -271,7 +274,14 @@ int startgame(int mode, int border, int times) {
 		}
 
 		// Desenha a cabeca da cobrinha
+		wattron(inner, COLOR_PAIR(GREEN));
+		mvwaddch(inner, oldhead->y, oldhead->x, ACS_BLOCK);
+		wattroff(inner, COLOR_PAIR(GREEN));
+
+		wattron(inner, COLOR_PAIR(RED));
 		mvwaddch(inner, head->y, head->x, ACS_BLOCK);
+		wattroff(inner, COLOR_PAIR(RED));
+
 		wrefresh(inner);
 
 		// Velocidade do jogo

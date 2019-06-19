@@ -5,6 +5,13 @@
 #define LTR_COLEMAK 1
 #define LTR_QWERTY 2
 
+// Constantes para os pares de cores
+#define WHITE 1
+#define GREEN 2
+#define YELLOW 3
+#define RED 4
+#define CYAN 5
+
 #include <ncurses.h>
 
 // Coordenadas y e x maximas da janela principal
