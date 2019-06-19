@@ -265,7 +265,7 @@ void scoreboardmenu(void) {
 		}
 
 		for(int i = 0; i < size; i++) {
-			mvwprintw(inner, 5 + i, 2, "%d - %s %d", i + 1, scores[i]->name, scores[i]->points);
+			mvwprintw(inner, 5 + i, 2, i == 9 ? "%d - %s %d" : "%d  - %s %d", i + 1, scores[i]->name, scores[i]->points);
 		}
 
 		wrefresh(inner);

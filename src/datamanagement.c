@@ -98,8 +98,8 @@ int loadscores(Score **ptr, int mode, int border, int times) {
 			if((s->points > ptr[ii]->points) || (s->points == ptr[ii]->points && s->gametime < ptr[ii]->gametime)) {
 				slidedownfromindex(ptr, ii, current + 1);
 				ptr[ii] = s;
-				current++;
 				trumped = 1;
+				if(current < 9) current++;
 				break;
 			}
 		}
@@ -110,5 +110,5 @@ int loadscores(Score **ptr, int mode, int border, int times) {
 		}
 	}
 	fclose(f);
-	return current;
+	return current + 1;
 }
