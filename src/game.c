@@ -1,6 +1,7 @@
 #include <ncurses.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 #include "supercobrinha.h"
@@ -21,24 +22,39 @@
 #define SOUTH 2
 #define EAST 3
 #define WEST 4
-int level = 2;
-Snakepart *snake[100];
+#define maxque 2
+
+Snakepart *snake[30*14];
 
 time_t start;
 time_t gametime;
-int score = 0;
+int score;
 int timerx, timery;
 int direction;
 int grow;
 int maxindex;
+int g = 0, cont = 0;
+int fila[maxque + 1];
+int gamespeed = 1;
 
 Food *foods[FOOD_NUM];
-
+void getxtoy(int x, int x2, int *v){
+	for(int i =x; i<x2; i++){
+		
+	}
+}
 void initialsetup(void) {
 	// Inicializacao de variaveis
 	direction = -1;
 	grow = 0;
+	score = 0;
 	maxindex = INITIAL_SIZE - 1;
+
+	// Inicializacao da queue
+	for (int i = 0; i <= maxque; i++) {
+		fila[i] = 0;
+	}
+	g = 0;
 
 	// coordenadas do timer e do placar
 	timerx = ((maxx - 32) / 2) - 14;
@@ -46,6 +62,7 @@ void initialsetup(void) {
 	
 	// Inicializao de todas as comidas
 	foods[0] = newfood('o', TRUE, 0);
+	//foods[1] = newfood('!', TRUE, 7);
 
 	// Desenho do estado inicial do campo de jogo
 	wclear(inner);
@@ -60,13 +77,13 @@ void initialsetup(void) {
 
 	// Espera o jogador fazer o movimento inicial
 	while(direction == -1) {
-		const int g = wgetch(inner);
+		const int g2 = wgetch(inner);
 
-		if(g == KEY_UP || g == ' ' || g == '\n' || g == ltrup) {
+		if(g2 == KEY_UP || g2 == ' ' || g2 == '\n' || g2 == ltrup) {
 			direction = NORTH;
-		} else if(g == KEY_LEFT || g == ltrlft) {
+		} else if(g2 == KEY_LEFT || g2 == ltrlft) {
 			direction = WEST;
-		} else if(g == KEY_RIGHT || g == ltrrght) {
+		} else if(g2 == KEY_RIGHT || g2 == ltrrght) {
 			direction = EAST;
 		}
 	}
@@ -87,20 +104,19 @@ void block(int y, int x, int y2, int x2){
 		}
 
 	}
-
+}
+void deathclear(int deathmode) {
+	char *mensagem[] = {"Voce perdeu", "O tempo acabou"};
+	mvwprintw(inner, 3, (maxinx - strlen(mensagem[deathmode])) / 2, mensagem[deathmode]);
+	wrefresh(inner);
+	killsnake(snake, maxindex + 1);
+	while(wgetch(inner) == ERR);
 }
 
-void deathclear() {
-	mvwprintw(wmain,timery,timerx,"            ");
-	score = 0;
-	mvwprintw(wmain,timery+2,timerx,"          ");
-	wrefresh(wmain);
-}
-
-void startgame(int mode, int border, int times) {
+int startgame(int mode, int border, int times, int level) {
 	initialsetup();
 
-	//tempo precisa ser inicializado aqui
+	// Tempo a partir do qual a partida comeca
 	start = time(NULL);
 
 	// Loop principal
@@ -115,28 +131,47 @@ void startgame(int mode, int border, int times) {
 			gametime = time(NULL) - start;
 		}
 
+		// Correcao de bug de multiplos inputs
+		// Adiciona caracter pressionado na fila de execucao
+		while ((fila[cont] = wgetch(inner)) != ERR) {
+            // Pause quando enter ou a barra de espaco forem pressionados
+            if(fila[cont] == '\n' || fila[cont] == ' ') {
+            	mvwprintw(wmain, timery+4, timerx, "Jogo Pausado");
+            	wrefresh(wmain);
+			    while(wgetch(inner) != '\n' && wgetch(inner) != ' ');
+                // Zera a fila para evitar que a cobra se mova apos o pause
+                for (int i = 0; i <= maxque; i++) {
+		            fila[i] = 0;
+	            }
+	            cont = 0;
+                // Ajusta timer
+			    if (mode == MODE_TIMEATK) {
+				    start = time(NULL) - (times - gametime);
+			    } else {
+				    start = time(NULL) - gametime;
+			    }
+			    // Limpa o status de jogo pausado
+			    mvwprintw(wmain, timery+4, timerx, "            ");
+            	wrefresh(wmain);
+            }
+            // Avanca o indice da fila
+			else if (cont < maxque) {
+			    cont++;
+			}
+		}
 
-		// Atualiza a direcao da cobrinha
-		const int g = wgetch(inner);
-		if(g != ERR) {
-			if((g == KEY_UP || g  == ltrup) && direction != SOUTH) {
-				direction = NORTH;
-			} else if((g == KEY_DOWN || g == ltrdwn) && direction != NORTH) {
-				direction = SOUTH;
-			} else if((g == KEY_LEFT || g == ltrlft) && direction != EAST) {
-				direction = WEST;
-			} else if((g == KEY_RIGHT || g == ltrrght) && direction != WEST) {
-				direction = EAST;
-			} else if(g == '\n') {
-				// softpause quando enter for pressionado
-				nodelay(inner, FALSE);
-				while(wgetch(inner) != '\n');
-				if (mode == MODE_TIMEATK){
-					start = time(NULL) - (times - gametime);
-				} else {
-					start = time(NULL) - gametime;
-				}
-				nodelay(inner, TRUE);
+		// Executa input conforme a ordem da fila de execucao
+		if (fila[0] != 0 && fila[0] != ERR){
+			// Captura o primeiro da fila para execucao
+			g = fila[0];
+			// Anda com a fila
+			for (int i = 0; i < maxque; i++){
+				fila[i] = fila[i+1];
+			}
+			// Esvazia o final da fila
+			fila[maxque] = 0;
+			if (cont > 0){	
+				cont--;
 			}
 		}
 		switch(level){
@@ -174,14 +209,55 @@ void startgame(int mode, int border, int times) {
 				block(9, 16, 11, 0);
 				break;	
 			case 3:
-
+				block(5, 6, 11, 0);
+				block(5, 25, 11, 0);
+				block(3, 10, 0, 22);
+				block(12, 10, 0, 22);
+				block(7, 13, 9, 0);
+				block(7, 18, 9, 0);
+				break;
 			case 4:
-
+				block(3, 1, 0, 14);
+				block(3, 20, 0, 31);
+				block(6, 1, 0, 8);
+				block(6, 14, 0, 31);
+				block(9, 1, 0, 6);
+				block(9, 12, 0, 31);
+				block(12, 1, 0, 16);
+				block(12, 22, 0, 31);
+				break;
 			case 5:
+				block(3, 7, 0, 11);
+				mvwaddch(inner, 3, 6, ACS_ULCORNER);
+				block(4, 6, 7, 0);
+				mvwaddch(inner, 7, 6, ACS_LLCORNER);
+				block(7, 7, 0, 11);
+				block(3, 20, 0, 24);
+				mvwaddch(inner, 3, 19, ACS_ULCORNER);
+				block(4, 19, 7, 0);
+				mvwaddch(inner, 7, 19, ACS_LLCORNER);
+				block(7, 20, 0, 24);
+				block(12, 8, 0, 24);
+				mvwaddch(inner, 12, 7, ACS_LLCORNER);
+				mvwaddch(inner, 12, 24, ACS_LRCORNER);
+				block(10, 7, 12, 0);
+				block(10, 24, 12, 0);
+				break;
 
 			default:
 				break;
 		} 
+
+		// Atualiza a direcao da cobrinha
+		if((g == KEY_UP || g  == ltrup) && direction != SOUTH) {
+			direction = NORTH;
+		} else if((g == KEY_DOWN || g == ltrdwn) && direction != NORTH) {
+			direction = SOUTH;
+		} else if((g == KEY_LEFT || g == ltrlft) && direction != EAST) {
+			direction = WEST;
+		} else if((g == KEY_RIGHT || g == ltrrght) && direction != WEST) {
+			direction = EAST;
+		}
 
 		// Tenta gerar todas as comidas
 		for(int i = 0; i < FOOD_NUM; i++) {
@@ -190,7 +266,7 @@ void startgame(int mode, int border, int times) {
 
 		Snakepart *head = getpartwithindex(snake, maxindex + 1, 0);
 		Snakepart *tail = getpartwithindex(snake, maxindex + 1, maxindex);
-		
+
 		// Verifica se a cobrinha deve crescer
 		if(grow) {
 			maxindex++;
@@ -239,22 +315,25 @@ void startgame(int mode, int border, int times) {
 		for(int i = 0; i < maxindex + 1; i++) {
 			if(snake[i] == head) continue;
 			if(snake[i]->x == head->x && snake[i]->y == head->y) {
-				killsnake(snake, maxindex + 1);
-				mvwprintw(wmain,15,(maxx - 10) / 2,"voce faleceu");
-				wgetch(wmain);
-				deathclear();
-				return;
+				deathclear(0);
+				return gameovermenu(mode, border, times, gametime, 0);
 			}
 		}
-
+		if(level != 0){
+			if(head->y == 4 ){
+				deathclear(0);
+				return gameovermenu(mode, border, times, gametime, 0);
+			}
+			if(head->x == ACS_VLINE && (head->x != 0 || head->x != maxinx - 1)){
+				deathclear(0);
+				return gameovermenu(mode, border, times, gametime, 0);
+			}
+		}
 		// Verifica colisao com borda
 		if(border == BORDER) {
 			if(head->x == maxinx - 1 || head->x == 0 || head->y == maxiny - 1 || head->y == 0) {
-				killsnake(snake, maxindex + 1);
-				mvwprintw(wmain,15,(maxx - 10) / 2,"voce faleceu");
-				wgetch(wmain);
-				deathclear();
-				return;
+				deathclear(0);
+				return gameovermenu(mode, border, times, gametime, 0);
 			}
 
 		// Faz a cobra "dar a volta"
@@ -275,27 +354,26 @@ void startgame(int mode, int border, int times) {
 		// Exibe o tempo de jogo
 		mvwprintw(wmain, timery, timerx, "Tempo:  %li:%li", gametime/60, gametime%60);
 		if(gametime % 60 <10){
-			mvwprintw(wmain,timery,timerx+10,"0%li", gametime%60);
+			mvwprintw(wmain, timery, timerx+10, "0%li", gametime%60);
 		}
 		if(gametime / 60 <10){
-			mvwprintw(wmain,timery,timerx+7,"0");
+			mvwprintw(wmain, timery, timerx+7, "0");
 		}
 		wrefresh(wmain);
 
-		// modo Time attack
+		// Verifica se acabou o tempo do modo Time attack
 		if (mode == MODE_TIMEATK) {
 			if(start + times <= time(NULL)){
-				killsnake(snake, maxindex + 1);
-				mvwprintw(wmain,15,(maxx - 10) / 2,"Seu tempo acabou");
-				wgetch(wmain);
-				deathclear();
-				return;
+				deathclear(1);
+				return gameovermenu(mode, border, times, gametime, 1);
 			}
 		}
 
+		// Desenha a cabeca da cobrinha
 		mvwaddch(inner, head->y, head->x, ACS_BLOCK);
-
 		wrefresh(inner);
-		usleep(200 * 1000);
+
+		// Velocidade do jogo
+		usleep(200000/gamespeed);
 	}
 }

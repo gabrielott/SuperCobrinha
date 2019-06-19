@@ -3,15 +3,20 @@
 #include <unistd.h>
 
 #include "supercobrinha.h"
+#include "game.h"
 
 typedef struct Score {
-	char *name;
+	char name[4];
 	int points;
+	int mode;
+	int border;
+	int times;
+	time_t gametime;
 } Score;
 
 void setupsaves(void) {
 	if(access("options.dat", F_OK) == -1) {
-		FILE *f = fopen("options.dat", "w");
+		FILE *f = fopen("options.dat", "wb");
 		if(f == NULL) {
 			exit(1);
 		}
@@ -22,19 +27,15 @@ void setupsaves(void) {
 	}
 
 	if(access("scoreboard.dat", F_OK) == -1) {
-		FILE *f = fopen("scoreboard.dat", "w");
+		FILE *f = fopen("scoreboard.dat", "wb");
 		if(f == NULL) {
 			exit(1);
 		}
-
-		int scores = 0;
-		fwrite(&scores, sizeof(int), 1, f);
-		fclose(f);
 	}
 }
 
 void saveoptions(int o) {
-	FILE *f = fopen("options.dat", "w");
+	FILE *f = fopen("options.dat", "wb");
 	if(f == NULL) {
 		exit(1);
 	}
@@ -44,7 +45,7 @@ void saveoptions(int o) {
 }
 
 int loadoptions(void) {
-	FILE *f = fopen("options.dat", "r");
+	FILE *f = fopen("options.dat", "rb");
 	if(f == NULL) {
 		exit(1);
 	}
@@ -57,7 +58,7 @@ int loadoptions(void) {
 }
 
 void savescore(Score *s) {
-	FILE *f = fopen("scoreboard.dat", "a");
+	FILE *f = fopen("scoreboard.dat", "ab");
 	if(f == NULL) {
 		exit(1);
 	}
@@ -66,22 +67,48 @@ void savescore(Score *s) {
 	fclose(f);
 }
 
-Score **loadscores(void) {
-	FILE *f = fopen("scoreboard.dat", "r");
-	if(f == NULL) {
-		return NULL;
+int loadscores(Score **ptr, int mode, int border, int times) {
+	void slidedownfromindex(Score **s, int index, int t) {
+		for(int i = t - 2; i >= index; i--) {
+			s[i + 1] = s[i];
+		}
 	}
 
-	int scoreamnt;
-	fread(&scoreamnt, sizeof(int), 1, f);
+	FILE *f = fopen("scoreboard.dat", "rb");
+	if(f == NULL) {
+		exit(1);
+	}
 
-	Score **scores = malloc(scoreamnt * sizeof(Score *));
-	for(int i = 0; i < scoreamnt; i++) {
+	fseek(f, 0, SEEK_END);
+	long size = ftell(f);
+	rewind(f);
+	
+	int current = 0;
+	int trumped = 0;
+	for(int i = 0; i < size / sizeof(Score); i++) {
 		Score *s = malloc(sizeof(Score));
 		fread(s, sizeof(Score), 1, f);
-		scores[i] = s;
-	}
 
+		if(s->mode != mode) continue;
+		if(s->border != border) continue;
+		if(s->times != times && mode == MODE_TIMEATK) continue;
+
+		trumped = 0;
+		for(int ii = 0; ii < current; ii++) {
+			if((s->points > ptr[ii]->points) || (s->points == ptr[ii]->points && s->gametime < ptr[ii]->gametime)) {
+				slidedownfromindex(ptr, ii, current + 1);
+				ptr[ii] = s;
+				trumped = 1;
+				if(current < 9) current++;
+				break;
+			}
+		}
+
+		if(current < 9 && !trumped) {
+			ptr[current] = s;
+			current++;
+		}
+	}
 	fclose(f);
-	return scores;
+	return current;
 }
