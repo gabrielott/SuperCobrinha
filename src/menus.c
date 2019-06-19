@@ -2,6 +2,7 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #include "supercobrinha.h"
 #include "game.h"
@@ -289,6 +290,9 @@ void scoreboardmenu(void) {
 			return;
 		}
 
+		for(int i = 0; i < size; i++) {
+			free(scores[i]);
+		}
 	}
 }
 
