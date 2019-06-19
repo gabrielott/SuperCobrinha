@@ -85,6 +85,7 @@ int loadscores(Score **ptr, int mode, int border, int times) {
 	
 	int current = 0;
 	int trumped = 0;
+	int full = 0;
 	for(int i = 0; i < size / sizeof(Score); i++) {
 		Score *s = malloc(sizeof(Score));
 		fread(s, sizeof(Score), 1, f);
@@ -93,22 +94,25 @@ int loadscores(Score **ptr, int mode, int border, int times) {
 		if(s->border != border) continue;
 		if(s->times != times && mode == MODE_TIMEATK) continue;
 
+		if(current >= 9) full = 1;
+
 		trumped = 0;
 		for(int ii = 0; ii < current; ii++) {
 			if((s->points > ptr[ii]->points) || (s->points == ptr[ii]->points && s->gametime < ptr[ii]->gametime)) {
 				slidedownfromindex(ptr, ii, current + 1);
 				ptr[ii] = s;
 				trumped = 1;
-				if(current < 9) current++;
+
+				if(!full) current++;
 				break;
 			}
 		}
+		if(trumped || full) continue;
 
-		if(current < 9 && !trumped) {
-			ptr[current] = s;
-			current++;
-		}
+		ptr[current] = s;
+		current++;
 	}
+
 	fclose(f);
-	return current + 1;
+	return full ? 10 : current;
 }

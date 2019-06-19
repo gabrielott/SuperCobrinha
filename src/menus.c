@@ -297,6 +297,12 @@ void gameoverclear(void) {
 }
 
 int gameovermenu(int mode, int border, int times, time_t totaltime, int deathcase) {
+	void gameoverclear(void) {
+		mvwprintw(wmain,timery,timerx,"            ");
+		mvwprintw(wmain,timery+2,timerx,"          ");
+		wrefresh(wmain);
+	}
+
 	int exit = 0;
 	int salvo = 0;
 	while(!exit) {
