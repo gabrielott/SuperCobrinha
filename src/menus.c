@@ -117,7 +117,7 @@ int bordermenu(void) {
 void credits(void) {
 	nodelay(inner, TRUE);
 
-	char *nomes[] = {"SUPERCOBRINHA", "A game designed by:", "Filipe Castelo", "Gabriel Ottoboni", "João Pedro Silva", "Rodrigo Delpreti", "Thank you for playing!"};
+	char *nomes[] = {"SUPERCOBRINHA", "Desenvolvido por:", "Filipe Castelo", "Gabriel Ottoboni", "João Pedro Silva", "Rodrigo Delpreti", "Obrigado por jogar!"};
 	int startl[7] = {-7, 1, 5, 8, 11, 14, 25};
 	int i, j;
 	int setup = 14*5-1;
@@ -315,7 +315,7 @@ int gameovermenu(int mode, int border, int times, time_t totaltime, int deathcas
 		wclear(inner);
 		makeborder(inner);
 
-		char *mensagem[] = {"Voce perdeu", "O tempo acabou"};
+		char *mensagem[] = {"Voce perdeu", "O tempo acabou", "Voce venceu!"};
 		mvwprintw(inner, 3, (maxinx - strlen(mensagem[deathcase])) / 2, mensagem[deathcase]);
 
 		exit = 1;

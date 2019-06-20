@@ -91,7 +91,7 @@ void initialsetup(void) {
 }
 
 void deathclear(int deathmode) {
-	char *mensagem[] = {"Voce perdeu", "O tempo acabou"};
+	char *mensagem[] = {"Voce perdeu", "O tempo acabou", "Voce venceu!"};
 	mvwprintw(inner, 3, (maxinx - strlen(mensagem[deathmode])) / 2, mensagem[deathmode]);
 	wrefresh(inner);
 	killsnake(snake, maxindex + 1);
@@ -222,6 +222,12 @@ int startgame(int mode, int border, int times) {
 				grow = 1;
 				score++;
 			}
+		}
+
+		// Verifica se o jogador venceu o jogo
+		if(maxindex == 30*14-1){
+			deathclear(2);
+			return gameovermenu(mode, border, times, gametime, 2);
 		}
 
 		// Verifica colisao com a propria cobrinha
