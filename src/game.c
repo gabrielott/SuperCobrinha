@@ -91,11 +91,11 @@ void initialsetup(void) {
 }
 
 void deathclear(int deathmode) {
-	char *mensagem[] = {"Voce perdeu", "O tempo acabou", "Voce venceu!"};
+	char *mensagem[] = {"Voce perdeu", "O tempo acabou", "Voce venceu!", ""};
 	mvwprintw(inner, 3, (maxinx - strlen(mensagem[deathmode])) / 2, mensagem[deathmode]);
 	wrefresh(inner);
 	killsnake(snake, maxindex + 1);
-	while(wgetch(inner) == ERR);
+	if(deathmode != 3) while(wgetch(inner) == ERR);
 }
 
 int startgame(int mode, int border, int times) {
@@ -160,7 +160,7 @@ int startgame(int mode, int border, int times) {
 			}
 		}
 
-		// Atualiza a direcao da cobrinha
+		// Atualiza a direcao da cobrinha e pausa o jogo com esc
 		if((g == KEY_UP || g  == ltrup) && direction != SOUTH) {
 			direction = NORTH;
 		} else if((g == KEY_DOWN || g == ltrdwn) && direction != NORTH) {
@@ -169,6 +169,38 @@ int startgame(int mode, int border, int times) {
 			direction = WEST;
 		} else if((g == KEY_RIGHT || g == ltrrght) && direction != WEST) {
 			direction = EAST;
+
+		// Menu de pause
+		} else if(g == 27) {
+			WINDOW *pause = newwin(16, 32, 7, (maxx - 32) / 2);
+			makeborder(pause);
+
+			char *message = "Menu de pause";
+			mvwprintw(pause, 3, (maxinx - strlen(message)) / 2, message);
+			mvwprintw(wmain, timery + 4, timerx, "Jogo Pausado");
+			wrefresh(wmain);
+
+			char *options[] = {"Voltar ao jogo", "Sair"};
+			if(makeselector(pause, 2, options)) { 
+				mvwprintw(wmain, timery + 4, timerx, "            ");
+				deathclear(3);
+				gameoverclear();
+				wrefresh(wmain);
+				return 1;
+			}
+
+			mvwprintw(wmain, timery + 4, timerx, "            ");
+			redrawwin(inner);
+			wrefresh(inner);
+			wrefresh(wmain);
+
+			g = ERR;
+
+			if (mode == MODE_TIMEATK) {
+				start = time(NULL) - (times - gametime);
+			} else {
+				start = time(NULL) - gametime;
+			}
 		}
 
 		// Tenta gerar todas as comidas

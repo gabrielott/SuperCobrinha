@@ -55,6 +55,7 @@ int main(void) {
 	cbreak();
 	noecho();
 	curs_set(FALSE);
+	set_escdelay(0);
 
 	start_color();
 	init_pair(WHITE, COLOR_WHITE, COLOR_BLACK);
