@@ -21,7 +21,7 @@ void setupsaves(void) {
 			exit(1);
 		}
 
-		int ltr = LTR_COLEMAK;
+		int ltr = LTR_QWERTY;
 		fwrite(&ltr, sizeof(int), 1, f);
 		fclose(f);
 	}

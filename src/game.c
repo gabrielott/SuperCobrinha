@@ -173,6 +173,7 @@ int startgame(int mode, int border, int times) {
 		// Menu de pause
 		} else if(g == 27) {
 			WINDOW *pause = newwin(16, 32, 7, (maxx - 32) / 2);
+			keypad(pause, TRUE);
 			makeborder(pause);
 
 			char *message = "Menu de pause";
