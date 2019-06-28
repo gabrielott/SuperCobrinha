@@ -8,6 +8,16 @@
 #include "game.h"
 #include "datamanagement.h"
 
+int strlenunicode(char *s) {
+	int size = 0;
+	while(*s != '\0') {
+		// Verifica se byte comeca com 0b10
+		if((*s & 0xc0) != 0x80) size++;
+		s++;
+	}
+	return size;
+}
+
 void makeborder(WINDOW *w) {
 	int x, y;
 	getmaxyx(w, y, x);
@@ -37,7 +47,7 @@ int makeselector(WINDOW *w, int optamt, char *options[]) {
 	wrefresh(w);
 
 	for(int i = 0; i < optamt; i++) {
-		mvwprintw(w, (y - optamt * 2) / 2 + i * 2, (x - strlen(options[i])) / 2, options[i]);
+		mvwprintw(w, (y - optamt * 2) / 2 + i * 2, (x - strlenunicode(options[i])) / 2, options[i]);
 	}
 
 	int selected = 0;
@@ -45,9 +55,9 @@ int makeselector(WINDOW *w, int optamt, char *options[]) {
 	for(;;) {
 		for(int i = 0; i < optamt; i++) { 
 			if(selected == i) {
-				mvwchgat(w, (y - optamt * 2) / 2 + i * 2, (x - strlen(options[i])) / 2, strlen(options[i]), A_STANDOUT, YELLOW, NULL);
+				mvwchgat(w, (y - optamt * 2) / 2 + i * 2, (x - strlenunicode(options[i])) / 2, strlenunicode(options[i]), A_STANDOUT, YELLOW, NULL);
 			} else {
-				mvwchgat(w, (y - optamt * 2) / 2 + i * 2, (x - strlen(options[i])) / 2, strlen(options[i]), A_NORMAL, WHITE, NULL);
+				mvwchgat(w, (y - optamt * 2) / 2 + i * 2, (x - strlenunicode(options[i])) / 2, strlenunicode(options[i]), A_NORMAL, WHITE, NULL);
 			}
 		}
 
@@ -136,13 +146,13 @@ void credits(void) {
 		// Printa os creditos quando for a vez deles
 		for (j=0; j<7; j++) {
 			if (j != 6 && i < (setup - startl[j]) && i > (setup - 15 - startl[j])) {
-				mvwprintw(inner, 1+((i+1+startl[j])%14), (maxinx - strlen(nomes[j])) / 2, nomes[j]);
+				mvwprintw(inner, 1+((i+1+startl[j])%14), (maxinx - strlenunicode(nomes[j])) / 2, nomes[j]);
 			} 
 			if (j == 6 && i < (setup - startl[j])) {
 				if (i <= setup - 33) {
-					mvwprintw(inner, 1+((setup-6)%14), (maxinx - strlen(nomes[j])) / 2, nomes[j]);
+					mvwprintw(inner, 1+((setup-6)%14), (maxinx - strlenunicode(nomes[j])) / 2, nomes[j]);
 				} else {
-					mvwprintw(inner, 1+((i+1+startl[j])%14), (maxinx - strlen(nomes[j])) / 2, nomes[j]);
+					mvwprintw(inner, 1+((i+1+startl[j])%14), (maxinx - strlenunicode(nomes[j])) / 2, nomes[j]);
 				}
 			}
 		}
@@ -158,7 +168,7 @@ void savescoremenu(int mode, int border, int times, time_t totaltime) {
 	makeborder(inner);
 
 	char *mensagem = "Digite suas iniciais";
-	mvwprintw(inner, 3, (maxinx - strlen(mensagem)) / 2, mensagem);
+	mvwprintw(inner, 3, (maxinx - strlenunicode(mensagem)) / 2, mensagem);
 	mvwprintw(inner, maxiny / 2, (maxinx - 5) / 2, "_ _ _");
 
 	nodelay(inner, FALSE);
@@ -210,7 +220,7 @@ void scoreboardmenu(void) {
 	int distanceuntiltab(char *tabs[], int tab) {
 		int distance = 0;
 		for(int i = 0; i < tab - 1; i++) {
-			distance += strlen(tabs[i]) + 1;
+			distance += strlenunicode(tabs[i]) + 1;
 		}
 		return distance;
 	}
@@ -219,14 +229,14 @@ void scoreboardmenu(void) {
 	makeborder(inner);
 
 	char *title = "Hi-scores";
-	mvwprintw(inner, 1, (maxinx - strlen(title)) / 2, title);
+	mvwprintw(inner, 1, (maxinx - strlenunicode(title)) / 2, title);
 
 	const int tabamnt = 2;
 	char *tabs[] = {"Clássico", "Time Attack"};
 	int totallen = tabamnt - 1;
 
 	for(int i = 0; i < tabamnt; i++) {
-		totallen += strlen(tabs[i]);
+		totallen += strlenunicode(tabs[i]);
 	}
 
 	for(int i = 0; i < tabamnt; i++) {
@@ -242,9 +252,9 @@ void scoreboardmenu(void) {
 	for(;;) {
 		for(int i = 0; i < tabamnt; i++) { 
 			if(selected == i) {
-				mvwchgat(inner, 3, (maxinx - totallen) / 2 + distanceuntiltab(tabs, i + 1), strlen(tabs[i]), A_STANDOUT, COLOR_RED, NULL);
+				mvwchgat(inner, 3, (maxinx - totallen) / 2 + distanceuntiltab(tabs, i + 1), strlenunicode(tabs[i]), A_STANDOUT, COLOR_RED, NULL);
 			} else {
-				mvwchgat(inner, 3, (maxinx - totallen) / 2 + distanceuntiltab(tabs, i + 1), strlen(tabs[i]), A_NORMAL, COLOR_RED, NULL);
+				mvwchgat(inner, 3, (maxinx - totallen) / 2 + distanceuntiltab(tabs, i + 1), strlenunicode(tabs[i]), A_NORMAL, COLOR_RED, NULL);
 			}
 		}
 
@@ -316,7 +326,7 @@ int gameovermenu(int mode, int border, int times, time_t totaltime, int deathcas
 		makeborder(inner);
 
 		char *mensagem[] = {"Voce perdeu", "O tempo acabou", "Voce venceu!"};
-		mvwprintw(inner, 3, (maxinx - strlen(mensagem[deathcase])) / 2, mensagem[deathcase]);
+		mvwprintw(inner, 3, (maxinx - strlenunicode(mensagem[deathcase])) / 2, mensagem[deathcase]);
 
 		exit = 1;
 		if(salvo) {

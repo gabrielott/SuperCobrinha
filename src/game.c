@@ -1,7 +1,6 @@
 #include <ncurses.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <string.h>
 #include <time.h>
 
 #include "supercobrinha.h"
@@ -92,8 +91,8 @@ void initialsetup(void) {
 }
 
 void deathclear(int deathmode) {
-	char *mensagem[] = {"Voce perdeu", "O tempo acabou", "Voce venceu!", ""};
-	mvwprintw(inner, 3, (maxinx - strlen(mensagem[deathmode])) / 2, mensagem[deathmode]);
+	char *mensagem[] = {"Você perdeu", "O tempo acabou", "Você venceu!", ""};
+	mvwprintw(inner, 3, (maxinx - strlenunicode(mensagem[deathmode])) / 2, mensagem[deathmode]);
 	wrefresh(inner);
 	killsnake(snake, maxindex + 1);
 	if(deathmode != 3) while(wgetch(inner) == ERR);
@@ -185,7 +184,7 @@ int startgame(int mode, int border, int times) {
 			makeborder(pause);
 
 			char *message = "Menu de pause";
-			mvwprintw(pause, 3, (maxinx - strlen(message)) / 2, message);
+			mvwprintw(pause, 3, (maxinx - strlenunicode(message)) / 2, message);
 			mvwprintw(wmain, timery + 4, timerx, "Jogo Pausado");
 			wrefresh(wmain);
 

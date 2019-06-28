@@ -1,6 +1,9 @@
 #ifndef MENUS_HEADER
 #define MENUS_HEADER
 
+// Conta os caracters de um string no formato unicode
+int strlenunicode(char *s);
+
 // Cria uma borda no contorno de certa janela
 void makeborder(WINDOW *w);
 
