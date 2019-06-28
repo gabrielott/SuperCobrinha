@@ -51,6 +51,7 @@ void initialsetup(void) {
 	for (int i = 0; i <= maxque; i++) {
 		fila[i] = 0;
 	}
+	cont = 0;
 	g = 0;
 
 	// coordenadas do timer e do placar
@@ -118,18 +119,19 @@ int startgame(int mode, int border, int times) {
 
 		// Correcao de bug de multiplos inputs
 		// Adiciona caracter pressionado na fila de execucao
-		while ((fila[cont] = wgetch(inner)) != ERR) {
-			// Pause quando enter ou a barra de espaco forem pressionados
+		while ((fila[cont] = wgetch(inner)) != ERR) { // Pause quando enter ou a barra de espaco forem pressionados 
 			if(fila[cont] == '\n' || fila[cont] == ' ') {
 				mvwprintw(wmain, timery+4, timerx, "Jogo Pausado");
 				wrefresh(wmain);
-                // Loop que aguarda enter ou a barra de espaco serem pressionados para voltar ao jogo
-				while(1) {
-                    char leav = wgetch(inner);
-                    if (leav == '\n' || leav == ' '){
-                        break;
-                    }
-                }
+			
+				// Loop que aguarda enter ou a barra de espaco serem pressionados para voltar ao jogo
+				int leav;
+				nodelay(inner, FALSE);
+				do {
+					leav = wgetch(inner);
+				} while(leav != '\n' && leav != ' ');
+				nodelay(inner, TRUE);
+
 				// Zera a fila para evitar que a cobra se mova apos o pause
 				for (int i = 0; i <= maxque; i++) {
 					fila[i] = 0;
