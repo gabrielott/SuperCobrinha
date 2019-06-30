@@ -31,6 +31,7 @@ void setupsaves(void) {
 		if(f == NULL) {
 			exit(1);
 		}
+		fclose(f);
 	}
 }
 
