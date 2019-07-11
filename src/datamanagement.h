@@ -30,8 +30,9 @@ void setupsaves(void);
 // com o valor LTR_COLEMAK or LTR_QWERTY, a opcao selecionada.
 void saveoptions(int o);
 
-// Le a opcao de layout salva e retorna LTR_COLEMAK or LTR_QWERTY.
-int loadoptions(void);
+// Le a opcao de layout salva no arquivo, e guarda no ponteiro passado como parametro LTR_COLEMAK ou LTR_QWERTY.
+// A ser ampliada
+void loadoptions(int *lay);
 
 // Recebe um argumento do tipo Score e adiciona ele ao arquivo scoreboard.dat.
 void savescore(Score *s);

@@ -55,9 +55,9 @@ int makeselector(WINDOW *w, int optamt, char *options[]) {
 	for(;;) {
 		for(int i = 0; i < optamt; i++) { 
 			if(selected == i) {
-				mvwchgat(w, (y - optamt * 2) / 2 + i * 2, (x - strlenunicode(options[i])) / 2, strlenunicode(options[i]), A_STANDOUT, YELLOW, NULL);
+				mvwchgat(w, (y - optamt * 2) / 2 + i * 2, (x - strlenunicode(options[i])) / 2, strlenunicode(options[i]), A_STANDOUT, GREEN, NULL);
 			} else {
-				mvwchgat(w, (y - optamt * 2) / 2 + i * 2, (x - strlenunicode(options[i])) / 2, strlenunicode(options[i]), A_NORMAL, WHITE, NULL);
+				mvwchgat(w, (y - optamt * 2) / 2 + i * 2, (x - strlenunicode(options[i])) / 2, strlenunicode(options[i]), A_NORMAL, GREEN, NULL);
 			}
 		}
 

@@ -2,6 +2,7 @@
 #include <locale.h>
 #include <time.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "menus.h"
 #include "datamanagement.h"
@@ -16,9 +17,10 @@
 #define CYAN 5
 
 #define IDLE 0
-#define RUNNING 1
-#define PAUSED 2
-#define DEATH 3
+#define READY 1
+#define RUNNING 2
+#define PAUSED 3
+#define DEATH 4
 
 int GAMESTATE = IDLE;
 
@@ -58,18 +60,31 @@ void setletters(int l) {
 void updatestate(int state) {
 	GAMESTATE = state;
 	if (GAMESTATE == IDLE){
-		mvwprintw(wmain, maxy - 2, maxx - 20, "STATE: idle   ");
+		mvwprintw(wmain, maxy - 2, maxx - 20, "STATE: Idle   ");
+	}
+	if (GAMESTATE == READY){
+		mvwprintw(wmain, maxy - 2, maxx - 20, "STATE: Ready   ");
 	}
 	if (GAMESTATE == RUNNING){
-		mvwprintw(wmain, maxy - 2, maxx - 20, "STATE: running");
+		mvwprintw(wmain, maxy - 2, maxx - 20, "STATE: Running");
 	}
 	if (GAMESTATE == PAUSED){
-		mvwprintw(wmain, maxy - 2, maxx - 20, "STATE: paused ");
+		mvwprintw(wmain, maxy - 2, maxx - 20, "STATE: Paused ");
 	}
 	if (GAMESTATE == DEATH){
-		mvwprintw(wmain, maxy - 2, maxx - 20, "STATE: death  ");
+		mvwprintw(wmain, maxy - 2, maxx - 20, "STATE: Death  ");
 	}	
 	wrefresh(wmain);
+}
+
+void intro(void) {
+	char *welcome = "Bem vindo ao jogo SuperCobrinha!";
+	wattron(wmain, COLOR_PAIR(RED));
+	mvwprintw(wmain, middley - 2, (maxx - strlen(welcome)) / 2, welcome);
+	wattroff(wmain, COLOR_PAIR(RED));
+	wrefresh(wmain);
+	while(wgetch(inner) == ERR);
+	wclear(wmain);
 }
 
 int main(void) {
@@ -105,25 +120,25 @@ int main(void) {
 	setupsaves();
 	srand(time(NULL));
 
+	intro();
+
 	int py = 1;
 	const int px = (maxx - 72) / 2;
 
 	makeborder(wmain);
-	wattron(wmain, COLOR_PAIR(CYAN));
+	wattron(wmain, COLOR_PAIR(RED));
 	mvwprintw(wmain, py++, px, "   _____                                  __         _       __         ");
 	mvwprintw(wmain, py++, px, "  / ___/__  ______  ___  ______________  / /_  _____(_)___  / /_  ____ _");
 	mvwprintw(wmain, py++, px, "  \\__ \\/ / / / __ \\/ _ \\/ ___/ ___/ __ \\/ __ \\/ ___/ / __ \\/ __ \\/ __ `/");
 	mvwprintw(wmain, py++, px, " ___/ / /_/ / /_/ /  __/ /  / /__/ /_/ / /_/ / /  / / / / / / / / /_/ / ");
 	mvwprintw(wmain, py++, px, "/____/\\__,_/ .___/\\___/_/   \\___/\\____/_.___/_/  /_/_/ /_/_/ /_/\\__,_/  ");
 	mvwprintw(wmain, py, px, "          /_/                                                           ");
-	wattroff(wmain, COLOR_PAIR(CYAN));
+	wattroff(wmain, COLOR_PAIR(RED));
 	wrefresh(wmain);
 
-	if(loadoptions() == LTR_COLEMAK) {
-		setletters(LTR_COLEMAK);
-	} else {
-		setletters(LTR_QWERTY);
-	}
+	int lay;
+	loadoptions(&lay);
+	setletters(lay);
 
 	int exit = 0;
 	while(!exit) {

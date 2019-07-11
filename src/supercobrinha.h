@@ -14,9 +14,10 @@
 
 // Constantes para o estado do jogo
 #define IDLE 0
-#define RUNNING 1
-#define PAUSED 2
-#define DEATH 3
+#define READY 1
+#define RUNNING 2
+#define PAUSED 3
+#define DEATH 4
 
 #include <ncurses.h>
 

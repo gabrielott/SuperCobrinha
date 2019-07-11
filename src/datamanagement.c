@@ -45,17 +45,15 @@ void saveoptions(int o) {
 	fclose(f);
 }
 
-int loadoptions(void) {
+void loadoptions(int *lay) {
 	FILE *f = fopen("options.dat", "rb");
 	if(f == NULL) {
 		exit(1);
 	}
 
-	int o;
-	fread(&o, sizeof(int), 1, f);
+	fread(lay, sizeof(int), 1, f);
 
 	fclose(f);
-	return o;
 }
 
 void savescore(Score *s) {

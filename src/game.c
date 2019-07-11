@@ -73,6 +73,7 @@ void initialsetup(void) {
 	}
 
 	wrefresh(inner);
+	updatestate(READY);
 
 	// Espera o jogador fazer o movimento inicial
 	while(direction == -1) {
