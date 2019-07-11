@@ -15,10 +15,12 @@
 #define RED 4
 #define CYAN 5
 
+#define IDLE 0
 #define RUNNING 1
 #define PAUSED 2
 #define DEATH 3
-int GAMESTATE = 0;
+
+int GAMESTATE = IDLE;
 
 int maxy, maxx;
 int maxiny, maxinx;
@@ -50,6 +52,23 @@ void setletters(int l) {
 		ltrrght = 'd';
 	}
 	mvwprintw(wmain, maxy - 2, 1, "Layout: %s", layout == LTR_COLEMAK ? "Colemak" : "QWERTY ");
+	wrefresh(wmain);
+}
+
+void updatestate(int state) {
+	GAMESTATE = state;
+	if (GAMESTATE == IDLE){
+		mvwprintw(wmain, maxy - 2, maxx - 20, "STATE: idle   ");
+	}
+	if (GAMESTATE == RUNNING){
+		mvwprintw(wmain, maxy - 2, maxx - 20, "STATE: running");
+	}
+	if (GAMESTATE == PAUSED){
+		mvwprintw(wmain, maxy - 2, maxx - 20, "STATE: paused ");
+	}
+	if (GAMESTATE == DEATH){
+		mvwprintw(wmain, maxy - 2, maxx - 20, "STATE: death  ");
+	}	
 	wrefresh(wmain);
 }
 
@@ -108,6 +127,7 @@ int main(void) {
 
 	int exit = 0;
 	while(!exit) {
+		updatestate(IDLE);
 		exit = mainmenu();
 	}
 

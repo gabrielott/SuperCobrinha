@@ -88,12 +88,12 @@ void initialsetup(void) {
 	}
 
 	nodelay(inner, TRUE);
-	GAMESTATE = RUNNING;
+	updatestate(RUNNING);
 }
 
 void deathclear(int deathmode) {
 	char *mensagem[] = {"Você perdeu", "O tempo acabou", "Você venceu!", ""};
-	GAMESTATE = DEATH;
+	updatestate(DEATH);
 	mvwprintw(inner, 3, (maxinx - strlenunicode(mensagem[deathmode])) / 2, mensagem[deathmode]);
 	wrefresh(inner);
 	killsnake(snake, maxindex + 1);
@@ -120,33 +120,50 @@ int startgame(int mode, int border, int times) {
 
 		// Correcao de bug de multiplos inputs
 		// Adiciona caracter pressionado na fila de execucao
-		while ((fila[cont] = wgetch(inner)) != ERR) { // Pause quando enter ou a barra de espaco forem pressionados 
-			if(fila[cont] == '\n' || fila[cont] == ' ') {
-				mvwprintw(wmain, timery+4, timerx, "Jogo Pausado");
-				wrefresh(wmain);
-			
-				// Loop que aguarda enter ou a barra de espaco serem pressionados para voltar ao jogo
-				int leav;
-				nodelay(inner, FALSE);
-				do {
-					leav = wgetch(inner);
-				} while(leav != '\n' && leav != ' ');
-				nodelay(inner, TRUE);
+		while ((fila[cont] = wgetch(inner)) != ERR) { // Todos os pauses juntos num codigo monstruoso e bugado
+			if(fila[cont] == '\n' || fila[cont] == ' ' || fila[cont] == 27) {
+				updatestate(PAUSED);
+				if(fila[cont] == 27) {
+					// Menu de pause ao pressionar esc
+					WINDOW *pause = newwin(16, 32, 7, (maxx - 32) / 2);
+					keypad(pause, TRUE);
+					makeborder(pause);
+
+					char *message = "Menu de pause";
+					mvwprintw(pause, 3, (maxinx - strlenunicode(message)) / 2, message);
+
+					char *options[] = {"Voltar ao jogo", "Sair"};
+					if(makeselector(pause, 2, options)) { 
+						deathclear(3);
+						gameoverclear();
+						wrefresh(wmain);
+						return 1;
+					}
+					redrawwin(inner);
+					wrefresh(inner);
+				}
+				else {
+					// Pauses com enter e barra de espaco
+					int leav;
+					nodelay(inner, FALSE);
+					do {
+						leav = wgetch(inner);
+					} while(leav != '\n' && leav != ' ');
+					nodelay(inner, TRUE);
+				}
 
 				// Zera a fila para evitar que a cobra se mova apos o pause
 				for (int i = 0; i <= maxque; i++) {
 					fila[i] = 0;
 				}
 				cont = 0;
-				// Ajusta timer
+				// Ajusta o timer
 				if (mode == MODE_TIMEATK) {
 					start = time(NULL) - (times - gametime);
 				} else {
 					start = time(NULL) - gametime;
 				}
-				// Limpa o status de jogo pausado
-				mvwprintw(wmain, timery+4, timerx, "            ");
-				wrefresh(wmain);
+				updatestate(RUNNING);
 			}
 			// Avanca o indice da fila
 			else if (cont < maxque) {
@@ -169,7 +186,7 @@ int startgame(int mode, int border, int times) {
 			}
 		}
 
-		// Atualiza a direcao da cobrinha e pausa o jogo com esc
+		// Atualiza a direcao da cobrinha
 		if((g == KEY_UP || g  == ltrup) && direction != SOUTH) {
 			direction = NORTH;
 		} else if((g == KEY_DOWN || g == ltrdwn) && direction != NORTH) {
@@ -178,39 +195,6 @@ int startgame(int mode, int border, int times) {
 			direction = WEST;
 		} else if((g == KEY_RIGHT || g == ltrrght) && direction != WEST) {
 			direction = EAST;
-
-		// Menu de pause
-		} else if(g == 27) {
-			WINDOW *pause = newwin(16, 32, 7, (maxx - 32) / 2);
-			keypad(pause, TRUE);
-			makeborder(pause);
-
-			char *message = "Menu de pause";
-			mvwprintw(pause, 3, (maxinx - strlenunicode(message)) / 2, message);
-			mvwprintw(wmain, timery + 4, timerx, "Jogo Pausado");
-			wrefresh(wmain);
-
-			char *options[] = {"Voltar ao jogo", "Sair"};
-			if(makeselector(pause, 2, options)) { 
-				mvwprintw(wmain, timery + 4, timerx, "            ");
-				deathclear(3);
-				gameoverclear();
-				wrefresh(wmain);
-				return 1;
-			}
-
-			mvwprintw(wmain, timery + 4, timerx, "            ");
-			redrawwin(inner);
-			wrefresh(inner);
-			wrefresh(wmain);
-
-			g = ERR;
-
-			if (mode == MODE_TIMEATK) {
-				start = time(NULL) - (times - gametime);
-			} else {
-				start = time(NULL) - gametime;
-			}
 		}
 
 		// Tenta gerar todas as comidas

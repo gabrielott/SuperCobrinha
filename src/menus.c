@@ -398,17 +398,10 @@ int mainmenu(void) {
 	char *options[] = {"Iniciar Jogo", "Scoreboard", "Opções", "Créditos", "Sair"};
 
 	int ans = makeselector(inner, 5, options);
-	int border;
-
-	if(ans == 4) return 1;
-	if(ans != 3 && ans != 2) {
-		border = bordermenu();
-		if(border == 0) return 0;
-	}
 
 	switch(ans) {
 		case 0:
-			while(!startgame(MODE_CLASSIC, border, 0));
+			while(!startgame(MODE_CLASSIC, BORDER, 0));
 			return 0;
 		case 1:
 			scoreboardmenu();
