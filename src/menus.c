@@ -373,10 +373,10 @@ void optionsmenu(void) {
 		wclear(inner);
 		makeborder(inner);
 
-		char *options[] = {"Usar layout Colemak", "Usar layout QWERTY", "Créditos", "Voltar"};
+		char *options[] = {"Usar layout Colemak", "Usar layout QWERTY", "Voltar"};
 
 		exit = 1;
-		switch(makeselector(inner, 4, options)) {
+		switch(makeselector(inner, 3, options)) {
 			case 0:
 				setletters(LTR_COLEMAK);
 				saveoptions(LTR_COLEMAK);
@@ -386,10 +386,6 @@ void optionsmenu(void) {
 				saveoptions(LTR_QWERTY);
 				break;
 			case 2:
-				credits();
-				exit = 0;
-				break;
-			case 3:
 				break;
 		}
 	}
@@ -399,7 +395,7 @@ int mainmenu(void) {
 	wclear(inner);
 	makeborder(inner);
 
-	char *options[] = {"Clássico", "Time Attack", "Scoreboard", "Opções", "Sair"};
+	char *options[] = {"Iniciar Jogo", "Scoreboard", "Opções", "Créditos", "Sair"};
 
 	int ans = makeselector(inner, 5, options);
 	int border;
@@ -415,16 +411,13 @@ int mainmenu(void) {
 			while(!startgame(MODE_CLASSIC, border, 0));
 			return 0;
 		case 1:
-			while(timeatkmenu(border)) {
-				border = bordermenu();
-				if(border == 0) break;
-			}
-			return 0;
-		case 2:
 			scoreboardmenu();
 			return 0;
-		case 3:
+		case 2:
 			optionsmenu();
+			return 0;
+		case 3:
+			credits();
 			return 0;
 		case 4:
 			return 1;

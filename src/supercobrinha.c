@@ -15,6 +15,11 @@
 #define RED 4
 #define CYAN 5
 
+#define RUNNING 1
+#define PAUSED 2
+#define DEATH 3
+int GAMESTATE = 0;
+
 int maxy, maxx;
 int maxiny, maxinx;
 int middlex, middley;

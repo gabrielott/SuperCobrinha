@@ -12,6 +12,11 @@
 #define RED 4
 #define CYAN 5
 
+// Constantes para o estado do jogo
+#define RUNNING 1
+#define PAUSED 2
+#define DEATH 3
+
 #include <ncurses.h>
 
 // Coordenadas y e x maximas da janela principal
@@ -25,6 +30,9 @@ int middlex, middley;
 
 // Teclas utilizadas para movimento (variam de acordo com layout selecionado)
 int ltrup, ltrdwn, ltrrght, ltrlft;
+
+// Variavel que indica o estado do jogo
+int GAMESTATE;
 
 // Layout selecionado atualmente
 int layout;

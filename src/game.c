@@ -88,10 +88,12 @@ void initialsetup(void) {
 	}
 
 	nodelay(inner, TRUE);
+	GAMESTATE = RUNNING;
 }
 
 void deathclear(int deathmode) {
 	char *mensagem[] = {"Você perdeu", "O tempo acabou", "Você venceu!", ""};
+	GAMESTATE = DEATH;
 	mvwprintw(inner, 3, (maxinx - strlenunicode(mensagem[deathmode])) / 2, mensagem[deathmode]);
 	wrefresh(inner);
 	killsnake(snake, maxindex + 1);
