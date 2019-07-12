@@ -1,5 +1,6 @@
 #include <ncurses.h>
 #include <locale.h>
+#include <unistd.h>
 #include <time.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,11 +11,11 @@
 #define LTR_QWERTY 0
 #define LTR_COLEMAK 1
 
-#define WHITE 1
-#define GREEN 2
-#define YELLOW 3
-#define RED 4
-#define CYAN 5
+#define WHITE 0
+#define GREEN 1
+#define YELLOW 2
+#define RED 3
+#define CYAN 4
 
 #define IDLE 0
 #define READY 1
@@ -77,14 +78,23 @@ void updatestate(int state) {
 	wrefresh(wmain);
 }
 
-void intro(void) {
-	char *welcome = "Bem vindo ao jogo SuperCobrinha!";
-	wattron(wmain, COLOR_PAIR(RED));
-	mvwprintw(wmain, middley - 2, (maxx - strlenunicode(welcome)) / 2, welcome);
-	wattroff(wmain, COLOR_PAIR(RED));
-	wrefresh(wmain);
-	while(wgetch(inner) == ERR);
-	wclear(wmain);
+void intro(int px) {
+	int py; 
+	for(int i = 0; i < 30; i++) {
+		py = rand() % (maxy-7);
+		px = rand() % (maxx-64);
+		wattron(wmain, COLOR_PAIR(WHITE + i % 5));
+		mvwprintw(wmain, py, px, "   _____                                  __         _       __         ");
+		mvwprintw(wmain, py+1, px, "  / ___/__  ______  ___  ______________  / /_  _____(_)___  / /_  ____ _");
+		mvwprintw(wmain, py+2, px, "  \\__ \\/ / / / __ \\/ _ \\/ ___/ ___/ __ \\/ __ \\/ ___/ / __ \\/ __ \\/ __ `/");
+		mvwprintw(wmain, py+3, px, " ___/ / /_/ / /_/ /  __/ /  / /__/ /_/ / /_/ / /  / / / / / / / / /_/ / ");
+		mvwprintw(wmain, py+4, px, "/____/\\__,_/ .___/\\___/_/   \\___/\\____/_.___/_/  /_/_/ /_/_/ /_/\\__,_/  ");
+		mvwprintw(wmain, py+5, px, "          /_/                                                           ");
+		wattroff(wmain, COLOR_PAIR(WHITE + i % 5));
+		wrefresh(wmain);
+		usleep(100000);
+		wclear(wmain);
+	}
 }
 
 int main(void) {
@@ -120,10 +130,10 @@ int main(void) {
 	setupsaves();
 	srand(time(NULL));
 
-	intro();
-
 	int py = 1;
 	const int px = (maxx - 72) / 2;
+
+	intro(px);
 
 	makeborder(wmain);
 	wattron(wmain, COLOR_PAIR(RED));

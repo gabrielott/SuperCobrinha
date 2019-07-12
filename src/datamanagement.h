@@ -12,7 +12,7 @@ typedef struct Score {
 	// Mapa do jogo ao qual o score referencia
 	int map;
 	
-	// Tempo selectionado
+	// Tempo selecionado
 	int times;
 
 	// Tempo total de jogo

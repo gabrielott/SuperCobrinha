@@ -109,8 +109,11 @@ int startgame(void) {
 	// Carrega as opcoes dos modos de jogo diretamente do arquivo.
 	// A opcao de teclado nao faz nada, ta ali so pra nao bugar tudo, pretendo remover depois.
 	// Achei melhor nao fazer isso na initialsetup pra nao ter que passar parametros
-	int lay, times, map;
-	loadoptions(&lay, &times, &map);
+	int lay, timesq, map;
+	loadoptions(&lay, &timesq, &map);
+
+	int timevet[] = {TIMELESS, TIME_30, TIME_60, TIME_180, TIME_300};
+	int times = timevet[timesq];
 
 	initialsetup();
 
@@ -264,7 +267,7 @@ int startgame(void) {
 		// Verifica se o jogador venceu o jogo
 		if(maxindex == 30*14-1){
 			deathclear(2);
-			return gameovermenu(map, times, gametime, 2);
+			return gameovermenu(map, timesq, gametime, 2);
 		}
 
 		// Verifica colisao com a propria cobrinha
@@ -272,7 +275,7 @@ int startgame(void) {
 			if(snake[i] == head) continue;
 			if(snake[i]->x == head->x && snake[i]->y == head->y) {
 				deathclear(0);
-				return gameovermenu(map, times, gametime, 0);
+				return gameovermenu(map, timesq, gametime, 0);
 			}
 		}
 
@@ -280,7 +283,7 @@ int startgame(void) {
 		if(map == BORDER) {
 			if(head->x == maxinx - 1 || head->x == 0 || head->y == maxiny - 1 || head->y == 0) {
 				deathclear(0);
-				return gameovermenu(map, times, gametime, 0);
+				return gameovermenu(map, timesq, gametime, 0);
 			}
 
 		// Faz a cobra "dar a volta"
@@ -312,7 +315,7 @@ int startgame(void) {
 		if (times != TIMELESS) {
 			if(start + times <= time(NULL)){
 				deathclear(1);
-				return gameovermenu(map, times, gametime, 1);
+				return gameovermenu(map, timesq, gametime, 1);
 			}
 		}
 

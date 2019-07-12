@@ -170,61 +170,22 @@ void savescoremenu(int map, int times, time_t totaltime) {
 }
 
 void scoreboardmenu(void) {
-	int distanceuntiltab(char *tabs[], int tab) {
-		int distance = 0;
-		for(int i = 0; i < tab - 1; i++) {
-			distance += strlenunicode(tabs[i]) + 1;
-		}
-		return distance;
-	}
-
 	wclear(inner);
 	makeborder(inner);
 
 	char *title = "Hi-scores";
 	mvwprintw(inner, 1, (maxinx - strlenunicode(title)) / 2, title);
 
-	const int tabamnt = 2;
-	char *tabs[] = {"Clássico", "Time Attack"};
-	int totallen = tabamnt - 1;
-
-	for(int i = 0; i < tabamnt; i++) {
-		totallen += strlenunicode(tabs[i]);
-	}
-
-	for(int i = 0; i < tabamnt; i++) {
-		mvwprintw(inner, 3, (maxinx - totallen) / 2 + distanceuntiltab(tabs, i + 1), i == tabamnt - 1 ? "%s" : "%s|", tabs[i]);
-	}
-
-
 	nodelay(inner, FALSE);
-	int selected = 0;
 	int map = BORDER;
 	int gtime = 0;
-	int times[] = {0, 30, 60, 180, 300};
+	char *s_times[] = {"Normal", "00:30 ", "01:00 ", "03:00 ", "05:00 "};
 	for(;;) {
-		for(int i = 0; i < tabamnt; i++) { 
-			if(selected == i) {
-				mvwchgat(inner, 3, (maxinx - totallen) / 2 + distanceuntiltab(tabs, i + 1), strlenunicode(tabs[i]), A_STANDOUT, COLOR_RED, NULL);
-			} else {
-				mvwchgat(inner, 3, (maxinx - totallen) / 2 + distanceuntiltab(tabs, i + 1), strlenunicode(tabs[i]), A_NORMAL, COLOR_RED, NULL);
-			}
-		}
-
 		Score *scores[10];
-		int size;
-		switch(selected) {
-			case 0:
-				size = loadscores(scores, map, times[gtime]);
-				mvwprintw(inner, 1, maxinx - 5, "    ");
-				break;
-			case 1:
-				size = loadscores(scores, map, times[gtime]);
-				mvwprintw(inner, 1, maxinx - 5, "%03ds", times[gtime]);
-				break;
-		}
+		int size = loadscores(scores, map, gtime);
+		mvwprintw(inner, 3, maxinx - 10, "%s", s_times[gtime]);
 
-		mvwprintw(inner, 1, 1, "%s", map == BORDER ? "Cborda" : "Sborda");
+		mvwprintw(inner, 3, 4, "%s", map == BORDER ? "Com bordas" : "Sem bordas");
 
 		for(int i = 0; i < 10; i++) {
 			mvwprintw(inner, 5 + i, 2, "                      ");
@@ -237,18 +198,22 @@ void scoreboardmenu(void) {
 		wrefresh(inner);
 
 		int g = wgetch(inner);
-		if((g == KEY_RIGHT || g == ltrrght) && selected >= 0 && selected < tabamnt - 1) {
-			selected++;
-		} else if((g == KEY_RIGHT || g == ltrrght) && selected == tabamnt - 1) {
-			selected = 0;
-		} else if((g == KEY_LEFT || g == ltrlft) && selected <= tabamnt - 1 && selected > 0) {
-			selected--;
-		} else if((g == KEY_LEFT || g == ltrlft) && selected == 0) {
-			selected = tabamnt - 1;
-		} else if(g == KEY_UP || g == ltrup) {
-			map = map == BORDER ? BORDERLESS : BORDER;
-		} else if(g == KEY_DOWN || g == ltrdwn) {
-			gtime = gtime == 3 ? 0 : gtime + 1;
+		if((g == KEY_RIGHT || g == ltrrght) && map < 1) {
+			map++;
+		} else if((g == KEY_RIGHT || g == ltrrght) && map == 1) {
+			map = 0;
+		} else if((g == KEY_LEFT || g == ltrlft) && map > 0) {
+			map--;
+		} else if((g == KEY_LEFT || g == ltrlft) && map == 0) {
+			map = 1;
+		} else if((g == KEY_UP || g == ltrup) && gtime > 0) {
+			gtime--;
+		} else if((g == KEY_UP || g == ltrup) && gtime == 0) {
+			gtime = 4;
+		} else if((g == KEY_DOWN || g == ltrdwn) && gtime < 4) {
+			gtime++;
+		} else if((g == KEY_DOWN || g == ltrdwn) && gtime == 4) {
+			gtime = 0;
 		} else if(g == ' ' || g == '\n') {
 			return;
 		}
@@ -327,42 +292,53 @@ void optionsmenu(void) {
 	char *opt_options[] = {"Layout: ", "Timer: ", "Mapa: ", "Voltar"};
 	int opt_amt = 4;
 
-	char *layout_options[] = {"QWERTY ", "Colemak"};
-	char *time_options[] = {"Normal", "00:30 ", "01:00 ", "03:00 ", "05:00 "};
+	char *layout_options[] = {"QWERTY", "Colemak"};
+	char *time_options[] = {"Normal", "00:30", "01:00", "03:00", "05:00"};
 	char *map_options[] = {"Com Borda", "Sem Borda"};
 
 	for(int i = 0; i < opt_amt; i++) {
 		if(i != 3) {
-			mvwprintw(inner, 3 + 2*i, 8, opt_options[i]);
+			mvwprintw(inner, 4 + 2*i, 8, opt_options[i]);
 		} else {
-			mvwprintw(inner, 3 + 2*i, (32 - strlenunicode(opt_options[i]))/2, opt_options[i]);
+			mvwprintw(inner, 4 + 2*i, (32 - strlenunicode(opt_options[i]))/2, opt_options[i]);
 		}
 	}
 
 	int op_teclado, op_tempo, op_mapa; 
 	loadoptions(&op_teclado, &op_tempo, &op_mapa);
 
-	mvwprintw(inner, 3, 16, layout_options[op_teclado]);
-	mvwprintw(inner, 5, 16, time_options[op_tempo]);
-	mvwprintw(inner, 7, 16, map_options[op_mapa]);
+	mvwprintw(inner, 4, 16, layout_options[op_teclado]);
+	mvwprintw(inner, 6, 16, time_options[op_tempo]);
+	mvwprintw(inner, 8, 16, map_options[op_mapa]);
 
-	int selected = 0, selX;
+	int selected = 0, selX, HLsize;
 
 	for(;;) {
-		if(selected == 3) {
-			selX = (32 - strlenunicode(opt_options[4]))/2;
-		} else {
+		if(selected == 0) {
+			HLsize = strlenunicode(layout_options[op_teclado]);
 			selX = 16;
-		}
+		} else if(selected == 1) {
+			HLsize = strlenunicode(time_options[op_tempo]);
+			selX = 16;
+		} else if(selected == 2) {
+			HLsize = strlenunicode(map_options[op_mapa]);
+			selX = 16;
+		} else if(selected == 3) {
+			selX = 1 + (30 - strlenunicode(opt_options[3]))/2;
+			HLsize = 6;
+		} 
 
 		for(int i = 0; i < opt_amt; i++) {
-			mvwchgat(inner, 3 + 2*i, 2, 30, A_NORMAL, GREEN, NULL);
+			mvwchgat(inner, 4 + 2*i, 2, 25, A_NORMAL, GREEN, NULL);
 		}
-		mvwchgat(inner, 3 + selected*2, selX, 8, A_STANDOUT, GREEN, NULL);
+		mvwchgat(inner, 4 + selected*2, selX, HLsize, A_STANDOUT, GREEN, NULL);
 
 		wrefresh(inner);
 
 		int g = wgetch(inner);
+		if(selected != 3) {
+			mvwprintw(inner, 4 + 2*selected, 16, "          ");
+		}
 		// Condicao para se mover no menu
 		if((g == KEY_UP || g == ltrup) && selected > 0) {
 			selected--;
@@ -400,9 +376,9 @@ void optionsmenu(void) {
 		}
 
 		// Refaz as opcoes caso seja necessario corrigir
-		mvwprintw(inner, 3, 16, layout_options[op_teclado]);
-		mvwprintw(inner, 5, 16, time_options[op_tempo]);
-		mvwprintw(inner, 7, 16, map_options[op_mapa]);
+		mvwprintw(inner, 4, 16, layout_options[op_teclado]);
+		mvwprintw(inner, 6, 16, time_options[op_tempo]);
+		mvwprintw(inner, 8, 16, map_options[op_mapa]);
 	}
 }
 
