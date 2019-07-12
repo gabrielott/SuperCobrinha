@@ -8,6 +8,7 @@
 #include "menus.h"
 #include "snake.h"
 #include "food.h"
+#include "draw.h"
 
 #define INITIAL_SIZE 4
 #define FOOD_NUM 1
@@ -87,7 +88,7 @@ void initialsetup(void) {
 
 	// Desenho do estado inicial do campo de jogo
 	wclear(inner);
-	makeborder(inner);
+	draw_border(inner);
 
 	for(int i = 0; i < INITIAL_SIZE; i++) {
 		snake[i] = newpart(i, maxiny / 2 + i, maxinx / 2);
@@ -154,7 +155,7 @@ int startgame(void) {
 					// Menu de pause ao pressionar esc
 					WINDOW *pause = newwin(16, 32, 7, (maxx - 32) / 2);
 					keypad(pause, TRUE);
-					makeborder(pause);
+					draw_border(pause);
 
 					char *message = "Menu de pause";
 					mvwprintw(pause, 3, (maxinx - strlenunicode(message)) / 2, message);

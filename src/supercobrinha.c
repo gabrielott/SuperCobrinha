@@ -7,15 +7,10 @@
 
 #include "menus.h"
 #include "datamanagement.h"
+#include "draw.h"
 
 #define LTR_QWERTY 0
 #define LTR_COLEMAK 1
-
-#define WHITE 0
-#define GREEN 1
-#define YELLOW 2
-#define RED 3
-#define CYAN 4
 
 #define IDLE 0
 #define READY 1
@@ -60,22 +55,7 @@ void setletters(int l) {
 
 void updatestate(int state) {
 	GAMESTATE = state;
-	if (GAMESTATE == IDLE){
-		mvwprintw(wmain, maxy - 2, maxx - 20, "STATE: Idle   ");
-	}
-	if (GAMESTATE == READY){
-		mvwprintw(wmain, maxy - 2, maxx - 20, "STATE: Ready   ");
-	}
-	if (GAMESTATE == RUNNING){
-		mvwprintw(wmain, maxy - 2, maxx - 20, "STATE: Running");
-	}
-	if (GAMESTATE == PAUSED){
-		mvwprintw(wmain, maxy - 2, maxx - 20, "STATE: Paused ");
-	}
-	if (GAMESTATE == DEATH){
-		mvwprintw(wmain, maxy - 2, maxx - 20, "STATE: Death  ");
-	}	
-	wrefresh(wmain);
+	draw_state();
 }
 
 void intro(void) {
@@ -92,22 +72,14 @@ void intro(void) {
 			py = rand() % (maxy-7);
 			px = rand() % (maxx-64);
 		}
-		wattron(wmain, COLOR_PAIR(WHITE + i % 5));
-		mvwprintw(wmain, py, px, "   _____                                  __         _       __         ");
-		mvwprintw(wmain, py+1, px, "  / ___/__  ______  ___  ______________  / /_  _____(_)___  / /_  ____ _");
-		mvwprintw(wmain, py+2, px, "  \\__ \\/ / / / __ \\/ _ \\/ ___/ ___/ __ \\/ __ \\/ ___/ / __ \\/ __ \\/ __ `/");
-		mvwprintw(wmain, py+3, px, " ___/ / /_/ / /_/ /  __/ /  / /__/ /_/ / /_/ / /  / / / / / / / / /_/ / ");
-		mvwprintw(wmain, py+4, px, "/____/\\__,_/ .___/\\___/_/   \\___/\\____/_.___/_/  /_/_/ /_/_/ /_/\\__,_/  ");
-		mvwprintw(wmain, py+5, px, "          /_/                                                           ");
-		wattroff(wmain, COLOR_PAIR(WHITE + i % 5));
-		wrefresh(wmain);
+		draw_title(py, px, WHITE + i % 5);
 		usleep(100000);
 		if(exit == 1){
 			break;
 		}
 		wclear(wmain);
 	}
-	makeborder(wmain);
+	draw_border(wmain);
 	nodelay(wmain, FALSE);
 }
 

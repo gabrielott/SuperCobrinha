@@ -5,13 +5,6 @@
 #define LTR_QWERTY 0
 #define LTR_COLEMAK 1
 
-// Constantes para os pares de cores
-#define WHITE 0
-#define GREEN 1
-#define YELLOW 2
-#define RED 3
-#define CYAN 4
-
 // Constantes para o estado do jogo
 #define IDLE 0
 #define READY 1

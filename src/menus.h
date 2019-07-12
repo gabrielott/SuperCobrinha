@@ -4,9 +4,6 @@
 // Conta os caracters de um string no formato unicode
 int strlenunicode(char *s);
 
-// Cria uma borda no contorno de certa janela
-void makeborder(WINDOW *w);
-
 // Cria um menu seletor no centro da janela w com optamt opcoes. As opcoes
 // sao passadas atraves de um array de strings. A opcao selecionada pelo
 // usuario sera retornada atraves de um inteiro entre 0 e optamt - 1

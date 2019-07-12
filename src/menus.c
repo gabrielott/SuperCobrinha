@@ -7,6 +7,7 @@
 #include "supercobrinha.h"
 #include "game.h"
 #include "datamanagement.h"
+#include "draw.h"
 
 int strlenunicode(char *s) {
 	int size = 0;
@@ -16,28 +17,6 @@ int strlenunicode(char *s) {
 		s++;
 	}
 	return size;
-}
-
-void makeborder(WINDOW *w) {
-	int x, y;
-	getmaxyx(w, y, x);
-
-	wattron(w, COLOR_PAIR(GREEN));
-	mvwaddch(w, 0, 0, ACS_ULCORNER);
-	mvwaddch(w, 0, x - 1, ACS_URCORNER);
-	mvwaddch(w, y - 1, 0, ACS_LLCORNER);
-	mvwaddch(w, y - 1, x - 1, ACS_LRCORNER);
-
-	for(int i = 1; i < x - 1; i++) {
-		mvwaddch(w, 0, i, ACS_HLINE);
-		mvwaddch(w, y - 1, i, ACS_HLINE);
-	}
-
-	for(int i = 1; i < y - 1; i++) {
-		mvwaddch(w, i, 0, ACS_VLINE);
-		mvwaddch(w, i, x - 1, ACS_VLINE);
-	}
-	wattroff(w, COLOR_PAIR(GREEN));
 }
 
 int makeselector(WINDOW *w, int optamt, char *options[]) {
@@ -78,48 +57,9 @@ int makeselector(WINDOW *w, int optamt, char *options[]) {
 	}
 }
 
-void credits(void) {
-	nodelay(inner, TRUE);
-
-	char *nomes[] = {"SUPERCOBRINHA", "Desenvolvido por:", "Filipe Castelo", "Gabriel Ottoboni", "João Pedro Silva", "Rodrigo Delpreti", "Obrigado por jogar!"};
-	int startl[7] = {-7, 1, 5, 8, 11, 14, 25};
-	int i, j;
-	int setup = 14*5-1;
-
-	for (i = setup; i >= 0; i--) {
-		// Prepara a janela para os creditos serem exibidos
-		wclear(inner);
-		makeborder(inner);
-		wrefresh(inner);
-
-		// Sai dos creditos se qualquer tecla for pressionada
-		if(wgetch(inner) != ERR) {
-			return;
-		}
-
-		// Printa os creditos quando for a vez deles
-		for (j=0; j<7; j++) {
-			if (j != 6 && i < (setup - startl[j]) && i > (setup - 15 - startl[j])) {
-				mvwprintw(inner, 1+((i+1+startl[j])%14), (maxinx - strlenunicode(nomes[j])) / 2, nomes[j]);
-			} 
-			if (j == 6 && i < (setup - startl[j])) {
-				if (i <= setup - 33) {
-					mvwprintw(inner, 1+((setup-6)%14), (maxinx - strlenunicode(nomes[j])) / 2, nomes[j]);
-				} else {
-					mvwprintw(inner, 1+((i+1+startl[j])%14), (maxinx - strlenunicode(nomes[j])) / 2, nomes[j]);
-				}
-			}
-		}
-		wrefresh(inner);
-
-		usleep(450000);
-	}
-	return;
-}
-
 void savescoremenu(int map, int times, time_t totaltime) {
 	wclear(inner);
-	makeborder(inner);
+	draw_border(inner);
 
 	char *mensagem = "Digite suas iniciais";
 	mvwprintw(inner, 3, (maxinx - strlenunicode(mensagem)) / 2, mensagem);
@@ -171,7 +111,7 @@ void savescoremenu(int map, int times, time_t totaltime) {
 
 void scoreboardmenu(void) {
 	wclear(inner);
-	makeborder(inner);
+	draw_border(inner);
 
 	char *title = "Hi-scores";
 	mvwprintw(inner, 1, (maxinx - strlenunicode(title)) / 2, title);
@@ -241,7 +181,7 @@ int gameovermenu(int map, int times, time_t totaltime, int deathcase) {
 	int salvo = 0;
 	while(!exit) {
 		wclear(inner);
-		makeborder(inner);
+		draw_border(inner);
 
 		char *mensagem[] = {"Voce perdeu", "O tempo acabou", "Voce venceu!"};
 		mvwprintw(inner, 3, (maxinx - strlenunicode(mensagem[deathcase])) / 2, mensagem[deathcase]);
@@ -287,7 +227,7 @@ int gameovermenu(int map, int times, time_t totaltime, int deathcase) {
 
 void optionsmenu(void) {
 	wclear(inner);
-	makeborder(inner);
+	draw_border(inner);
 
 	char *opt_options[] = {"Layout: ", "Timer: ", "Mapa: ", "Speed:", "Voltar"};
 	int opt_amt = 5;
@@ -308,10 +248,13 @@ void optionsmenu(void) {
 	int op_teclado, op_tempo, op_mapa, op_speed; 
 	loadoptions(&op_teclado, &op_tempo, &op_mapa, &op_speed);
 
-	mvwprintw(inner, 3, 16, layout_options[op_teclado]);
-	mvwprintw(inner, 5, 16, time_options[op_tempo]);
-	mvwprintw(inner, 7, 16, map_options[op_mapa]);
-	mvwprintw(inner, 9, 16, speed_options[op_speed]);
+	void opt_print(void) {
+		mvwprintw(inner, 3, 16, layout_options[op_teclado]);
+		mvwprintw(inner, 5, 16, time_options[op_tempo]);
+		mvwprintw(inner, 7, 16, map_options[op_mapa]);
+		mvwprintw(inner, 9, 16, speed_options[op_speed]);
+	}
+	opt_print();
 
 	int selected = 0, selX, HLsize;
 
@@ -401,16 +344,13 @@ void optionsmenu(void) {
 		}
 
 		// Refaz as opcoes caso seja necessario corrigir
-		mvwprintw(inner, 3, 16, layout_options[op_teclado]);
-		mvwprintw(inner, 5, 16, time_options[op_tempo]);
-		mvwprintw(inner, 7, 16, map_options[op_mapa]);
-		mvwprintw(inner, 9, 16, speed_options[op_speed]);
+		opt_print();
 	}
 }
 
 int mainmenu(void) {
 	wclear(inner);
-	makeborder(inner);
+	draw_border(inner);
 
 	char *options[] = {"Iniciar Jogo", "Scoreboard", "Opções", "Créditos", "Sair"};
 
@@ -427,7 +367,7 @@ int mainmenu(void) {
 			optionsmenu();
 			return 0;
 		case 3:
-			credits();
+			draw_credits();
 			return 0;
 		case 4:
 			return 1;

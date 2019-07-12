@@ -13,12 +13,17 @@ typedef struct Score {
 	time_t gametime;
 } Score;
 
+void err_check(FILE *fp) {
+	if (fp == NULL) {
+       fprintf(stderr, "error opening file\n");
+       exit(1);
+	}
+}
+
 void setupsaves(void) {
 	if(access("options.dat", F_OK) == -1) {
 		FILE *f = fopen("options.dat", "wb");
-		if(f == NULL) {
-			exit(1);
-		}
+		err_check(f);
 
 		int ltr = LTR_QWERTY;
 		int tim = TIMELESS;
@@ -33,18 +38,14 @@ void setupsaves(void) {
 
 	if(access("scoreboard.dat", F_OK) == -1) {
 		FILE *f = fopen("scoreboard.dat", "wb");
-		if(f == NULL) {
-			exit(1);
-		}
+		err_check(f);
 		fclose(f);
 	}
 }
 
 void saveoptions(int lay, int tim, int map, int spe) {
 	FILE *f = fopen("options.dat", "wb");
-	if(f == NULL) {
-		exit(1);
-	}
+	err_check(f);
 
 	fwrite(&lay, sizeof(int), 1, f);
 	fwrite(&tim, sizeof(int), 1, f);
@@ -53,7 +54,7 @@ void saveoptions(int lay, int tim, int map, int spe) {
 	fclose(f);
 }
 
-void sf_read(FILE *f, int *data){ // fazer com lista de parametros variavel
+void sf_read(FILE *f, int *data){ // fazer com lista de parametros variavel (?)
 	if(data == NULL) {
 		fseek(f, sizeof(int), SEEK_SET);
 	} else {
@@ -63,9 +64,7 @@ void sf_read(FILE *f, int *data){ // fazer com lista de parametros variavel
 
 void loadoptions(int *lay, int *tim, int *map, int *spe) {
 	FILE *f = fopen("options.dat", "rb");
-	if(f == NULL) {
-		exit(1);
-	}
+	err_check(f);
 
 	sf_read(f, lay);
 	sf_read(f, tim);
@@ -77,9 +76,7 @@ void loadoptions(int *lay, int *tim, int *map, int *spe) {
 
 void savescore(Score *s) {
 	FILE *f = fopen("scoreboard.dat", "ab");
-	if(f == NULL) {
-		exit(1);
-	}
+	err_check(f);
 
 	fwrite(s, sizeof(Score), 1, f);
 	fclose(f);
@@ -93,9 +90,7 @@ int loadscores(Score **ptr, int map, int times) {
 	}
 
 	FILE *f = fopen("scoreboard.dat", "rb");
-	if(f == NULL) {
-		exit(1);
-	}
+	err_check(f);
 
 	fseek(f, 0, SEEK_END);
 	long size = ftell(f);
