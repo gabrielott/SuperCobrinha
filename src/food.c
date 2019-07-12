@@ -3,6 +3,7 @@
 #include "supercobrinha.h"
 #include "game.h"
 #include "snake.h"
+#include "draw.h"
 
 typedef struct Food {
 	char character;
@@ -40,7 +41,9 @@ void generatefood(WINDOW *w, Food *f) {
 		}
 	}
 	f->isonmap = 1;
+	wattron(inner, COLOR_PAIR(GAMECORES.corFood));
 	mvwprintw(inner, f->y, f->x, "%c", f->character);
+	wattroff(inner, COLOR_PAIR(GAMECORES.corFood));
 }
 
 int checkfoodcolision(Food *f, Snakepart *s) {

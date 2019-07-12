@@ -16,7 +16,11 @@
 
 #include "snake.h"
 
+// Definicao da struct para os esquemas de cores
 typedef struct Scheme {
+	// Qual o esquema selecionado
+	int ID;
+
 	// Cor das bordas usadas na funcao draw_border
 	int corBorder;
 
@@ -28,6 +32,9 @@ typedef struct Scheme {
 
 	// Cor padrao da snakepart
 	int corSnakePart;
+
+	// Cor padrao das comidas;
+	int corFood;
 
 	// Cor das opcoes do menu
 	int corMenu;
@@ -62,6 +69,9 @@ void draw_credits(void);
 
 // Desenha uma snakepart com a cor passada como parametro
 void draw_part(Snakepart *part, int color);
+
+// Redesenha tudo que estiver na tela
+void redraw_all(void);
 
 // Limpa a exibicao do timer e do score
 void clear_gameover(void);

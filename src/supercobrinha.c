@@ -49,8 +49,8 @@ void setletters(int l) {
 		ltrlft = 'a';
 		ltrrght = 'd';
 	}
-	mvwprintw(wmain, maxy - 2, 1, "Layout: %s", layout == LTR_COLEMAK ? "Colemak" : "QWERTY ");
-	wrefresh(wmain);
+	// mvwprintw(wmain, maxy - 2, 1, "Layout: %s", layout == LTR_COLEMAK ? "Colemak" : "QWERTY ");
+	// wrefresh(wmain);
 }
 
 void updatestate(int state) {
@@ -60,6 +60,7 @@ void updatestate(int state) {
 
 void intro(void) {
 	int py, px;
+	int cor;
 	int exit = 0;
 	nodelay(wmain, TRUE);
 	for(int i = 0; i < 30; i++) {
@@ -67,12 +68,13 @@ void intro(void) {
 			py = 1;
 			px = (maxx - 72) / 2;
 			exit = 1;
-			i = 3;
+			cor = GAMECORES.corTitle;
 		} else {
 			py = rand() % (maxy-7);
 			px = rand() % (maxx-64);
+			cor = WHITE + i;
 		}
-		draw_title(py, px, WHITE + i % 5);
+		draw_title(py, px, cor % 5);
 		usleep(100000);
 		if(exit == 1){
 			break;

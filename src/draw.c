@@ -17,10 +17,12 @@
 #define SCARLET 1
 
 typedef struct Scheme {
+	int ID;
 	int corBorder;
 	int corTitle;
 	int corSnakeHead;
 	int corSnakePart;
+	int corFood;
 	int corMenu;
 	int corMenuHL;
 	int corCredits;
@@ -32,20 +34,24 @@ Scheme GAMECORES;
 Scheme setscheme(int choice) {
 	Scheme escolhido;
 	if(choice == CLASSIC) {
+		escolhido.ID = CLASSIC;
 		escolhido.corBorder = GREEN;
 		escolhido.corTitle = RED;
 		escolhido.corSnakeHead = RED;
 		escolhido.corSnakePart = GREEN;
+		escolhido.corFood = RED;
 		escolhido.corMenu = GREEN;
 		escolhido.corMenuHL = GREEN;
 		escolhido.corCredits = CYAN;
 		escolhido.corStatus = YELLOW;
 	}
 	if(choice == SCARLET) {
+		escolhido.ID = SCARLET;
 		escolhido.corBorder = RED;
 		escolhido.corTitle = RED;
 		escolhido.corSnakeHead = RED;
 		escolhido.corSnakePart = RED;
+		escolhido.corFood = RED;
 		escolhido.corMenu = RED;
 		escolhido.corMenuHL = RED;
 		escolhido.corCredits = RED;
@@ -70,7 +76,7 @@ void draw_border(WINDOW *w) {
 	int x, y;
 	getmaxyx(w, y, x);
 
-	wattron(w, COLOR_PAIR(GREEN));
+	wattron(w, COLOR_PAIR(GAMECORES.corBorder));
 	mvwaddch(w, 0, 0, ACS_ULCORNER);
 	mvwaddch(w, 0, x - 1, ACS_URCORNER);
 	mvwaddch(w, y - 1, 0, ACS_LLCORNER);
@@ -85,7 +91,7 @@ void draw_border(WINDOW *w) {
 		mvwaddch(w, i, 0, ACS_VLINE);
 		mvwaddch(w, i, x - 1, ACS_VLINE);
 	}
-	wattroff(w, COLOR_PAIR(GREEN));
+	wattroff(w, COLOR_PAIR(GAMECORES.corBorder));
 }
 
 void draw_state(void) {
@@ -116,6 +122,7 @@ void draw_credits(void) {
 		}
 
 		// Printa os creditos quando for a vez deles
+		wattron(wmain, COLOR_PAIR(GAMECORES.corCredits));
 		for (j=0; j<7; j++) {
 			if (j != 6 && i < (setup - startl[j]) && i > (setup - 15 - startl[j])) {
 				mvwprintw(inner, 1+((i+1+startl[j])%14), (maxinx - strlenunicode(nomes[j])) / 2, nomes[j]);
@@ -128,6 +135,7 @@ void draw_credits(void) {
 				}
 			}
 		}
+		wattroff(wmain, COLOR_PAIR(GAMECORES.corCredits));
 		wrefresh(inner);
 
 		usleep(450000);
@@ -139,6 +147,13 @@ void draw_part(Snakepart *part, int color) {
 	wattron(inner, COLOR_PAIR(color));
 	mvwaddch(inner, part->y, part->x, ACS_BLOCK);
 	wattroff(inner, COLOR_PAIR(color));
+}
+
+void redraw_all(void) {
+	draw_border(inner);
+	draw_border(wmain);
+	draw_state();
+	draw_title(1, (maxx - 72) / 2, GAMECORES.corTitle);
 }
 
 void clear_gameover(void) {

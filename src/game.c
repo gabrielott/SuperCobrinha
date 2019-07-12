@@ -92,7 +92,7 @@ void initialsetup(void) {
 
 	for(int i = 0; i < INITIAL_SIZE; i++) {
 		snake[i] = newpart(i, maxiny / 2 + i, maxinx / 2);
-		draw_part(snake[i], i == 0 ? RED : GREEN);
+		draw_part(snake[i], i == 0 ? GAMECORES.corSnakeHead : GAMECORES.corSnakePart);
 	}
 
 	showtime(times);
@@ -325,8 +325,8 @@ int startgame(void) {
 		}
 
 		// Desenha a cabeca da cobrinha
-		draw_part(oldhead, GREEN);
-		draw_part(head, RED);
+		draw_part(oldhead, GAMECORES.corSnakePart);
+		draw_part(head, GAMECORES.corSnakeHead);
 
 		wrefresh(inner);
 
