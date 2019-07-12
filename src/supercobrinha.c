@@ -7,8 +7,8 @@
 #include "menus.h"
 #include "datamanagement.h"
 
+#define LTR_QWERTY 0
 #define LTR_COLEMAK 1
-#define LTR_QWERTY 2
 
 #define WHITE 1
 #define GREEN 2
@@ -80,7 +80,7 @@ void updatestate(int state) {
 void intro(void) {
 	char *welcome = "Bem vindo ao jogo SuperCobrinha!";
 	wattron(wmain, COLOR_PAIR(RED));
-	mvwprintw(wmain, middley - 2, (maxx - strlen(welcome)) / 2, welcome);
+	mvwprintw(wmain, middley - 2, (maxx - strlenunicode(welcome)) / 2, welcome);
 	wattroff(wmain, COLOR_PAIR(RED));
 	wrefresh(wmain);
 	while(wgetch(inner) == ERR);
@@ -137,7 +137,7 @@ int main(void) {
 	wrefresh(wmain);
 
 	int lay;
-	loadoptions(&lay);
+	loadoptions(&lay, NULL, NULL);
 	setletters(lay);
 
 	int exit = 0;

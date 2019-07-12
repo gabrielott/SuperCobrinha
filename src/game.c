@@ -4,6 +4,7 @@
 #include <time.h>
 
 #include "supercobrinha.h"
+#include "datamanagement.h"
 #include "menus.h"
 #include "snake.h"
 #include "food.h"
@@ -11,11 +12,14 @@
 #define INITIAL_SIZE 4
 #define FOOD_NUM 1
 
-#define BORDER 1
-#define BORDERLESS 2
+#define BORDER 0
+#define BORDERLESS 1
 
-#define MODE_CLASSIC 1
-#define MODE_TIMEATK 2
+#define TIMELESS 0
+#define TIME_30 30
+#define TIME_60 60
+#define TIME_180 180
+#define TIME_300 300
 
 #define NORTH 1
 #define SOUTH 2
@@ -101,7 +105,13 @@ void deathclear(int deathmode) {
 	if(deathmode != 3) while(wgetch(inner) == ERR);
 }
 
-int startgame(int mode, int border, int times) {
+int startgame(void) {
+	// Carrega as opcoes dos modos de jogo diretamente do arquivo.
+	// A opcao de teclado nao faz nada, ta ali so pra nao bugar tudo, pretendo remover depois.
+	// Achei melhor nao fazer isso na initialsetup pra nao ter que passar parametros
+	int lay, times, map;
+	loadoptions(&lay, &times, &map);
+
 	initialsetup();
 
 	// Tempo a partir do qual a partida comeca
@@ -113,7 +123,7 @@ int startgame(int mode, int border, int times) {
 		wrefresh(wmain);
 
 		// Atualiza o tempo de jogo
-		if (mode == MODE_TIMEATK) {
+		if (times != TIMELESS) {
 			gametime = start + times - time(NULL);
 		} else {
 			gametime = time(NULL) - start;
@@ -121,7 +131,7 @@ int startgame(int mode, int border, int times) {
 
 		// Correcao de bug de multiplos inputs
 		// Adiciona caracter pressionado na fila de execucao
-		while ((fila[cont] = wgetch(inner)) != ERR) { // Todos os pauses juntos num codigo monstruoso e bugado
+		while ((fila[cont] = wgetch(inner)) != ERR) { // O codigo de pause mais elaborado do universo (funciona)
 			if(fila[cont] == '\n' || fila[cont] == ' ' || fila[cont] == 27) {
 				updatestate(PAUSED);
 				if(fila[cont] == 27) {
@@ -159,7 +169,7 @@ int startgame(int mode, int border, int times) {
 				}
 				cont = 0;
 				// Ajusta o timer
-				if (mode == MODE_TIMEATK) {
+				if (times != TIMELESS) {
 					start = time(NULL) - (times - gametime);
 				} else {
 					start = time(NULL) - gametime;
@@ -254,7 +264,7 @@ int startgame(int mode, int border, int times) {
 		// Verifica se o jogador venceu o jogo
 		if(maxindex == 30*14-1){
 			deathclear(2);
-			return gameovermenu(mode, border, times, gametime, 2);
+			return gameovermenu(map, times, gametime, 2);
 		}
 
 		// Verifica colisao com a propria cobrinha
@@ -262,19 +272,19 @@ int startgame(int mode, int border, int times) {
 			if(snake[i] == head) continue;
 			if(snake[i]->x == head->x && snake[i]->y == head->y) {
 				deathclear(0);
-				return gameovermenu(mode, border, times, gametime, 0);
+				return gameovermenu(map, times, gametime, 0);
 			}
 		}
 
 		// Verifica colisao com borda
-		if(border == BORDER) {
+		if(map == BORDER) {
 			if(head->x == maxinx - 1 || head->x == 0 || head->y == maxiny - 1 || head->y == 0) {
 				deathclear(0);
-				return gameovermenu(mode, border, times, gametime, 0);
+				return gameovermenu(map, times, gametime, 0);
 			}
 
 		// Faz a cobra "dar a volta"
-		} else if(border == BORDERLESS) {
+		} else if(map == BORDERLESS) {
 			if(head->x == maxinx - 1) {
 				head->x = 1;
 			} else if(head->x == 0) {
@@ -299,10 +309,10 @@ int startgame(int mode, int border, int times) {
 		wrefresh(wmain);
 
 		// Verifica se acabou o tempo do modo Time attack
-		if (mode == MODE_TIMEATK) {
+		if (times != TIMELESS) {
 			if(start + times <= time(NULL)){
 				deathclear(1);
-				return gameovermenu(mode, border, times, gametime, 1);
+				return gameovermenu(map, times, gametime, 1);
 			}
 		}
 

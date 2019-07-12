@@ -1,12 +1,15 @@
 #ifndef GAME_HEADER
 #define GAME_HEADER
 
-// Constantes para os diferentes modos de jogo
-#define BORDER 1
-#define BORDERLESS 2
+// Constantes para os diferentes mapas e tempos de jogo
+#define BORDER 0
+#define BORDERLESS 1
 
-#define MODE_CLASSIC 1
-#define MODE_TIMEATK 2
+#define TIMELESS 0
+#define TIME_30 1
+#define TIME_60 2
+#define TIME_180 3
+#define TIME_300 4
 
 #include "snake.h"
 
@@ -26,6 +29,6 @@ Snakepart *snake[30*14];
 void initialsetup(void);
 
 // Inicia o jogo. 
-int startgame(int mode, int border, int times);
+int startgame(void);
 
 #endif

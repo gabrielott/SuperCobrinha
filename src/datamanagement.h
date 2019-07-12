@@ -9,13 +9,10 @@ typedef struct Score {
 	// Numero de pontos do score
 	int points;
 
-	// Modo do jogo ao qual o score referencia
-	int mode;
-
-	// Borda do jogo ao qual o score referencia
-	int border;
+	// Mapa do jogo ao qual o score referencia
+	int map;
 	
-	// Tempo selectionado para o time attack
+	// Tempo selectionado
 	int times;
 
 	// Tempo total de jogo
@@ -26,13 +23,13 @@ typedef struct Score {
 // ele sera criado e inicializado com um valor padrao.
 void setupsaves(void);
 
-// Salva a opcao de layout no arquivo options.dat. O unico argumento eh um inteiro
-// com o valor LTR_COLEMAK or LTR_QWERTY, a opcao selecionada.
-void saveoptions(int o);
+// Salva a opcao de layout, timer e mapa no arquivo options.dat.
+void saveoptions(int lay, int tim, int map);
 
-// Le a opcao de layout salva no arquivo, e guarda no ponteiro passado como parametro LTR_COLEMAK ou LTR_QWERTY.
-// A ser ampliada
-void loadoptions(int *lay);
+// Le a opcao de layout salva no arquivo, LTR_COLEMAK ou LTR_QWERTY, e guarda no ponteiro passado como parametro.
+// Le a opcao de timer salva no arquivo e guarda no ponteiro passado como parametro.
+// Le a opcao de mapa salva no arquivo e guarda no ponteiro passado como parametro.
+void loadoptions(int *lay, int *tim, int *map);
 
 // Recebe um argumento do tipo Score e adiciona ele ao arquivo scoreboard.dat.
 void savescore(Score *s);
@@ -41,6 +38,6 @@ void savescore(Score *s);
 // decrescente de certo modo, tipo de borda e tempo no ponteiro passado como primeiro
 // argumento. Caso nao hajam 10 scores para serem carregados, a funcao carregara o maior
 // numero disponivel, esse numero eh o valor retornado pela funcao.
-int loadscores(Score **ptr, int mode, int border, int totaltime);
+int loadscores(Score **ptr, int map, int times);
 
 #endif

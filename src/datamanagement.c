@@ -8,8 +8,7 @@
 typedef struct Score {
 	char name[4];
 	int points;
-	int mode;
-	int border;
+	int map;
 	int times;
 	time_t gametime;
 } Score;
@@ -22,7 +21,12 @@ void setupsaves(void) {
 		}
 
 		int ltr = LTR_QWERTY;
+		int tim = TIMELESS;
+		int map = BORDER;
 		fwrite(&ltr, sizeof(int), 1, f);
+		fwrite(&tim, sizeof(int), 1, f);
+		fwrite(&map, sizeof(int), 1, f);
+
 		fclose(f);
 	}
 
@@ -35,23 +39,32 @@ void setupsaves(void) {
 	}
 }
 
-void saveoptions(int o) {
+void saveoptions(int lay, int tim, int map) {
 	FILE *f = fopen("options.dat", "wb");
 	if(f == NULL) {
 		exit(1);
 	}
 
-	fwrite(&o, sizeof(int), 1, f);
+	fwrite(&lay, sizeof(int), 1, f);
+	fwrite(&tim, sizeof(int), 1, f);
+	fwrite(&map, sizeof(int), 1, f);
+
 	fclose(f);
 }
 
-void loadoptions(int *lay) {
+void loadoptions(int *lay, int *tim, int *map) {
 	FILE *f = fopen("options.dat", "rb");
 	if(f == NULL) {
 		exit(1);
 	}
 
 	fread(lay, sizeof(int), 1, f);
+	if(tim != NULL) {
+		fread(tim, sizeof(int), 1, f);
+	}
+	if(map != NULL) {
+		fread(map, sizeof(int), 1, f);
+	}
 
 	fclose(f);
 }
@@ -66,7 +79,7 @@ void savescore(Score *s) {
 	fclose(f);
 }
 
-int loadscores(Score **ptr, int mode, int border, int times) {
+int loadscores(Score **ptr, int map, int times) {
 	void slidedownfromindex(Score **s, int index, int t) {
 		for(int i = t - 2; i >= index; i--) {
 			s[i + 1] = s[i];
@@ -89,9 +102,8 @@ int loadscores(Score **ptr, int mode, int border, int times) {
 		Score *s = malloc(sizeof(Score));
 		fread(s, sizeof(Score), 1, f);
 
-		if(s->mode != mode) continue;
-		if(s->border != border) continue;
-		if(s->times != times && mode == MODE_TIMEATK) continue;
+		if(s->map != map) continue;
+		if(s->times != times) continue;
 
 		if(current >= 9) full = 1;
 

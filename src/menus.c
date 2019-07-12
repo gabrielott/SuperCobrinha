@@ -54,7 +54,7 @@ int makeselector(WINDOW *w, int optamt, char *options[]) {
 
 	for(;;) {
 		for(int i = 0; i < optamt; i++) { 
-			if(selected == i) {
+			if(i == selected) {
 				mvwchgat(w, (y - optamt * 2) / 2 + i * 2, (x - strlenunicode(options[i])) / 2, strlenunicode(options[i]), A_STANDOUT, GREEN, NULL);
 			} else {
 				mvwchgat(w, (y - optamt * 2) / 2 + i * 2, (x - strlenunicode(options[i])) / 2, strlenunicode(options[i]), A_NORMAL, GREEN, NULL);
@@ -75,52 +75,6 @@ int makeselector(WINDOW *w, int optamt, char *options[]) {
 		} else if(g == ' ' || g == '\n') {
 			return selected;
 		}
-	}
-}
-
-int timeatkmenu(int border) {
-	wclear(inner);
-	makeborder(inner);
-
-	char *options[] = {"00:30", "01:00", "03:00", "05:00", "Voltar"};
-
-	int time;
-	switch(makeselector(inner, 5, options)) {
-		case 0:
-			time = 30;
-			break;
-		case 1:
-			time = 60;
-			break;
-		case 2:
-			time = 180;
-			break;
-		case 3:
-			time = 300;
-			break;
-		case 4:
-			time = 0;
-			return 1;
-	}
-	while(!startgame(MODE_TIMEATK, border, time));
-	return 0;
-}
-
-int bordermenu(void) {
-	wclear(inner);
-	makeborder(inner);
-
-	char *options[] = {"Borda", "Sem Borda", "Voltar"};
-
-	switch(makeselector(inner, 3, options)) {
-		case 0:
-			return BORDER;
-		case 1:
-			return BORDERLESS;
-		case 2:
-			return 0;
-		default:
-			return 0;
 	}
 }
 
@@ -163,7 +117,7 @@ void credits(void) {
 	return;
 }
 
-void savescoremenu(int mode, int border, int times, time_t totaltime) {
+void savescoremenu(int map, int times, time_t totaltime) {
 	wclear(inner);
 	makeborder(inner);
 
@@ -209,8 +163,7 @@ void savescoremenu(int mode, int border, int times, time_t totaltime) {
 	Score s;
 	strcpy(s.name, letters);
 	s.points = score;
-	s.mode = mode;
-	s.border = border;
+	s.map = map;
 	s.times = times;
 	s.totaltime = totaltime;
 	savescore(&s);
@@ -246,9 +199,9 @@ void scoreboardmenu(void) {
 
 	nodelay(inner, FALSE);
 	int selected = 0;
-	int border = BORDER;
+	int map = BORDER;
 	int gtime = 0;
-	int times[] = {30, 60, 180, 300};
+	int times[] = {0, 30, 60, 180, 300};
 	for(;;) {
 		for(int i = 0; i < tabamnt; i++) { 
 			if(selected == i) {
@@ -262,16 +215,16 @@ void scoreboardmenu(void) {
 		int size;
 		switch(selected) {
 			case 0:
-				size = loadscores(scores, MODE_CLASSIC, border, times[gtime]);
+				size = loadscores(scores, map, times[gtime]);
 				mvwprintw(inner, 1, maxinx - 5, "    ");
 				break;
 			case 1:
-				size = loadscores(scores, MODE_TIMEATK, border, times[gtime]);
+				size = loadscores(scores, map, times[gtime]);
 				mvwprintw(inner, 1, maxinx - 5, "%03ds", times[gtime]);
 				break;
 		}
 
-		mvwprintw(inner, 1, 1, "%s", border == BORDER ? "Borda" : "     ");
+		mvwprintw(inner, 1, 1, "%s", map == BORDER ? "Cborda" : "Sborda");
 
 		for(int i = 0; i < 10; i++) {
 			mvwprintw(inner, 5 + i, 2, "                      ");
@@ -293,7 +246,7 @@ void scoreboardmenu(void) {
 		} else if((g == KEY_LEFT || g == ltrlft) && selected == 0) {
 			selected = tabamnt - 1;
 		} else if(g == KEY_UP || g == ltrup) {
-			border = border == BORDER ? BORDERLESS : BORDER;
+			map = map == BORDER ? BORDERLESS : BORDER;
 		} else if(g == KEY_DOWN || g == ltrdwn) {
 			gtime = gtime == 3 ? 0 : gtime + 1;
 		} else if(g == ' ' || g == '\n') {
@@ -312,7 +265,7 @@ void gameoverclear(void) {
 	wrefresh(wmain);
 }
 
-int gameovermenu(int mode, int border, int times, time_t totaltime, int deathcase) {
+int gameovermenu(int map, int times, time_t totaltime, int deathcase) {
 	void gameoverclear(void) {
 		mvwprintw(wmain,timery,timerx,"            ");
 		mvwprintw(wmain,timery+2,timerx,"          ");
@@ -348,7 +301,7 @@ int gameovermenu(int mode, int border, int times, time_t totaltime, int deathcas
 
 			switch(makeselector(inner, 3, options)) {
 				case 0:
-					savescoremenu(mode, border, times, totaltime);
+					savescoremenu(map, times, totaltime);
 					exit = 0;
 					salvo = 1;
 					break;
@@ -368,26 +321,88 @@ int gameovermenu(int mode, int border, int times, time_t totaltime, int deathcas
 }
 
 void optionsmenu(void) {
-	int exit = 0;
-	while(!exit) {
-		wclear(inner);
-		makeborder(inner);
+	wclear(inner);
+	makeborder(inner);
 
-		char *options[] = {"Usar layout Colemak", "Usar layout QWERTY", "Voltar"};
+	char *opt_options[] = {"Layout: ", "Timer: ", "Mapa: ", "Voltar"};
+	int opt_amt = 4;
 
-		exit = 1;
-		switch(makeselector(inner, 3, options)) {
-			case 0:
-				setletters(LTR_COLEMAK);
-				saveoptions(LTR_COLEMAK);
-				break;
-			case 1:
-				setletters(LTR_QWERTY);
-				saveoptions(LTR_QWERTY);
-				break;
-			case 2:
-				break;
+	char *layout_options[] = {"QWERTY ", "Colemak"};
+	char *time_options[] = {"Normal", "00:30 ", "01:00 ", "03:00 ", "05:00 "};
+	char *map_options[] = {"Com Borda", "Sem Borda"};
+
+	for(int i = 0; i < opt_amt; i++) {
+		if(i != 3) {
+			mvwprintw(inner, 3 + 2*i, 8, opt_options[i]);
+		} else {
+			mvwprintw(inner, 3 + 2*i, (32 - strlenunicode(opt_options[i]))/2, opt_options[i]);
 		}
+	}
+
+	int op_teclado, op_tempo, op_mapa; 
+	loadoptions(&op_teclado, &op_tempo, &op_mapa);
+
+	mvwprintw(inner, 3, 16, layout_options[op_teclado]);
+	mvwprintw(inner, 5, 16, time_options[op_tempo]);
+	mvwprintw(inner, 7, 16, map_options[op_mapa]);
+
+	int selected = 0, selX;
+
+	for(;;) {
+		if(selected == 3) {
+			selX = (32 - strlenunicode(opt_options[4]))/2;
+		} else {
+			selX = 16;
+		}
+
+		for(int i = 0; i < opt_amt; i++) {
+			mvwchgat(inner, 3 + 2*i, 2, 30, A_NORMAL, GREEN, NULL);
+		}
+		mvwchgat(inner, 3 + selected*2, selX, 8, A_STANDOUT, GREEN, NULL);
+
+		wrefresh(inner);
+
+		int g = wgetch(inner);
+		// Condicao para se mover no menu
+		if((g == KEY_UP || g == ltrup) && selected > 0) {
+			selected--;
+		} else if((g == KEY_UP || g == ltrup) && selected == 0) {
+			selected = opt_amt - 1;
+		} else if((g == KEY_DOWN || g == ltrdwn) && selected < opt_amt - 1) {
+			selected++;
+		} else if((g == KEY_DOWN || g == ltrdwn) && selected == opt_amt - 1) {
+			selected = 0;
+		} 
+		// Condicao para alterar as opcoes do menu
+		else if(g == KEY_LEFT || g == ltrlft){
+			if(selected == 0 && op_teclado > 0) {
+				op_teclado--;
+				setletters(op_teclado);
+			} else if(selected == 1 && op_tempo > 0) {
+				op_tempo--;
+			} else if(selected == 2 && op_mapa > 0) {
+				op_mapa--;
+			}
+		} else if(g == KEY_RIGHT || g == ltrrght) {
+			if(selected == 0 && op_teclado < 1) {
+				op_teclado++;
+				setletters(op_teclado);
+			} else if(selected == 1 && op_tempo < 4) {
+				op_tempo++;
+			} else if(selected == 2 && op_mapa < 1) {
+				op_mapa++;
+			}
+		}
+		// Condicao para salvar as opcoes e sair do menu
+		else if((g == ' ' || g == '\n') && selected == 3) {
+			saveoptions(op_teclado, op_tempo, op_mapa);
+			return;
+		}
+
+		// Refaz as opcoes caso seja necessario corrigir
+		mvwprintw(inner, 3, 16, layout_options[op_teclado]);
+		mvwprintw(inner, 5, 16, time_options[op_tempo]);
+		mvwprintw(inner, 7, 16, map_options[op_mapa]);
 	}
 }
 
@@ -401,7 +416,7 @@ int mainmenu(void) {
 
 	switch(ans) {
 		case 0:
-			while(!startgame(MODE_CLASSIC, BORDER, 0));
+			while(!startgame());
 			return 0;
 		case 1:
 			scoreboardmenu();

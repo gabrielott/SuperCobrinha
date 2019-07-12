@@ -2,8 +2,8 @@
 #define SUPERCOBRINHA_HEADER
 
 // Constantes para os layouts disponiveis
+#define LTR_QWERTY 0
 #define LTR_COLEMAK 1
-#define LTR_QWERTY 2
 
 // Constantes para os pares de cores
 #define WHITE 1
