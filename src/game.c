@@ -40,8 +40,21 @@ int maxindex;
 int g = 0, cont = 0;
 int fila[maxque + 1];
 int gamespeed = 1;
+int timesq, map;
+int times;
 
 Food *foods[FOOD_NUM];
+
+void showtime(time_t gametime){
+	mvwprintw(wmain, timery, timerx, "Tempo:  %li:%li", gametime/60, gametime%60);
+	if(gametime % 60 <10){
+		mvwprintw(wmain, timery, timerx+10, "0%li", gametime%60);
+	}
+	if(gametime / 60 <10){
+		mvwprintw(wmain, timery, timerx+7, "0");
+	}
+	wrefresh(wmain);
+}
 
 void initialsetup(void) {
 	// Inicializacao de variaveis
@@ -65,6 +78,11 @@ void initialsetup(void) {
 	foods[0] = newfood('o', TRUE, 0);
 	//foods[1] = newfood('!', TRUE, 7);
 
+	// Inicializacao do mapa/tempo salvos no arquivo options.dat
+	loadoptions(NULL, &timesq, &map);
+	int timevet[] = {TIMELESS, TIME_30, TIME_60, TIME_180, TIME_300};
+	times = timevet[timesq];
+
 	// Desenho do estado inicial do campo de jogo
 	wclear(inner);
 	makeborder(inner);
@@ -76,6 +94,8 @@ void initialsetup(void) {
 		wattroff(inner, COLOR_PAIR(i == 0 ? RED : GREEN));
 	}
 
+	showtime(times);
+	mvwprintw(wmain, timery+2, timerx,"Score: %d", score);
 	wrefresh(inner);
 	updatestate(READY);
 
@@ -106,15 +126,6 @@ void deathclear(int deathmode) {
 }
 
 int startgame(void) {
-	// Carrega as opcoes dos modos de jogo diretamente do arquivo.
-	// A opcao de teclado nao faz nada, ta ali so pra nao bugar tudo, pretendo remover depois.
-	// Achei melhor nao fazer isso na initialsetup pra nao ter que passar parametros
-	int lay, timesq, map;
-	loadoptions(&lay, &timesq, &map);
-
-	int timevet[] = {TIMELESS, TIME_30, TIME_60, TIME_180, TIME_300};
-	int times = timevet[timesq];
-
 	initialsetup();
 
 	// Tempo a partir do qual a partida comeca
@@ -302,14 +313,7 @@ int startgame(void) {
 		}
 		
 		// Exibe o tempo de jogo
-		mvwprintw(wmain, timery, timerx, "Tempo:  %li:%li", gametime/60, gametime%60);
-		if(gametime % 60 <10){
-			mvwprintw(wmain, timery, timerx+10, "0%li", gametime%60);
-		}
-		if(gametime / 60 <10){
-			mvwprintw(wmain, timery, timerx+7, "0");
-		}
-		wrefresh(wmain);
+		showtime(gametime);
 
 		// Verifica se acabou o tempo do modo Time attack
 		if (times != TIMELESS) {

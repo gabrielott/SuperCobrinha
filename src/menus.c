@@ -351,22 +351,34 @@ void optionsmenu(void) {
 		} 
 		// Condicao para alterar as opcoes do menu
 		else if(g == KEY_LEFT || g == ltrlft){
-			if(selected == 0 && op_teclado > 0) {
-				op_teclado--;
+			if(selected == 0) {
+				if(op_teclado > 0) {
+					op_teclado--;
+				} else if(op_teclado == 0){
+					op_teclado = 1;
+				}
 				setletters(op_teclado);
-			} else if(selected == 1 && op_tempo > 0) {
-				op_tempo--;
-			} else if(selected == 2 && op_mapa > 0) {
-				op_mapa--;
+			} else if(selected == 1) {
+				if(op_tempo > 0) {
+					op_tempo--;
+				} else if(op_tempo == 0){
+					op_tempo = 4;
+				}
+			} else if(selected == 2) {
+				if(op_mapa > 0) {
+					op_mapa--;
+				} else if(op_mapa == 0){
+					op_mapa = 1;
+				}
 			}
 		} else if(g == KEY_RIGHT || g == ltrrght) {
-			if(selected == 0 && op_teclado < 1) {
-				op_teclado++;
+			if(selected == 0) {
+				op_teclado = (op_teclado + 1) % 2;
 				setletters(op_teclado);
-			} else if(selected == 1 && op_tempo < 4) {
-				op_tempo++;
-			} else if(selected == 2 && op_mapa < 1) {
-				op_mapa++;
+			} else if(selected == 1) {
+				op_tempo = (op_tempo + 1) % 5;
+			} else if(selected == 2) {
+				op_mapa = (op_mapa + 1) % 2;
 			}
 		}
 		// Condicao para salvar as opcoes e sair do menu

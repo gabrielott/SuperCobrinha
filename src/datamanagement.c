@@ -58,10 +58,18 @@ void loadoptions(int *lay, int *tim, int *map) {
 		exit(1);
 	}
 
-	fread(lay, sizeof(int), 1, f);
-	if(tim != NULL) {
+	if(lay == NULL) {
+		fseek(f, sizeof(int), SEEK_SET);
+	} else {
+		fread(lay, sizeof(int), 1, f);
+	}
+
+	if(tim == NULL) {
+		fseek(f, sizeof(int), SEEK_SET);
+	} else {
 		fread(tim, sizeof(int), 1, f);
 	}
+
 	if(map != NULL) {
 		fread(map, sizeof(int), 1, f);
 	}

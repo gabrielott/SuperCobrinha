@@ -78,11 +78,20 @@ void updatestate(int state) {
 	wrefresh(wmain);
 }
 
-void intro(int px) {
-	int py; 
+void intro(void) {
+	int py, px;
+	int exit = 0;
+	nodelay(wmain, TRUE);
 	for(int i = 0; i < 30; i++) {
-		py = rand() % (maxy-7);
-		px = rand() % (maxx-64);
+		if(i == 29 || wgetch(wmain) != ERR) {
+			py = 1;
+			px = (maxx - 72) / 2;
+			exit = 1;
+			i = 3;
+		} else {
+			py = rand() % (maxy-7);
+			px = rand() % (maxx-64);
+		}
 		wattron(wmain, COLOR_PAIR(WHITE + i % 5));
 		mvwprintw(wmain, py, px, "   _____                                  __         _       __         ");
 		mvwprintw(wmain, py+1, px, "  / ___/__  ______  ___  ______________  / /_  _____(_)___  / /_  ____ _");
@@ -93,8 +102,13 @@ void intro(int px) {
 		wattroff(wmain, COLOR_PAIR(WHITE + i % 5));
 		wrefresh(wmain);
 		usleep(100000);
+		if(exit == 1){
+			break;
+		}
 		wclear(wmain);
 	}
+	makeborder(wmain);
+	nodelay(wmain, FALSE);
 }
 
 int main(void) {
@@ -130,21 +144,7 @@ int main(void) {
 	setupsaves();
 	srand(time(NULL));
 
-	int py = 1;
-	const int px = (maxx - 72) / 2;
-
-	intro(px);
-
-	makeborder(wmain);
-	wattron(wmain, COLOR_PAIR(RED));
-	mvwprintw(wmain, py++, px, "   _____                                  __         _       __         ");
-	mvwprintw(wmain, py++, px, "  / ___/__  ______  ___  ______________  / /_  _____(_)___  / /_  ____ _");
-	mvwprintw(wmain, py++, px, "  \\__ \\/ / / / __ \\/ _ \\/ ___/ ___/ __ \\/ __ \\/ ___/ / __ \\/ __ \\/ __ `/");
-	mvwprintw(wmain, py++, px, " ___/ / /_/ / /_/ /  __/ /  / /__/ /_/ / /_/ / /  / / / / / / / / /_/ / ");
-	mvwprintw(wmain, py++, px, "/____/\\__,_/ .___/\\___/_/   \\___/\\____/_.___/_/  /_/_/ /_/_/ /_/\\__,_/  ");
-	mvwprintw(wmain, py, px, "          /_/                                                           ");
-	wattroff(wmain, COLOR_PAIR(RED));
-	wrefresh(wmain);
+	intro();
 
 	int lay;
 	loadoptions(&lay, NULL, NULL);
