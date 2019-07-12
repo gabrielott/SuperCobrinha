@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <ncurses.h>
 #include <unistd.h>
+#include <time.h>
 
 #include "supercobrinha.h"
 #include "menus.h"
