@@ -13,6 +13,47 @@
 #define RED 3
 #define CYAN 4
 
+#define CLASSIC 0
+#define SCARLET 1
+
+typedef struct Scheme {
+	int corBorder;
+	int corTitle;
+	int corSnakeHead;
+	int corSnakePart;
+	int corMenu;
+	int corMenuHL;
+	int corCredits;
+	int corStatus;
+} Scheme;
+
+Scheme GAMECORES;
+
+Scheme setscheme(int choice) {
+	Scheme escolhido;
+	if(choice == CLASSIC) {
+		escolhido.corBorder = GREEN;
+		escolhido.corTitle = RED;
+		escolhido.corSnakeHead = RED;
+		escolhido.corSnakePart = GREEN;
+		escolhido.corMenu = GREEN;
+		escolhido.corMenuHL = GREEN;
+		escolhido.corCredits = CYAN;
+		escolhido.corStatus = YELLOW;
+	}
+	if(choice == SCARLET) {
+		escolhido.corBorder = RED;
+		escolhido.corTitle = RED;
+		escolhido.corSnakeHead = RED;
+		escolhido.corSnakePart = RED;
+		escolhido.corMenu = RED;
+		escolhido.corMenuHL = RED;
+		escolhido.corCredits = RED;
+		escolhido.corStatus = RED;
+	}
+	return escolhido;
+}
+
 void draw_title(int py, int px, int color) {
 	wattron(wmain, COLOR_PAIR(color));
 	mvwprintw(wmain, py, px, "   _____                                  __         _       __         ");
@@ -48,21 +89,10 @@ void draw_border(WINDOW *w) {
 }
 
 void draw_state(void) {
-	if (GAMESTATE == IDLE){
-		mvwprintw(wmain, maxy - 2, maxx - 20, "STATE: Idle   ");
-	}
-	if (GAMESTATE == READY){
-		mvwprintw(wmain, maxy - 2, maxx - 20, "STATE: Ready   ");
-	}
-	if (GAMESTATE == RUNNING){
-		mvwprintw(wmain, maxy - 2, maxx - 20, "STATE: Running");
-	}
-	if (GAMESTATE == PAUSED){
-		mvwprintw(wmain, maxy - 2, maxx - 20, "STATE: Paused ");
-	}
-	if (GAMESTATE == DEATH){
-		mvwprintw(wmain, maxy - 2, maxx - 20, "STATE: Death  ");
-	}	
+	char *states[] = {"Idle   ", "Ready   ", "Running", "Paused ", "Death  "};
+	wattron(wmain, COLOR_PAIR(GAMECORES.corStatus));
+	mvwprintw(wmain, maxy - 2, maxx - 20, "STATE: %s", states[GAMESTATE]);
+	wattroff(wmain, COLOR_PAIR(GAMECORES.corStatus));
 	wrefresh(wmain);
 }
 

@@ -116,6 +116,7 @@ int main(void) {
 	setupsaves();
 	srand(time(NULL));
 
+	loadscheme();
 	intro();
 
 	int lay;

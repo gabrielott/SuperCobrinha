@@ -8,9 +8,45 @@
 #define RED 3
 #define CYAN 4
 
+// Constantes para os esquemas de cores
+#define CLASSIC 0
+#define SCARLET 1
+
 #include <ncurses.h>
 
 #include "snake.h"
+
+typedef struct Scheme {
+	// Cor das bordas usadas na funcao draw_border
+	int corBorder;
+
+	// Cor do titulo
+	int corTitle;
+
+	// Cor da cabeca da cobrinha
+	int corSnakeHead;
+
+	// Cor padrao da snakepart
+	int corSnakePart;
+
+	// Cor das opcoes do menu
+	int corMenu;
+
+	// Cor do highlight usado nos menus
+	int corMenuHL;
+
+	// Cor dos creditos a serem exibidos
+	int corCredits;
+
+	// Cor das mensagens de status exibidas nos cantos inferiores da tela
+	int corStatus;
+} Scheme;
+
+// Variavel global que guarda as cores atualmente utilizadas no jogo
+Scheme GAMECORES;
+
+// Retorna o esquema de cores selecionado
+Scheme setscheme(int choice);
 
 // Desenha o titulo do jogo (SUPERCOBRINHA)
 void draw_title(int py, int px, int color);

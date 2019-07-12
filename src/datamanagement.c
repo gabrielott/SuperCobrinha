@@ -4,6 +4,7 @@
 
 #include "supercobrinha.h"
 #include "game.h"
+#include "draw.h"
 
 typedef struct Score {
 	char name[4];
@@ -41,6 +42,28 @@ void setupsaves(void) {
 		err_check(f);
 		fclose(f);
 	}
+
+	if(access("colors.dat", F_OK) == -1) {
+		FILE *f = fopen("colors.dat", "wb");
+		err_check(f);
+		GAMECORES = setscheme(CLASSIC);
+		fwrite(&GAMECORES, sizeof(Scheme), 1, f);
+		fclose(f);
+	}
+}
+
+void savescheme(void) {
+	FILE *f = fopen("colors.dat", "wb");
+	err_check(f);
+	fwrite(&GAMECORES, sizeof(Scheme), 1, f);
+	fclose(f);
+}
+
+void loadscheme(void) {
+	FILE *f = fopen("colors.dat", "rb");
+	err_check(f);
+	fread(&GAMECORES, sizeof(Scheme), 1, f);
+	fclose(f);
 }
 
 void saveoptions(int lay, int tim, int map, int spe) {

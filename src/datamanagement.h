@@ -23,6 +23,12 @@ typedef struct Score {
 // ele sera criado e inicializado com um valor padrao.
 void setupsaves(void);
 
+// Salva o esquema de cores atual no arquivo colors.dat
+void savescheme(void);
+
+// Carrega o ultimo esquema de cores salvo no arquivo colors.dat
+void loadscheme(void);
+
 // Salva a opcao de layout, timer e mapa no arquivo options.dat.
 void saveoptions(int lay, int tim, int map, int spe);
 
