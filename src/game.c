@@ -92,9 +92,7 @@ void initialsetup(void) {
 
 	for(int i = 0; i < INITIAL_SIZE; i++) {
 		snake[i] = newpart(i, maxiny / 2 + i, maxinx / 2);
-		wattron(inner, COLOR_PAIR(i == 0 ? RED : GREEN));
-		mvwaddch(inner, snake[i]->y, snake[i]->x, ACS_BLOCK);
-		wattroff(inner, COLOR_PAIR(i == 0 ? RED : GREEN));
+		draw_part(snake[i], i == 0 ? RED : GREEN);
 	}
 
 	showtime(times);
@@ -327,13 +325,8 @@ int startgame(void) {
 		}
 
 		// Desenha a cabeca da cobrinha
-		wattron(inner, COLOR_PAIR(GREEN));
-		mvwaddch(inner, oldhead->y, oldhead->x, ACS_BLOCK);
-		wattroff(inner, COLOR_PAIR(GREEN));
-
-		wattron(inner, COLOR_PAIR(RED));
-		mvwaddch(inner, head->y, head->x, ACS_BLOCK);
-		wattroff(inner, COLOR_PAIR(RED));
+		draw_part(oldhead, GREEN);
+		draw_part(head, RED);
 
 		wrefresh(inner);
 

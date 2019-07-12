@@ -4,6 +4,7 @@
 
 #include "supercobrinha.h"
 #include "menus.h"
+#include "snake.h"
 
 #define WHITE 0
 #define GREEN 1
@@ -101,4 +102,10 @@ void draw_credits(void) {
 		usleep(450000);
 	}
 	return;
+}
+
+void draw_part(Snakepart *part, int color) {
+	wattron(inner, COLOR_PAIR(color));
+	mvwaddch(inner, part->y, part->x, ACS_BLOCK);
+	wattroff(inner, COLOR_PAIR(color));
 }

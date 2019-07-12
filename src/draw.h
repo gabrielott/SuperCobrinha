@@ -10,6 +10,8 @@
 
 #include <ncurses.h>
 
+#include "snake.h"
+
 // Desenha o titulo do jogo (SUPERCOBRINHA)
 void draw_title(int py, int px, int color);
 
@@ -21,5 +23,8 @@ void draw_state(void);
 
 // Desenha os creditos
 void draw_credits(void);
+
+// Desenha uma snakepart com a cor passada como parametro
+void draw_part(Snakepart *part, int color);
 
 #endif
