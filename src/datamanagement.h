@@ -24,12 +24,12 @@ typedef struct Score {
 void setupsaves(void);
 
 // Salva a opcao de layout, timer e mapa no arquivo options.dat.
-void saveoptions(int lay, int tim, int map);
+void saveoptions(int lay, int tim, int map, int spe);
 
 // Le a opcao de layout salva no arquivo, LTR_COLEMAK ou LTR_QWERTY, e guarda no ponteiro passado como parametro.
 // Le a opcao de timer salva no arquivo e guarda no ponteiro passado como parametro.
 // Le a opcao de mapa salva no arquivo e guarda no ponteiro passado como parametro.
-void loadoptions(int *lay, int *tim, int *map);
+void loadoptions(int *lay, int *tim, int *map, int *spe);
 
 // Recebe um argumento do tipo Score e adiciona ele ao arquivo scoreboard.dat.
 void savescore(Score *s);

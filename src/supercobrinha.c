@@ -147,7 +147,7 @@ int main(void) {
 	intro();
 
 	int lay;
-	loadoptions(&lay, NULL, NULL);
+	loadoptions(&lay, NULL, NULL, NULL);
 	setletters(lay);
 
 	int exit = 0;

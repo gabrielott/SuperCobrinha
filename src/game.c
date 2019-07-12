@@ -39,8 +39,8 @@ int grow;
 int maxindex;
 int g = 0, cont = 0;
 int fila[maxque + 1];
-int gamespeed = 1;
-int timesq, map;
+float gamespeed = 1;
+int timesq, map, spe;
 int times;
 
 Food *foods[FOOD_NUM];
@@ -78,10 +78,12 @@ void initialsetup(void) {
 	foods[0] = newfood('o', TRUE, 0);
 	//foods[1] = newfood('!', TRUE, 7);
 
-	// Inicializacao do mapa/tempo salvos no arquivo options.dat
-	loadoptions(NULL, &timesq, &map);
+	// Inicializacao do mapa, tempo e velocidade, salvos no arquivo options.dat
+	loadoptions(NULL, &timesq, &map, &spe);
 	int timevet[] = {TIMELESS, TIME_30, TIME_60, TIME_180, TIME_300};
 	times = timevet[timesq];
+	float speedvet[] = {0.6, 1, 1.8, 3};
+	gamespeed = speedvet[spe];
 
 	// Desenho do estado inicial do campo de jogo
 	wclear(inner);
@@ -335,6 +337,6 @@ int startgame(void) {
 		wrefresh(inner);
 
 		// Velocidade do jogo
-		usleep(200000/gamespeed);
+		usleep(200000.0/gamespeed);
 	}
 }

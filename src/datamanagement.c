@@ -23,10 +23,11 @@ void setupsaves(void) {
 		int ltr = LTR_QWERTY;
 		int tim = TIMELESS;
 		int map = BORDER;
+		int spe = 1;
 		fwrite(&ltr, sizeof(int), 1, f);
 		fwrite(&tim, sizeof(int), 1, f);
 		fwrite(&map, sizeof(int), 1, f);
-
+		fwrite(&spe, sizeof(int), 1, f);
 		fclose(f);
 	}
 
@@ -39,7 +40,7 @@ void setupsaves(void) {
 	}
 }
 
-void saveoptions(int lay, int tim, int map) {
+void saveoptions(int lay, int tim, int map, int spe) {
 	FILE *f = fopen("options.dat", "wb");
 	if(f == NULL) {
 		exit(1);
@@ -48,31 +49,28 @@ void saveoptions(int lay, int tim, int map) {
 	fwrite(&lay, sizeof(int), 1, f);
 	fwrite(&tim, sizeof(int), 1, f);
 	fwrite(&map, sizeof(int), 1, f);
-
+	fwrite(&spe, sizeof(int), 1, f);
 	fclose(f);
 }
 
-void loadoptions(int *lay, int *tim, int *map) {
+void sf_read(FILE *f, int *data){ // fazer com lista de parametros variavel
+	if(data == NULL) {
+		fseek(f, sizeof(int), SEEK_SET);
+	} else {
+		fread(data, sizeof(int), 1, f);
+	}
+}
+
+void loadoptions(int *lay, int *tim, int *map, int *spe) {
 	FILE *f = fopen("options.dat", "rb");
 	if(f == NULL) {
 		exit(1);
 	}
 
-	if(lay == NULL) {
-		fseek(f, sizeof(int), SEEK_SET);
-	} else {
-		fread(lay, sizeof(int), 1, f);
-	}
-
-	if(tim == NULL) {
-		fseek(f, sizeof(int), SEEK_SET);
-	} else {
-		fread(tim, sizeof(int), 1, f);
-	}
-
-	if(map != NULL) {
-		fread(map, sizeof(int), 1, f);
-	}
+	sf_read(f, lay);
+	sf_read(f, tim);
+	sf_read(f, map);
+	sf_read(f, spe);
 
 	fclose(f);
 }
