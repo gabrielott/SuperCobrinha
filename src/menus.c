@@ -164,19 +164,7 @@ void scoreboardmenu(void) {
 	}
 }
 
-void gameoverclear(void) {
-	mvwprintw(wmain,timery,timerx,"            ");
-	mvwprintw(wmain,timery+2,timerx,"          ");
-	wrefresh(wmain);
-}
-
 int gameovermenu(int map, int times, time_t totaltime, int deathcase) {
-	void gameoverclear(void) {
-		mvwprintw(wmain,timery,timerx,"            ");
-		mvwprintw(wmain,timery+2,timerx,"          ");
-		wrefresh(wmain);
-	}
-
 	int exit = 0;
 	int salvo = 0;
 	while(!exit) {
@@ -192,13 +180,13 @@ int gameovermenu(int map, int times, time_t totaltime, int deathcase) {
 
 			switch(makeselector(inner, 2, options)) {
 				case 0:
-					gameoverclear();
+					clear_gameover();
 					return 0;
 				case 1:
-					gameoverclear();
+					clear_gameover();
 					return 1;
 				default:
-					gameoverclear();
+					clear_gameover();
 					return 1;
 			}
 		} else {
@@ -211,13 +199,13 @@ int gameovermenu(int map, int times, time_t totaltime, int deathcase) {
 					salvo = 1;
 					break;
 				case 1:
-					gameoverclear();
+					clear_gameover();
 					return 0;
 				case 2:
-					gameoverclear();
+					clear_gameover();
 					return 1;
 				default:
-					gameoverclear();
+					clear_gameover();
 					return 1;
 			}
 		}
@@ -237,6 +225,9 @@ void optionsmenu(void) {
 	char *map_options[] = {"Com Borda", "Sem Borda"};
 	char *speed_options[] = {"Slow", "Normal", "Fast", "INSANE"};
 
+	char **opt_index[] = {layout_options, time_options, map_options, speed_options, opt_options};
+	int amt_index[] = {2, 5, 2, 4};
+
 	for(int i = 0; i < opt_amt; i++) {
 		if(i != 4) {
 			mvwprintw(inner, 3 + 2*i, 8, opt_options[i]);
@@ -245,34 +236,25 @@ void optionsmenu(void) {
 		}
 	}
 
-	int op_teclado, op_tempo, op_mapa, op_speed; 
+	int op_teclado, op_tempo, op_mapa, op_speed;
 	loadoptions(&op_teclado, &op_tempo, &op_mapa, &op_speed);
+	int selected = 0, selX, HLsize;
+	int current[] = {op_teclado, op_tempo, op_mapa, op_speed};
 
 	void opt_print(void) {
-		mvwprintw(inner, 3, 16, layout_options[op_teclado]);
-		mvwprintw(inner, 5, 16, time_options[op_tempo]);
-		mvwprintw(inner, 7, 16, map_options[op_mapa]);
-		mvwprintw(inner, 9, 16, speed_options[op_speed]);
+		mvwprintw(inner, 3, 16, layout_options[current[0]]);
+		mvwprintw(inner, 5, 16, time_options[current[1]]);
+		mvwprintw(inner, 7, 16, map_options[current[2]]);
+		mvwprintw(inner, 9, 16, speed_options[current[3]]);
 	}
 	opt_print();
 
-	int selected = 0, selX, HLsize;
-
 	for(;;) {
-		if(selected == 0) {
-			HLsize = strlenunicode(layout_options[op_teclado]);
-			selX = 16;
-		} else if(selected == 1) {
-			HLsize = strlenunicode(time_options[op_tempo]);
-			selX = 16;
-		} else if(selected == 2) {
-			HLsize = strlenunicode(map_options[op_mapa]);
-			selX = 16;
-		} else if(selected == 3) {
-			HLsize = strlenunicode(speed_options[op_speed]);
+		if(selected != 4) {
+			HLsize = strlenunicode(opt_index[selected][current[selected]]);
 			selX = 16;
 		} else if(selected == 4) {
-			selX = 1 + (30 - strlenunicode(opt_options[3]))/2;
+			selX = 1 + (30 - strlenunicode(opt_options[4]))/2;
 			HLsize = 6;
 		}
 
@@ -287,7 +269,7 @@ void optionsmenu(void) {
 		if(selected != 4) {
 			mvwprintw(inner, 3 + 2*selected, 16, "          ");
 		}
-		// Condicao para se mover no menu
+		// Condicao para se mover no menu para cima e para baixo
 		if((g == KEY_UP || g == ltrup) && selected > 0) {
 			selected--;
 		} else if((g == KEY_UP || g == ltrup) && selected == 0) {
@@ -297,49 +279,25 @@ void optionsmenu(void) {
 		} else if((g == KEY_DOWN || g == ltrdwn) && selected == opt_amt - 1) {
 			selected = 0;
 		} 
-		// Condicao para alterar as opcoes do menu
-		else if(g == KEY_LEFT || g == ltrlft){
-			if(selected == 0) {
-				if(op_teclado > 0) {
-					op_teclado--;
-				} else if(op_teclado == 0){
-					op_teclado = 1;
-				}
-				setletters(op_teclado);
-			} else if(selected == 1) {
-				if(op_tempo > 0) {
-					op_tempo--;
-				} else if(op_tempo == 0){
-					op_tempo = 4;
-				}
-			} else if(selected == 2) {
-				if(op_mapa > 0) {
-					op_mapa--;
-				} else if(op_mapa == 0){
-					op_mapa = 1;
-				}
-			} else if(selected == 3) {
-				if(op_speed > 0) {
-					op_speed--;
-				} else if(op_speed == 0){
-					op_speed = 3;
-				}
+		// Condicao para alterar as opcoes do menu para os lados
+		else if((g == KEY_LEFT || g == ltrlft) && selected != 4) {
+			if(current[selected] > 0) {
+				current[selected]--;
+			} else if(current[selected] == 0) {
+				current[selected] = amt_index[selected] - 1;
 			}
-		} else if(g == KEY_RIGHT || g == ltrrght) {
 			if(selected == 0) {
-				op_teclado = (op_teclado + 1) % 2;
-				setletters(op_teclado);
-			} else if(selected == 1) {
-				op_tempo = (op_tempo + 1) % 5;
-			} else if(selected == 2) {
-				op_mapa = (op_mapa + 1) % 2;
-			} else if(selected == 3) {
-				op_speed = (op_speed + 1) % 4;
+				setletters(current[selected]);
+			}
+		} else if((g == KEY_RIGHT || g == ltrrght) && selected != 4) {
+			current[selected] = (current[selected] + 1) % amt_index[selected];
+			if(selected == 0) {
+				setletters(current[selected]);
 			}
 		}
 		// Condicao para salvar as opcoes e sair do menu
 		else if((g == ' ' || g == '\n') && selected == 4) {
-			saveoptions(op_teclado, op_tempo, op_mapa, op_speed);
+			saveoptions(current[0], current[1], current[2], current[3]);
 			return;
 		}
 

@@ -27,4 +27,7 @@ void draw_credits(void);
 // Desenha uma snakepart com a cor passada como parametro
 void draw_part(Snakepart *part, int color);
 
+// Limpa a exibicao do timer e do score
+void clear_gameover(void);
+
 #endif

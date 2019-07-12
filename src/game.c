@@ -161,7 +161,7 @@ int startgame(void) {
 					char *options[] = {"Voltar ao jogo", "Sair"};
 					if(makeselector(pause, 2, options)) { 
 						deathclear(3);
-						gameoverclear();
+						clear_gameover();
 						wrefresh(wmain);
 						return 1;
 					}
