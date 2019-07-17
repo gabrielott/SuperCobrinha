@@ -71,7 +71,34 @@ int key_pressed(int keyvar, int quant, ...) {
 	return 0;
 }
 
-void initialsetup(void) {
+int key_command_start() {
+	const int g2 = wgetch(inner);
+
+	if(key_pressed(g2, 4, KEY_UP, ' ', '\n', ltrup)) {
+		return NORTH;
+	} else if(key_pressed(g2, 2, KEY_LEFT, ltrlft)) {
+		return WEST;
+	} else if(key_pressed(g2, 2, KEY_RIGHT, ltrrght)) {
+		return EAST;
+	}
+
+	return -1;
+}
+
+int key_command_move() {
+	if((g == KEY_UP || g  == ltrup) && direction != SOUTH) {
+		return NORTH;
+	} else if((g == KEY_DOWN || g == ltrdwn) && direction != NORTH) {
+		return SOUTH;
+	} else if((g == KEY_LEFT || g == ltrlft) && direction != EAST) {
+		return WEST;
+	} else if((g == KEY_RIGHT || g == ltrrght) && direction != WEST) {
+		return EAST;
+	}
+	return 0;
+}
+
+void set_game(void) {
 	// Inicializacao de variaveis
 	direction = -1;
 	grow = 0;
@@ -116,19 +143,10 @@ void initialsetup(void) {
 
 	// Espera o jogador fazer o movimento inicial
 	while(direction == -1) {
-		const int g2 = wgetch(inner);
-
-		if(key_pressed(g2, 4, KEY_UP, ' ', '\n', ltrup)) {
-			direction = NORTH;
-		} else if(key_pressed(g2, 2, KEY_LEFT, ltrlft)) {
-			direction = WEST;
-		} else if(key_pressed(g2, 2, KEY_RIGHT, ltrrght)) {
-			direction = EAST;
-		}
+		direction = key_command_start();
 	}
 
 	nodelay(inner, TRUE);
-	updatestate(RUNNING);
 }
 
 void clear_death(int deathmode) {
@@ -141,7 +159,8 @@ void clear_death(int deathmode) {
 }
 
 int game_start(void) {
-	initialsetup();
+	set_game();
+	updatestate(RUNNING);
 
 	// Tempo a partir do qual a partida comeca
 	start = time(NULL);
@@ -161,7 +180,7 @@ int game_start(void) {
 		// Correcao de bug de multiplos inputs
 		// Adiciona caracter pressionado na fila de execucao
 		while ((fila[cont] = wgetch(inner)) != ERR) { // O codigo de pause mais elaborado do universo (funciona)
-			if(fila[cont] == '\n' || fila[cont] == ' ' || fila[cont] == 27) {
+			if(key_pressed(fila[cont], 3, '\n', ' ', 27)) {
 				updatestate(PAUSED);
 				if(fila[cont] == 27) {
 					// Menu de pause ao pressionar esc
@@ -227,15 +246,7 @@ int game_start(void) {
 		}
 
 		// Atualiza a direcao da cobrinha
-		if((g == KEY_UP || g  == ltrup) && direction != SOUTH) {
-			direction = NORTH;
-		} else if((g == KEY_DOWN || g == ltrdwn) && direction != NORTH) {
-			direction = SOUTH;
-		} else if((g == KEY_LEFT || g == ltrlft) && direction != EAST) {
-			direction = WEST;
-		} else if((g == KEY_RIGHT || g == ltrrght) && direction != WEST) {
-			direction = EAST;
-		}
+		direction = key_command_move();
 
 		// Tenta gerar todas as comidas
 		for(int i = 0; i < FOOD_NUM; i++) {
@@ -290,7 +301,7 @@ int game_start(void) {
 			}
 		}
 
-		// Verifica se o jogador venceu o jogo
+		// Verifica se o jogador venceu o jogo (na teoria)
 		if(maxindex == 30*14-1){
 			clear_death(2);
 			return menu_gameover(map, timesq, gametime, 2);
