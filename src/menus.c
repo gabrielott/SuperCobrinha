@@ -57,7 +57,7 @@ int makeselector(WINDOW *w, int optamt, char *options[]) {
 	}
 }
 
-void savescoremenu(int map, int times, time_t totaltime) {
+void menu_savescore(int map, int times, time_t totaltime) {
 	wclear(inner);
 	draw_border(inner);
 
@@ -109,7 +109,7 @@ void savescoremenu(int map, int times, time_t totaltime) {
 	savescore(&s);
 }
 
-void scoreboardmenu(void) {
+void menu_scoreboard(void) {
 	wclear(inner);
 	draw_border(inner);
 
@@ -164,7 +164,7 @@ void scoreboardmenu(void) {
 	}
 }
 
-int gameovermenu(int map, int times, time_t totaltime, int deathcase) {
+int menu_gameover(int map, int times, time_t totaltime, int deathcase) {
 	int exit = 0;
 	int salvo = 0;
 	while(!exit) {
@@ -194,7 +194,7 @@ int gameovermenu(int map, int times, time_t totaltime, int deathcase) {
 
 			switch(makeselector(inner, 3, options)) {
 				case 0:
-					savescoremenu(map, times, totaltime);
+					menu_savescore(map, times, totaltime);
 					exit = 0;
 					salvo = 1;
 					break;
@@ -213,7 +213,7 @@ int gameovermenu(int map, int times, time_t totaltime, int deathcase) {
 	return 1;
 }
 
-void optionsmenu(void) {
+void menu_options(void) {
 	wclear(inner);
 	draw_border(inner);
 
@@ -317,7 +317,7 @@ void optionsmenu(void) {
 	}
 }
 
-int mainmenu(void) {
+int menu_principal(void) {
 	wclear(inner);
 	draw_border(inner);
 
@@ -327,13 +327,13 @@ int mainmenu(void) {
 
 	switch(ans) {
 		case 0:
-			while(!startgame());
+			while(!game_start());
 			return 0;
 		case 1:
-			scoreboardmenu();
+			menu_scoreboard();
 			return 0;
 		case 2:
-			optionsmenu();
+			menu_options();
 			return 0;
 		case 3:
 			draw_credits();

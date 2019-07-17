@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <time.h>
+#include <stdarg.h>
 
 #include "supercobrinha.h"
 #include "datamanagement.h"
@@ -46,7 +47,7 @@ int times;
 
 Food *foods[FOOD_NUM];
 
-void showtime(time_t gametime){
+void showtime(time_t gametime) {
 	mvwprintw(wmain, timery, timerx, "Tempo:  %li:%li", gametime/60, gametime%60);
 	if(gametime % 60 <10){
 		mvwprintw(wmain, timery, timerx+10, "0%li", gametime%60);
@@ -55,6 +56,19 @@ void showtime(time_t gametime){
 		mvwprintw(wmain, timery, timerx+7, "0");
 	}
 	wrefresh(wmain);
+}
+
+int key_pressed(int keyvar, int quant, ...) {
+	va_list press;
+	va_start(press, quant);
+	for(int i = 0; i < quant; i++) {
+		if(keyvar == va_arg(press, int)) {
+			va_end(press);
+			return 1;
+		}
+	}
+	va_end(press);
+	return 0;
 }
 
 void initialsetup(void) {
@@ -104,11 +118,11 @@ void initialsetup(void) {
 	while(direction == -1) {
 		const int g2 = wgetch(inner);
 
-		if(g2 == KEY_UP || g2 == ' ' || g2 == '\n' || g2 == ltrup) {
+		if(key_pressed(g2, 4, KEY_UP, ' ', '\n', ltrup)) {
 			direction = NORTH;
-		} else if(g2 == KEY_LEFT || g2 == ltrlft) {
+		} else if(key_pressed(g2, 2, KEY_LEFT, ltrlft)) {
 			direction = WEST;
-		} else if(g2 == KEY_RIGHT || g2 == ltrrght) {
+		} else if(key_pressed(g2, 2, KEY_RIGHT, ltrrght)) {
 			direction = EAST;
 		}
 	}
@@ -117,7 +131,7 @@ void initialsetup(void) {
 	updatestate(RUNNING);
 }
 
-void deathclear(int deathmode) {
+void clear_death(int deathmode) {
 	char *mensagem[] = {"Você perdeu", "O tempo acabou", "Você venceu!", ""};
 	updatestate(DEATH);
 	mvwprintw(inner, 3, (maxinx - strlenunicode(mensagem[deathmode])) / 2, mensagem[deathmode]);
@@ -126,7 +140,7 @@ void deathclear(int deathmode) {
 	if(deathmode != 3) while(wgetch(inner) == ERR);
 }
 
-int startgame(void) {
+int game_start(void) {
 	initialsetup();
 
 	// Tempo a partir do qual a partida comeca
@@ -160,7 +174,7 @@ int startgame(void) {
 
 					char *options[] = {"Voltar ao jogo", "Sair"};
 					if(makeselector(pause, 2, options)) { 
-						deathclear(3);
+						clear_death(3);
 						clear_gameover();
 						wrefresh(wmain);
 						return 1;
@@ -278,24 +292,24 @@ int startgame(void) {
 
 		// Verifica se o jogador venceu o jogo
 		if(maxindex == 30*14-1){
-			deathclear(2);
-			return gameovermenu(map, timesq, gametime, 2);
+			clear_death(2);
+			return menu_gameover(map, timesq, gametime, 2);
 		}
 
 		// Verifica colisao com a propria cobrinha
 		for(int i = 0; i < maxindex + 1; i++) {
 			if(snake[i] == head) continue;
 			if(snake[i]->x == head->x && snake[i]->y == head->y) {
-				deathclear(0);
-				return gameovermenu(map, timesq, gametime, 0);
+				clear_death(0);
+				return menu_gameover(map, timesq, gametime, 0);
 			}
 		}
 
 		// Verifica colisao com borda
 		if(map == BORDER) {
 			if(head->x == maxinx - 1 || head->x == 0 || head->y == maxiny - 1 || head->y == 0) {
-				deathclear(0);
-				return gameovermenu(map, timesq, gametime, 0);
+				clear_death(0);
+				return menu_gameover(map, timesq, gametime, 0);
 			}
 
 		// Faz a cobra "dar a volta"
@@ -319,8 +333,8 @@ int startgame(void) {
 		// Verifica se acabou o tempo do modo Time attack
 		if (times != TIMELESS) {
 			if(start + times <= time(NULL)){
-				deathclear(1);
-				return gameovermenu(map, timesq, gametime, 1);
+				clear_death(1);
+				return menu_gameover(map, timesq, gametime, 1);
 			}
 		}
 

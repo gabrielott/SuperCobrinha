@@ -10,12 +10,9 @@ int strlenunicode(char *s);
 int makeselector(WINDOW *w, int optamt, char *options[]);
 
 // Exibe o menu principal
-int mainmenu(void);
+int menu_principal(void);
 
 // Exibe o menu de gameover
-int gameovermenu(int map, int times, time_t totaltime, int deathcase);
-
-// Limpa wmain apos um gameover
-void gameoverclear(void);
+int menu_gameover(int map, int times, time_t totaltime, int deathcase);
 
 #endif

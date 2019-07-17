@@ -29,6 +29,6 @@ Snakepart *snake[30*14];
 void initialsetup(void);
 
 // Inicia o jogo. 
-int startgame(void);
+int game_start(void);
 
 #endif

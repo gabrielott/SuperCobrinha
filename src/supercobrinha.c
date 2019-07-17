@@ -128,7 +128,7 @@ int main(void) {
 	int exit = 0;
 	while(!exit) {
 		updatestate(IDLE);
-		exit = mainmenu();
+		exit = menu_principal();
 	}
 
 	endwin();
