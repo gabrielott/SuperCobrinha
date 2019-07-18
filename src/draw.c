@@ -96,7 +96,7 @@ void draw_border(WINDOW *w) {
 }
 
 void draw_state(void) {
-	char *states[] = {"Idle    ", "Ready    ", "Running ", "Paused  ", "Death   ", "MenuPrinc", "MenuOpt ", "MenuScoB", "MenuSavS", "MenuGaOv", "Creditos"};
+	char *states[] = {"Idle    ", "Ready    ", "Running ", "Paused  ", "Death   ", "MenuPrin", "MenuOpt ", "MenuScoB", "MenuSavS", "MenuGaOv", "Creditos"};
 	wattron(wmain, COLOR_PAIR(GAMECORES.corStatus));
 	mvwprintw(wmain, maxy - 2, maxx - 20, "STATE: %s", states[GAMESTATE]);
 	wattroff(wmain, COLOR_PAIR(GAMECORES.corStatus));

@@ -71,32 +71,38 @@ int key_pressed(int keyvar, int quant, ...) {
 	return 0;
 }
 
-int key_command_start() {
-	const int g2 = wgetch(inner);
+int key_command() {
 
-	if(key_pressed(g2, 4, KEY_UP, ' ', '\n', ltrup)) {
-		return NORTH;
-	} else if(key_pressed(g2, 2, KEY_LEFT, ltrlft)) {
-		return WEST;
-	} else if(key_pressed(g2, 2, KEY_RIGHT, ltrrght)) {
-		return EAST;
+	if(GAMESTATE == READY) {
+		const int g2 = wgetch(inner);
+
+		if(key_pressed(g2, 4, KEY_UP, ' ', '\n', ltrup)) {
+			return NORTH;
+		} else if(key_pressed(g2, 2, KEY_LEFT, ltrlft)) {
+			return WEST;
+		} else if(key_pressed(g2, 2, KEY_RIGHT, ltrrght)) {
+			return EAST;
+		}
+		// Caso o usuario nao pressione algo valido
+		return -1;
 	}
 
-	return -1;
-}
-
-int key_command_move() {
-	if((g == KEY_UP || g  == ltrup) && direction != SOUTH) {
-		return NORTH;
-	} else if((g == KEY_DOWN || g == ltrdwn) && direction != NORTH) {
-		return SOUTH;
-	} else if((g == KEY_LEFT || g == ltrlft) && direction != EAST) {
-		return WEST;
-	} else if((g == KEY_RIGHT || g == ltrrght) && direction != WEST) {
-		return EAST;
+	if(GAMESTATE == RUNNING) {
+		if(key_pressed(g, 2, KEY_UP, ltrup) && direction != SOUTH) {
+			return NORTH;
+		} else if(key_pressed(g, 2, KEY_DOWN, ltrdwn) && direction != NORTH) {
+			return SOUTH;
+		} else if(key_pressed(g, 2, KEY_LEFT, ltrlft) && direction != EAST) {
+			return WEST;
+		} else if(key_pressed(g, 2, KEY_RIGHT, ltrrght) && direction != WEST) {
+			return EAST;
+		}
+		// Caso nada tenha sido pressionado, retorna a mesma direcao que ja estava antes
+		return direction;
 	}
-	// Caso nada tenha sido pressionado, retorna a mesma direcao que ja estava antes
-	return direction;
+
+	// Caso ocorra algum erro
+	return 42;
 }
 
 void set_game(void) {
@@ -144,7 +150,7 @@ void set_game(void) {
 
 	// Espera o jogador fazer o movimento inicial
 	while(direction == -1) {
-		direction = key_command_start();
+		direction = key_command();
 	}
 
 	nodelay(inner, TRUE);
@@ -247,7 +253,7 @@ int game_start(void) {
 		}
 
 		// Atualiza a direcao da cobrinha
-		direction = key_command_move();
+		direction = key_command();
 
 		// Tenta gerar todas as comidas
 		for(int i = 0; i < FOOD_NUM; i++) {

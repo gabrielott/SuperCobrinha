@@ -29,6 +29,70 @@ int strlenunicode(char *s) {
 	return size;
 }
 
+int menu_command_1(int g, int selec, int optamt, int *choose) {
+	if(g == KEY_UP || g == ltrup) {
+		return xmody(selec - 1, optamt);
+	} else if(g == KEY_DOWN || g == ltrdwn) {
+		return xmody(selec + 1, optamt);
+	} else if(g == ' ' || g == '\n') {
+		*choose = 1;
+	}
+	return selec;
+}
+
+int menu_command_2(int g, int *map, int *gtime) {
+	if(g == KEY_RIGHT || g == ltrrght) {
+		*map = xmody(*map + 1, 2);
+	} else if(g == KEY_LEFT || g == ltrlft) {
+		*map = xmody(*map - 1, 2);
+	} else if(g == KEY_UP || g == ltrup) {
+		*gtime = xmody(*gtime - 1, 5);
+	} else if(g == KEY_DOWN || g == ltrdwn) {
+		*gtime = xmody(*gtime + 1, 5);
+	} else if(g == ' ' || g == '\n') {
+		return 1;
+	}
+	return 0;
+}
+
+int menu_command_3(int g, int selected, int current[], int opt_amt, int amt_index[], int *goback) {
+	if(selected != opt_amt - 1) {
+		mvwprintw(inner, 3 + 2*selected, 16, "          ");
+	}
+	// Condicao para se mover no menu para cima e para baixo
+	if(g == KEY_UP || g == ltrup) {
+		return xmody(selected - 1, opt_amt);
+	} else if(g == KEY_DOWN || g == ltrdwn) {
+		return xmody(selected + 1, opt_amt);
+	} 
+	// Condicao para alterar as opcoes do menu para os lados (configurar como substates)
+	else if((g == KEY_LEFT || g == ltrlft) && selected != opt_amt - 1) {
+		current[selected] = xmody(current[selected] - 1, amt_index[selected]);
+		// Casos especiais
+		if(selected == 0) {
+			setletters(current[selected]);
+		} else if(selected == 4) {
+			GAMECORES = setscheme(current[selected]);
+			redraw_all();
+		}
+	} else if((g == KEY_RIGHT || g == ltrrght) && selected != opt_amt - 1) {
+		current[selected] = xmody(current[selected] + 1, amt_index[selected]);
+		if(selected == 0) {
+			setletters(current[selected]);
+		} else if(selected == 4) {
+			GAMECORES = setscheme(current[selected]);
+			redraw_all();
+		}
+	}
+	// Condicao para salvar as opcoes e sair do menu
+	else if((g == ' ' || g == '\n') && selected == opt_amt - 1) {
+		saveoptions(current[0], current[1], current[2], current[3]);
+		savescheme();
+		*goback = 1;
+	}
+	return selected;
+}
+
 int makeselector(WINDOW *w, int optamt, char *options[]) {
 	int y, x;
 	getmaxyx(w, y, x);
@@ -40,6 +104,7 @@ int makeselector(WINDOW *w, int optamt, char *options[]) {
 	}
 
 	int selected = 0;
+	int choose = 0;
 
 	for(;;) {
 		for(int i = 0; i < optamt; i++) { 
@@ -53,11 +118,8 @@ int makeselector(WINDOW *w, int optamt, char *options[]) {
 		wrefresh(w);
 
 		int g = wgetch(w);
-		if(g == KEY_UP || g == ltrup) {
-			selected = xmody(selected - 1, optamt);
-		} else if(g == KEY_DOWN || g == ltrdwn) {
-			selected = xmody(selected + 1, optamt);
-		} else if(g == ' ' || g == '\n') {
+		selected = menu_command_1(g, selected, optamt, &choose);
+		if(choose == 1) {
 			return selected;
 		}
 	}
@@ -130,7 +192,7 @@ void menu_scoreboard(void) {
 	int map = BORDER;
 	int gtime = 0;
 	char *s_times[] = {"Normal", "00:30 ", "01:00 ", "03:00 ", "05:00 "};
-	for(;;) {
+	for(int exit = 0; exit != 1;) {
 		Score *scores[10];
 		int size = loadscores(scores, map, gtime);
 		mvwprintw(inner, 3, maxinx - 10, "%s", s_times[gtime]);
@@ -148,17 +210,7 @@ void menu_scoreboard(void) {
 		wrefresh(inner);
 
 		int g = wgetch(inner);
-		if(g == KEY_RIGHT || g == ltrrght) {
-			map = xmody(map + 1, 2);
-		} else if(g == KEY_LEFT || g == ltrlft) {
-			map = xmody(map - 1, 2);
-		} else if(g == KEY_UP || g == ltrup) {
-			gtime = xmody(gtime - 1, 5);
-		} else if((g == KEY_DOWN || g == ltrdwn) && gtime < 4) {
-			gtime = xmody(gtime + 1, 5);
-		} else if(g == ' ' || g == '\n') {
-			return;
-		}
+		exit = menu_command_2(g, &map, &gtime);
 
 		for(int i = 0; i < size; i++) {
 			free(scores[i]);
@@ -245,15 +297,16 @@ void menu_options(void) {
 	// Variaveis auxiliares, codigo deve ser otimizado futuramente
 	int op_teclado, op_tempo, op_mapa, op_speed;
 	loadoptions(&op_teclado, &op_tempo, &op_mapa, &op_speed);
-	int selected = 0, selX, HLsize;
+	int selected = 0, selX, HLsize, go_back = 0;
 	int current[] = {op_teclado, op_tempo, op_mapa, op_speed, GAMECORES.ID};
 
 	void opt_print(void) {
-		mvwprintw(inner, 3, 16, layout_options[current[0]]);
-		mvwprintw(inner, 5, 16, time_options[current[1]]);
-		mvwprintw(inner, 7, 16, map_options[current[2]]);
-		mvwprintw(inner, 9, 16, speed_options[current[3]]);
-		mvwprintw(inner, 11, 16, color_options[current[4]]);
+		int strline = 3;
+		mvwprintw(inner, strline, 16, layout_options[current[0]]);
+		mvwprintw(inner, strline + 2, 16, time_options[current[1]]);
+		mvwprintw(inner, strline + 4, 16, map_options[current[2]]);
+		mvwprintw(inner, strline + 6, 16, speed_options[current[3]]);
+		mvwprintw(inner, strline + 8, 16, color_options[current[4]]);
 	}
 	opt_print();
 
@@ -274,42 +327,12 @@ void menu_options(void) {
 		wrefresh(inner);
 
 		int g = wgetch(inner);
-		if(selected != opt_amt - 1) {
-			mvwprintw(inner, 3 + 2*selected, 16, "          ");
-		}
-		// Condicao para se mover no menu para cima e para baixo
-		if(g == KEY_UP || g == ltrup) {
-			selected = xmody(selected - 1, opt_amt);
-		} else if(g == KEY_DOWN || g == ltrdwn) {
-			selected = xmody(selected + 1, opt_amt);
-		} 
-		// Condicao para alterar as opcoes do menu para os lados
-		else if((g == KEY_LEFT || g == ltrlft) && selected != opt_amt - 1) {
-			current[selected] = xmody(current[selected] - 1, amt_index[selected]);
-			// Casos especiais
-			if(selected == 0) {
-				setletters(current[selected]);
-			} else if(selected == 4) {
-				GAMECORES = setscheme(current[selected]);
-				redraw_all();
-			}
-		} else if((g == KEY_RIGHT || g == ltrrght) && selected != opt_amt - 1) {
-			current[selected] = xmody(current[selected] + 1, amt_index[selected]);
-			if(selected == 0) {
-				setletters(current[selected]);
-			} else if(selected == 4) {
-				GAMECORES = setscheme(current[selected]);
-				redraw_all();
-			}
-		}
-		// Condicao para salvar as opcoes e sair do menu
-		else if((g == ' ' || g == '\n') && selected == opt_amt - 1) {
-			saveoptions(current[0], current[1], current[2], current[3]);
-			savescheme();
+		selected = menu_command_3(g, selected, current, opt_amt, amt_index, &go_back);
+		if(go_back == 1) {
 			return;
 		}
 
-		// Refaz as opcoes caso seja necessario corrigir
+		// Refaz as opcoes para corrigir o highlight
 		opt_print();
 	}
 }
