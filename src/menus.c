@@ -67,6 +67,8 @@ void menu_savescore(int map, int times, time_t totaltime) {
 	wclear(inner);
 	draw_border(inner);
 
+	updatestate(MSAVESCORE);
+
 	char *mensagem = "Digite suas iniciais";
 	mvwprintw(inner, 3, (maxinx - strlenunicode(mensagem)) / 2, mensagem);
 	mvwprintw(inner, maxiny / 2, (maxinx - 5) / 2, "_ _ _");
@@ -119,6 +121,8 @@ void menu_scoreboard(void) {
 	wclear(inner);
 	draw_border(inner);
 
+	updatestate(MSCOREBOARD);
+
 	char *title = "Hi-scores";
 	mvwprintw(inner, 1, (maxinx - strlenunicode(title)) / 2, title);
 
@@ -163,6 +167,7 @@ void menu_scoreboard(void) {
 }
 
 int menu_gameover(int map, int times, time_t totaltime, int deathcase) {
+	updatestate(MGAMEOVER);
 	int exit = 0;
 	int salvo = 0;
 	while(!exit) {
@@ -214,6 +219,8 @@ int menu_gameover(int map, int times, time_t totaltime, int deathcase) {
 void menu_options(void) {
 	wclear(inner);
 	draw_border(inner);
+
+	updatestate(MOPTIONS);
 
 	char *opt_options[] = {"Layout:", "Timer:", "Mapa:", "Speed:", "Colors:", "Voltar"};
 	int opt_amt = 6;
@@ -310,6 +317,8 @@ void menu_options(void) {
 int menu_principal(void) {
 	wclear(inner);
 	draw_border(inner);
+
+	updatestate(MPRINCIPAL);
 
 	char *options[] = {"Iniciar Jogo", "Scoreboard", "Opções", "Créditos", "Sair"};
 

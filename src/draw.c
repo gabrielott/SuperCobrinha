@@ -96,7 +96,7 @@ void draw_border(WINDOW *w) {
 }
 
 void draw_state(void) {
-	char *states[] = {"Idle   ", "Ready   ", "Running", "Paused ", "Death  "};
+	char *states[] = {"Idle    ", "Ready    ", "Running ", "Paused  ", "Death   ", "MenuPrinc", "MenuOpt ", "MenuScoB", "MenuSavS", "MenuGaOv", "Creditos"};
 	wattron(wmain, COLOR_PAIR(GAMECORES.corStatus));
 	mvwprintw(wmain, maxy - 2, maxx - 20, "STATE: %s", states[GAMESTATE]);
 	wattroff(wmain, COLOR_PAIR(GAMECORES.corStatus));
@@ -105,6 +105,8 @@ void draw_state(void) {
 
 void draw_credits(void) {
 	nodelay(inner, TRUE);
+
+	updatestate(CREDITOS);
 
 	char *nomes[] = {"SUPERCOBRINHA", "Desenvolvido por:", "Filipe Castelo", "Gabriel Ottoboni", "João Pedro Silva", "Rodrigo Delpreti", "Obrigado por jogar!"};
 	int startl[7] = {-7, 1, 5, 8, 11, 14, 25};
