@@ -61,6 +61,7 @@ void setletters(int l) {
 
 void updatestate(int state) {
 	GAMESTATE = state;
+	//set_keys();
 	draw_state();
 }
 

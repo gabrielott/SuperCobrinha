@@ -2,6 +2,7 @@
 #include <ncurses.h>
 #include <unistd.h>
 #include <time.h>
+#include <stdlib.h>
 
 #include "supercobrinha.h"
 #include "menus.h"
@@ -16,6 +17,7 @@
 
 #define CLASSIC 0
 #define SCARLET 1
+#define RANDOM 2
 
 typedef struct Scheme {
 	int ID;
@@ -57,6 +59,18 @@ Scheme setscheme(int choice) {
 		escolhido.corMenuHL = RED;
 		escolhido.corCredits = RED;
 		escolhido.corStatus = RED;
+	}
+	if(choice == RANDOM) {
+		escolhido.ID = RANDOM;
+		escolhido.corBorder = rand() % 5;
+		escolhido.corTitle = rand() % 5;
+		escolhido.corSnakeHead = rand() % 5;
+		escolhido.corSnakePart = rand() % 5;
+		escolhido.corFood = rand() % 5;
+		escolhido.corMenu = rand() % 5;
+		escolhido.corMenuHL = rand() % 5;
+		escolhido.corCredits = rand() % 5;
+		escolhido.corStatus = rand() % 5;
 	}
 	return escolhido;
 }

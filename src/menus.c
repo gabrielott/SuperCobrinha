@@ -8,16 +8,7 @@
 #include "game.h"
 #include "datamanagement.h"
 #include "draw.h"
-
-int xmody(int x, int y) {
-	if(x >= 0) {
-		return x % y;
-	}
-	while(x < 0) {
-		x += y;
-	}
-	return x;
-}
+#include "keyboard.h"
 
 int strlenunicode(char *s) {
 	int size = 0;
@@ -27,70 +18,6 @@ int strlenunicode(char *s) {
 		s++;
 	}
 	return size;
-}
-
-int menu_command_1(int g, int selec, int optamt, int *choose) {
-	if(g == KEY_UP || g == ltrup) {
-		return xmody(selec - 1, optamt);
-	} else if(g == KEY_DOWN || g == ltrdwn) {
-		return xmody(selec + 1, optamt);
-	} else if(g == ' ' || g == '\n') {
-		*choose = 1;
-	}
-	return selec;
-}
-
-int menu_command_2(int g, int *map, int *gtime) {
-	if(g == KEY_RIGHT || g == ltrrght) {
-		*map = xmody(*map + 1, 2);
-	} else if(g == KEY_LEFT || g == ltrlft) {
-		*map = xmody(*map - 1, 2);
-	} else if(g == KEY_UP || g == ltrup) {
-		*gtime = xmody(*gtime - 1, 5);
-	} else if(g == KEY_DOWN || g == ltrdwn) {
-		*gtime = xmody(*gtime + 1, 5);
-	} else if(g == ' ' || g == '\n') {
-		return 1;
-	}
-	return 0;
-}
-
-int menu_command_3(int g, int selected, int current[], int opt_amt, int amt_index[], int *goback) {
-	if(selected != opt_amt - 1) {
-		mvwprintw(inner, 3 + 2*selected, 16, "          ");
-	}
-	// Condicao para se mover no menu para cima e para baixo
-	if(g == KEY_UP || g == ltrup) {
-		return xmody(selected - 1, opt_amt);
-	} else if(g == KEY_DOWN || g == ltrdwn) {
-		return xmody(selected + 1, opt_amt);
-	} 
-	// Condicao para alterar as opcoes do menu para os lados (configurar como substates)
-	else if((g == KEY_LEFT || g == ltrlft) && selected != opt_amt - 1) {
-		current[selected] = xmody(current[selected] - 1, amt_index[selected]);
-		// Casos especiais
-		if(selected == 0) {
-			setletters(current[selected]);
-		} else if(selected == 4) {
-			GAMECORES = setscheme(current[selected]);
-			redraw_all();
-		}
-	} else if((g == KEY_RIGHT || g == ltrrght) && selected != opt_amt - 1) {
-		current[selected] = xmody(current[selected] + 1, amt_index[selected]);
-		if(selected == 0) {
-			setletters(current[selected]);
-		} else if(selected == 4) {
-			GAMECORES = setscheme(current[selected]);
-			redraw_all();
-		}
-	}
-	// Condicao para salvar as opcoes e sair do menu
-	else if((g == ' ' || g == '\n') && selected == opt_amt - 1) {
-		saveoptions(current[0], current[1], current[2], current[3]);
-		savescheme();
-		*goback = 1;
-	}
-	return selected;
 }
 
 int makeselector(WINDOW *w, int optamt, char *options[]) {
@@ -281,10 +208,10 @@ void menu_options(void) {
 	char *time_options[] = {"Normal", "00:30", "01:00", "03:00", "05:00"};
 	char *map_options[] = {"Com Borda", "Sem Borda"};
 	char *speed_options[] = {"Slow", "Normal", "Fast", "INSANE"};
-	char *color_options[] = {"Classic", "Scarlet"};
+	char *color_options[] = {"Classic", "Scarlet", "Random"};
 
 	char **opt_index[] = {layout_options, time_options, map_options, speed_options, color_options, opt_options};
-	int amt_index[] = {2, 5, 2, 4, 2};
+	int amt_index[] = {2, 5, 2, 4, 3};
 
 	for(int i = 0; i < opt_amt; i++) {
 		if(i != (opt_amt - 1)) {

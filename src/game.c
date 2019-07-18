@@ -2,7 +2,6 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <time.h>
-#include <stdarg.h>
 
 #include "supercobrinha.h"
 #include "datamanagement.h"
@@ -10,6 +9,7 @@
 #include "snake.h"
 #include "food.h"
 #include "draw.h"
+#include "keyboard.h"
 
 #define INITIAL_SIZE 4
 #define FOOD_NUM 1
@@ -22,11 +22,6 @@
 #define TIME_60 60
 #define TIME_180 180
 #define TIME_300 300
-
-#define NORTH 1
-#define SOUTH 2
-#define EAST 3
-#define WEST 4
 
 #define MAXQUE 2
 
@@ -56,53 +51,6 @@ void showtime(time_t gametime) {
 		mvwprintw(wmain, timery, timerx+7, "0");
 	}
 	wrefresh(wmain);
-}
-
-int key_pressed(int keyvar, int quant, ...) {
-	va_list press;
-	va_start(press, quant);
-	for(int i = 0; i < quant; i++) {
-		if(keyvar == va_arg(press, int)) {
-			va_end(press);
-			return 1;
-		}
-	}
-	va_end(press);
-	return 0;
-}
-
-int key_command() {
-
-	if(GAMESTATE == READY) {
-		const int g2 = wgetch(inner);
-
-		if(key_pressed(g2, 4, KEY_UP, ' ', '\n', ltrup)) {
-			return NORTH;
-		} else if(key_pressed(g2, 2, KEY_LEFT, ltrlft)) {
-			return WEST;
-		} else if(key_pressed(g2, 2, KEY_RIGHT, ltrrght)) {
-			return EAST;
-		}
-		// Caso o usuario nao pressione algo valido
-		return -1;
-	}
-
-	if(GAMESTATE == RUNNING) {
-		if(key_pressed(g, 2, KEY_UP, ltrup) && direction != SOUTH) {
-			return NORTH;
-		} else if(key_pressed(g, 2, KEY_DOWN, ltrdwn) && direction != NORTH) {
-			return SOUTH;
-		} else if(key_pressed(g, 2, KEY_LEFT, ltrlft) && direction != EAST) {
-			return WEST;
-		} else if(key_pressed(g, 2, KEY_RIGHT, ltrrght) && direction != WEST) {
-			return EAST;
-		}
-		// Caso nada tenha sido pressionado, retorna a mesma direcao que ja estava antes
-		return direction;
-	}
-
-	// Caso ocorra algum erro
-	return 42;
 }
 
 void set_game(void) {
@@ -150,7 +98,7 @@ void set_game(void) {
 
 	// Espera o jogador fazer o movimento inicial
 	while(direction == -1) {
-		direction = key_command();
+		direction = key_command(wgetch(inner), direction);
 	}
 
 	nodelay(inner, TRUE);
@@ -253,7 +201,7 @@ int game_start(void) {
 		}
 
 		// Atualiza a direcao da cobrinha
-		direction = key_command();
+		direction = key_command(g, direction);
 
 		// Tenta gerar todas as comidas
 		for(int i = 0; i < FOOD_NUM; i++) {
@@ -314,15 +262,6 @@ int game_start(void) {
 			return menu_gameover(map, timesq, gametime, 2);
 		}
 
-		// Verifica colisao com a propria cobrinha
-		for(int i = 0; i < maxindex + 1; i++) {
-			if(snake[i] == head) continue;
-			if(snake[i]->x == head->x && snake[i]->y == head->y) {
-				clear_death(0);
-				return menu_gameover(map, timesq, gametime, 0);
-			}
-		}
-
 		// Verifica colisao com borda
 		if(map == BORDER) {
 			if(head->x == maxinx - 1 || head->x == 0 || head->y == maxiny - 1 || head->y == 0) {
@@ -345,6 +284,15 @@ int game_start(void) {
 			}
 		}
 		
+		// Verifica colisao com a propria cobrinha
+		for(int i = 0; i < maxindex + 1; i++) {
+			if(snake[i] == head) continue;
+			if(snake[i]->x == head->x && snake[i]->y == head->y) {
+				clear_death(0);
+				return menu_gameover(map, timesq, gametime, 0);
+			}
+		}
+
 		// Exibe o tempo de jogo
 		showtime(gametime);
 
