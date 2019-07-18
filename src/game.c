@@ -28,7 +28,7 @@
 #define EAST 3
 #define WEST 4
 
-#define maxque 2
+#define MAXQUE 2
 
 Snakepart *snake[30*14];
 
@@ -40,7 +40,7 @@ int direction;
 int grow;
 int maxindex;
 int g = 0, cont = 0;
-int fila[maxque + 1];
+int fila[MAXQUE + 1];
 float gamespeed = 1;
 int timesq, map, spe;
 int times;
@@ -95,7 +95,8 @@ int key_command_move() {
 	} else if((g == KEY_RIGHT || g == ltrrght) && direction != WEST) {
 		return EAST;
 	}
-	return 0;
+	// Caso nada tenha sido pressionado, retorna a mesma direcao que ja estava antes
+	return direction;
 }
 
 void set_game(void) {
@@ -106,7 +107,7 @@ void set_game(void) {
 	maxindex = INITIAL_SIZE - 1;
 
 	// Inicializacao da queue
-	for (int i = 0; i <= maxque; i++) {
+	for (int i = 0; i <= MAXQUE; i++) {
 		fila[i] = 0;
 	}
 	cont = 0;
@@ -212,7 +213,7 @@ int game_start(void) {
 				}
 
 				// Zera a fila para evitar que a cobra se mova apos o pause
-				for (int i = 0; i <= maxque; i++) {
+				for (int i = 0; i <= MAXQUE; i++) {
 					fila[i] = 0;
 				}
 				cont = 0;
@@ -225,7 +226,7 @@ int game_start(void) {
 				updatestate(RUNNING);
 			}
 			// Avanca o indice da fila
-			else if (cont < maxque) {
+			else if (cont < MAXQUE) {
 				cont++;
 			}
 		}
@@ -235,11 +236,11 @@ int game_start(void) {
 			// Captura o primeiro da fila para execucao
 			g = fila[0];
 			// Anda com a fila
-			for (int i = 0; i < maxque; i++){
+			for (int i = 0; i < MAXQUE; i++){
 				fila[i] = fila[i+1];
 			}
 			// Esvazia o final da fila
-			fila[maxque] = 0;
+			fila[MAXQUE] = 0;
 			if (cont > 0){	
 				cont--;
 			}

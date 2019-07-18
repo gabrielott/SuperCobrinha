@@ -9,6 +9,16 @@
 #include "datamanagement.h"
 #include "draw.h"
 
+int xmody(int x, int y) {
+	if(x >= 0) {
+		return x % y;
+	}
+	while(x < 0) {
+		x += y;
+	}
+	return x;
+}
+
 int strlenunicode(char *s) {
 	int size = 0;
 	while(*s != '\0') {
@@ -43,14 +53,10 @@ int makeselector(WINDOW *w, int optamt, char *options[]) {
 		wrefresh(w);
 
 		int g = wgetch(w);
-		if((g == KEY_UP || g == ltrup) && selected > 0) {
-			selected--;
-		} else if((g == KEY_UP || g == ltrup) && selected == 0) {
-			selected = optamt - 1;
-		} else if((g == KEY_DOWN || g == ltrdwn) && selected < optamt - 1) {
-			selected++;
-		} else if((g == KEY_DOWN || g == ltrdwn) && selected == optamt - 1) {
-			selected = 0;
+		if(g == KEY_UP || g == ltrup) {
+			selected = xmody(selected - 1, optamt);
+		} else if(g == KEY_DOWN || g == ltrdwn) {
+			selected = xmody(selected + 1, optamt);
 		} else if(g == ' ' || g == '\n') {
 			return selected;
 		}
@@ -138,22 +144,14 @@ void menu_scoreboard(void) {
 		wrefresh(inner);
 
 		int g = wgetch(inner);
-		if((g == KEY_RIGHT || g == ltrrght) && map < 1) {
-			map++;
-		} else if((g == KEY_RIGHT || g == ltrrght) && map == 1) {
-			map = 0;
-		} else if((g == KEY_LEFT || g == ltrlft) && map > 0) {
-			map--;
-		} else if((g == KEY_LEFT || g == ltrlft) && map == 0) {
-			map = 1;
-		} else if((g == KEY_UP || g == ltrup) && gtime > 0) {
-			gtime--;
-		} else if((g == KEY_UP || g == ltrup) && gtime == 0) {
-			gtime = 4;
+		if(g == KEY_RIGHT || g == ltrrght) {
+			map = xmody(map + 1, 2);
+		} else if(g == KEY_LEFT || g == ltrlft) {
+			map = xmody(map - 1, 2);
+		} else if(g == KEY_UP || g == ltrup) {
+			gtime = xmody(gtime - 1, 5);
 		} else if((g == KEY_DOWN || g == ltrdwn) && gtime < 4) {
-			gtime++;
-		} else if((g == KEY_DOWN || g == ltrdwn) && gtime == 4) {
-			gtime = 0;
+			gtime = xmody(gtime + 1, 5);
 		} else if(g == ' ' || g == '\n') {
 			return;
 		}
@@ -273,22 +271,14 @@ void menu_options(void) {
 			mvwprintw(inner, 3 + 2*selected, 16, "          ");
 		}
 		// Condicao para se mover no menu para cima e para baixo
-		if((g == KEY_UP || g == ltrup) && selected > 0) {
-			selected--;
-		} else if((g == KEY_UP || g == ltrup) && selected == 0) {
-			selected = opt_amt - 1;
-		} else if((g == KEY_DOWN || g == ltrdwn) && selected < opt_amt - 1) {
-			selected++;
-		} else if((g == KEY_DOWN || g == ltrdwn) && selected == opt_amt - 1) {
-			selected = 0;
+		if(g == KEY_UP || g == ltrup) {
+			selected = xmody(selected - 1, opt_amt);
+		} else if(g == KEY_DOWN || g == ltrdwn) {
+			selected = xmody(selected + 1, opt_amt);
 		} 
 		// Condicao para alterar as opcoes do menu para os lados
 		else if((g == KEY_LEFT || g == ltrlft) && selected != opt_amt - 1) {
-			if(current[selected] > 0) {
-				current[selected]--;
-			} else if(current[selected] == 0) {
-				current[selected] = amt_index[selected] - 1;
-			}
+			current[selected] = xmody(current[selected] - 1, amt_index[selected]);
 			// Casos especiais
 			if(selected == 0) {
 				setletters(current[selected]);
@@ -297,7 +287,7 @@ void menu_options(void) {
 				redraw_all();
 			}
 		} else if((g == KEY_RIGHT || g == ltrrght) && selected != opt_amt - 1) {
-			current[selected] = (current[selected] + 1) % amt_index[selected];
+			current[selected] = xmody(current[selected] + 1, amt_index[selected]);
 			if(selected == 0) {
 				setletters(current[selected]);
 			} else if(selected == 4) {
