@@ -11,6 +11,32 @@
 #define EAST 3
 #define WEST 4
 
+typedef struct comandos {
+	// Ponteiros para as funcoes de todas as teclas necessarias
+	// eu devia fazer um vetor unico ao inves dessa struct feia pra gastar menos memoria mas assim fica mais facil de visualizar
+	void (*UP)(void);
+	void (*DOWN)(void);
+	void (*LEFT)(void);
+	void (*RIGHT)(void);
+	void (*SPACE)(void);
+	void (*ESC)(void);
+	void (*ANY)(void);
+} comandos;
+
+typedef struct coord {
+	int y;
+	int mod_m;
+	int x;
+	int mod_n;
+} coord;
+
+// Variaveis GLOBAIS para as funcoes do teclado
+comandos PRESS;
+int g; //fila(?)
+coord Active;
+int leave;
+int selecionado;
+
 int xmody(int x, int y) {
 	if(x >= 0) {
 		return x % y;
@@ -34,40 +60,166 @@ int key_pressed(int keyvar, int quant, ...) {
 	return 0;
 }
 
-/*Objetivo:
-typedef struct comandos {
-	// Ponteiros para funcoes, so que nao sei seus tipos entao nao eh bem isso que eu quero ainda
-	void (*UP)(int);
-	void (*DOWN)(int);
-	void (*LEFT)(int);
-	void (*RIGHT)(int);
-	void (*SPACE)(int);
-	void (*ESC)(int);
-} comandos;
+// Funcao que verifica se houve algum movimento
+int check_move(coord old, coord new) {
+	if(old.x == new.x && old.y == new.y) {
+		return 0;
+	}
+	return 1;
+}
 
-comandos PRESS;
-
-void nulo() { // Quando a tecla nao faz nada, eh porque ela esta apontando para essa funcao
+// Quando a tecla nao faz nada, eh porque ela esta apontando para essa funcao
+void key_nulo() {
 	return;
 }
 
+// Alguns gamestates saem caso qualquer tecla seja pressionada
+void key_sair() {
+	leave = 1;
+}
+
+// Funcoes basicas para movimentar a cobrinha conforme a variavel Active
+void key_cima() {
+	Active.y = xmody(Active.y - 1, Active.mod_m);
+}
+
+void key_baixo() {
+	Active.y = xmody(Active.y + 1, Active.mod_m);
+}
+
+void key_esq() {
+	Active.x = xmody(Active.x - 1, Active.mod_n);
+}
+
+void key_dir() {
+	Active.x = xmody(Active.x + 1, Active.mod_n);
+}
+
+// Funcoes para os pauses do jogo
+void key_pause() {
+
+}
+
+void key_pausemenu() {
+
+}
+
+// Funcao para selecionar uma opcao em um menu
+void key_select() {
+	selecionado = 1;
+}
+
+// Funcao para setar os ponteiros de funcoes de cada gamestate.
+// Agrupar gamestates cujas teclas executem as mesmas funcoes para nao ficar uma funcao gigantesca
+// Inicializacao da variavel Active foi tranferida para ca
 void set_keys() {
-	if(GAMESTATE == IDLE) {
-		PRESS.UP = nulo;
-		PRESS.DOWN = nulo;
-	} else if() {
-	
+	if(GAMESTATE == IDLE || GAMESTATE == DEATH || GAMESTATE == CREDITOS) { // 0, 4 e 11
+		PRESS.UP = &key_nulo;
+		PRESS.DOWN = &key_nulo;
+		PRESS.LEFT = &key_nulo;
+		PRESS.RIGHT = &key_nulo;
+		PRESS.SPACE = &key_nulo;
+		PRESS.ESC = &key_nulo;
+		PRESS.ANY = &key_sair;
+	} else if(GAMESTATE == READY) { //1
+		Active.y = (maxiny / 2) - 1;
+		Active.x = (maxinx / 2) - 1;
+		Active.mod_m = maxiny - 2;
+		Active.mod_n = maxinx - 2;
+		PRESS.UP = &key_cima;
+		PRESS.DOWN = &key_nulo;
+		PRESS.LEFT = &key_esq;
+		PRESS.RIGHT = &key_dir;
+		PRESS.SPACE = &key_cima;
+		PRESS.ESC = &key_nulo;
+		PRESS.ANY = &key_nulo;
+	} else if(GAMESTATE == RUNNING) { //2
+		PRESS.UP = &key_cima;
+		PRESS.DOWN = &key_baixo;
+		PRESS.LEFT = &key_esq;
+		PRESS.RIGHT = &key_dir;
+		PRESS.SPACE = &key_pause;
+		PRESS.ESC = &key_pausemenu;
+		PRESS.ANY = &key_nulo;
+	} else if(GAMESTATE == PAUSED) { //3
+		PRESS.UP = &key_nulo;
+		PRESS.DOWN = &key_nulo;
+		PRESS.LEFT = &key_nulo;
+		PRESS.RIGHT = &key_nulo;
+		PRESS.SPACE = &key_sair;
+		PRESS.ESC = &key_nulo;
+		PRESS.ANY = &key_nulo;
+	} else if(GAMESTATE == MPRINCIPAL) { //5
+		PRESS.UP = &key_cima;
+		PRESS.DOWN = &key_baixo;
+		PRESS.LEFT = &key_nulo;
+		PRESS.RIGHT = &key_nulo;
+		PRESS.SPACE = &key_select;
+		PRESS.ESC = &key_nulo;
+		PRESS.ANY = &key_nulo;
+	} else if(GAMESTATE == MOPTIONS) { //6 - Falta os substates
+		PRESS.UP = &key_cima;
+		PRESS.DOWN = &key_baixo;
+		PRESS.LEFT = &key_esq;
+		PRESS.RIGHT = &key_dir;
+		PRESS.SPACE = &key_nulo;
+		PRESS.ESC = &key_nulo;
+		PRESS.ANY = &key_nulo;
+	} else if(GAMESTATE == MSCOREBOARD) { //7
+		PRESS.UP = &key_cima;
+		PRESS.DOWN = &key_baixo;
+		PRESS.LEFT = &key_esq;
+		PRESS.RIGHT = &key_dir;
+		PRESS.SPACE = &key_sair;
+		PRESS.ESC = &key_nulo;
+		PRESS.ANY = &key_nulo;
+	} else if(GAMESTATE == MGAMEOVER) { //8
+		PRESS.UP = &key_cima;
+		PRESS.DOWN = &key_baixo;
+		PRESS.LEFT = &key_esq;
+		PRESS.RIGHT = &key_dir;
+		PRESS.SPACE = &key_select;
+		PRESS.ESC = &key_nulo;
+		PRESS.ANY = &key_nulo;
+	} else if(GAMESTATE == MSAVESCORE) { //9 - Estudar ainda como vou implementar isso aqui, LAYOUT DO TECLADO pode ferrar um pouco essa parte
+		PRESS.UP = &key_cima;
+		PRESS.DOWN = &key_baixo;
+		PRESS.LEFT = &key_nulo;
+		PRESS.RIGHT = &key_nulo;
+		PRESS.SPACE = &key_select;
+		PRESS.ESC = &key_nulo;
+		PRESS.ANY = &key_nulo;
+	} else if(GAMESTATE == MPAUSE) { //10
+		PRESS.UP = &key_cima;
+		PRESS.DOWN = &key_baixo;
+		PRESS.LEFT = &key_nulo;
+		PRESS.RIGHT = &key_nulo;
+		PRESS.SPACE = &key_select;
+		PRESS.ESC = &key_nulo;
+		PRESS.ANY = &key_nulo;
 	}
 }
 
-void key_command(int g){
+// Funcao que chama a funcao adequada para cada tecla pressionada
+void key_command() {
 	if(key_pressed(g, 2, KEY_UP, ltrup)) {
-		PRESS.UP(KEY_UP);
+		PRESS.UP();
+	} else if(key_pressed(g, 2, KEY_DOWN, ltrdwn)) {
+		PRESS.DOWN();
+	} else if(key_pressed(g, 2, KEY_LEFT, ltrlft)) {
+		PRESS.LEFT();
+	} else if(key_pressed(g, 2, KEY_RIGHT, ltrrght)) {
+		PRESS.RIGHT();
+	} else if(key_pressed(g, 2, ' ', '\n')) {
+		PRESS.SPACE();
+	} else if(key_pressed(g, 1, 27)) {
+		PRESS.ESC();
+	} else if(g != 0 && g != ERR) {
+		PRESS.ANY();
 	}
 }
-*/
 
-int key_command(int g, int direction) {
+int key_command_old(int g, int direction) {
 
 	if(GAMESTATE == READY) {
 		if(key_pressed(g, 4, KEY_UP, ' ', '\n', ltrup)) {
@@ -76,7 +228,7 @@ int key_command(int g, int direction) {
 			return WEST;
 		} else if(key_pressed(g, 2, KEY_RIGHT, ltrrght)) {
 			return EAST;
-		}
+		} 
 		// Caso o usuario nao pressione algo valido
 		return -1;
 	}

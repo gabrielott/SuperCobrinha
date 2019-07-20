@@ -17,8 +17,9 @@
 #define MSCOREBOARD 7
 #define MGAMEOVER 8
 #define MSAVESCORE 9
+#define MPAUSE 10
 // Define o gamestate dos creditos
-#define CREDITOS 10
+#define CREDITOS 11
 
 #include <ncurses.h>
 

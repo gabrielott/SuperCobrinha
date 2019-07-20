@@ -34,11 +34,13 @@ int timerx, timery;
 int direction;
 int grow;
 int maxindex;
-int g = 0, cont = 0;
+int cont = 0;
+int lastg;
 int fila[MAXQUE + 1];
 float gamespeed = 1;
 int timesq, map, spe;
 int times;
+coord Prev;
 
 Food *foods[FOOD_NUM];
 
@@ -65,7 +67,6 @@ void set_game(void) {
 		fila[i] = 0;
 	}
 	cont = 0;
-	g = 0;
 
 	// coordenadas do timer e do placar
 	timerx = ((maxx - 32) / 2) - 14;
@@ -97,9 +98,18 @@ void set_game(void) {
 	updatestate(READY);
 
 	// Espera o jogador fazer o movimento inicial
-	while(direction == -1) {
-		direction = key_command(wgetch(inner), direction);
+	Prev = Active;
+	nodelay(inner, FALSE);
+	while(!check_move(Prev, Active)) {
+		g = wgetch(inner);
+		key_command();
 	}
+	Active = Prev;
+	if(g == ' ' || g == '\n') {
+		g = KEY_UP;
+	}
+	lastg = g;
+	g = 0;
 
 	nodelay(inner, TRUE);
 }
@@ -186,7 +196,7 @@ int game_start(void) {
 		}
 
 		// Executa input conforme a ordem da fila de execucao
-		if (fila[0] != 0 && fila[0] != ERR){
+		if (fila[0] != 0 && fila[0] != ERR) {
 			// Captura o primeiro da fila para execucao
 			g = fila[0];
 			// Anda com a fila
@@ -201,7 +211,12 @@ int game_start(void) {
 		}
 
 		// Atualiza a direcao da cobrinha
-		direction = key_command(g, direction);
+		if(g == 0 || g == ERR) {
+			g = lastg;
+		}
+		Prev = Active;
+		key_command();
+		lastg = g;
 
 		// Tenta gerar todas as comidas
 		for(int i = 0; i < FOOD_NUM; i++) {
@@ -222,23 +237,8 @@ int game_start(void) {
 		}
 
 		// Movimenta a cobrinha
-		switch(direction) {
-			case NORTH:
-				tail->x = head->x;
-				tail->y = head->y - 1;
-				break;
-			case SOUTH:
-				tail->x = head->x;
-				tail->y = head->y + 1;
-				break;
-			case EAST:
-				tail->x = head->x + 1;
-				tail->y = head->y;
-				break;
-			case WEST:
-				tail->x = head->x - 1;
-				tail->y = head->y;
-		}
+		tail->x = Active.x + 1;
+		tail->y = Active.y + 1;
 
 		for(int i = 0; i < maxindex + 1; i++) {
 			snake[i]->index++;
@@ -257,30 +257,20 @@ int game_start(void) {
 		}
 
 		// Verifica se o jogador venceu o jogo (na teoria)
-		if(maxindex == 30*14-1){
+		if(maxindex == 30*14-1) {
 			clear_death(2);
 			return menu_gameover(map, timesq, gametime, 2);
 		}
 
 		// Verifica colisao com borda
 		if(map == BORDER) {
-			if(head->x == maxinx - 1 || head->x == 0 || head->y == maxiny - 1 || head->y == 0) {
+			if(Prev.y == Active.y && Prev.x != Active.x - 1 && Prev.x != Active.x + 1) {
 				clear_death(0);
 				return menu_gameover(map, timesq, gametime, 0);
 			}
-
-		// Faz a cobra "dar a volta"
-		} else if(map == BORDERLESS) {
-			if(head->x == maxinx - 1) {
-				head->x = 1;
-			} else if(head->x == 0) {
-				head->x = maxinx - 2;
-			}
-
-			if(head->y == maxiny - 1) {
-				head->y = 1;
-			} else if(head->y == 0) {
-				head->y = maxiny - 2;
+			if(Prev.x == Active.x && Prev.y != Active.y - 1 && Prev.y != Active.y + 1) {
+				clear_death(0);
+				return menu_gameover(map, timesq, gametime, 0);
 			}
 		}
 		
@@ -298,7 +288,7 @@ int game_start(void) {
 
 		// Verifica se acabou o tempo do modo Time attack
 		if (times != TIMELESS) {
-			if(start + times <= time(NULL)){
+			if(start + times <= time(NULL)) {
 				clear_death(1);
 				return menu_gameover(map, timesq, gametime, 1);
 			}

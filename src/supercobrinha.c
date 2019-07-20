@@ -8,6 +8,7 @@
 #include "menus.h"
 #include "datamanagement.h"
 #include "draw.h"
+#include "keyboard.h"
 
 #define LTR_QWERTY 0
 #define LTR_COLEMAK 1
@@ -22,7 +23,8 @@
 #define MSCOREBOARD 7
 #define MGAMEOVER 8
 #define MSAVESCORE 9
-#define CREDITOS 10
+#define MPAUSE 10
+#define CREDITOS 11
 
 int GAMESTATE = IDLE;
 
@@ -61,7 +63,8 @@ void setletters(int l) {
 
 void updatestate(int state) {
 	GAMESTATE = state;
-	//set_keys();
+	leave = 0;
+	set_keys();
 	draw_state();
 }
 
