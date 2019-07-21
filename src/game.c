@@ -40,7 +40,7 @@ int fila[MAXQUE + 1];
 float gamespeed = 1;
 int timesq, map, spe;
 int times;
-coord Prev;
+coord Prev, Aux;
 
 Food *foods[FOOD_NUM];
 
@@ -146,9 +146,10 @@ int game_start(void) {
 		// Adiciona caracter pressionado na fila de execucao
 		while ((fila[cont] = wgetch(inner)) != ERR) { // O codigo de pause mais elaborado do universo (funciona)
 			if(key_pressed(fila[cont], 3, '\n', ' ', 27)) {
-				updatestate(PAUSED);
 				if(fila[cont] == 27) {
+					updatestate(MPAUSE);
 					// Menu de pause ao pressionar esc
+					coord keep = Active;
 					WINDOW *pause = newwin(16, 32, 7, (maxx - 32) / 2);
 					keypad(pause, TRUE);
 					draw_border(pause);
@@ -157,17 +158,19 @@ int game_start(void) {
 					mvwprintw(pause, 3, (maxinx - strlenunicode(message)) / 2, message);
 
 					char *options[] = {"Voltar ao jogo", "Sair"};
-					if(makeselector(pause, 2, options)) { 
+					if(makeselector(pause, 2, options) == 1) { 
 						clear_death(3);
 						clear_gameover();
 						wrefresh(wmain);
 						return 1;
 					}
+					Active = keep;
 					redrawwin(inner);
 					wrefresh(inner);
 				}
 				else {
 					// Pauses com enter e barra de espaco
+					updatestate(PAUSED);
 					int leav;
 					nodelay(inner, FALSE);
 					do {
@@ -210,13 +213,19 @@ int game_start(void) {
 			}
 		}
 
-		// Atualiza a direcao da cobrinha
+		// Atualiza a direcao da cobrinha, checando e corrigindo caso ela tente andar sobre si mesma
 		if(g == 0 || g == ERR) {
 			g = lastg;
 		}
 		Prev = Active;
 		key_command();
+		if(Aux.x == Active.x && Aux.y == Active.y) {
+			g = lastg;
+			key_command();
+			key_command();
+		}
 		lastg = g;
+		Aux = Prev;
 
 		// Tenta gerar todas as comidas
 		for(int i = 0; i < FOOD_NUM; i++) {

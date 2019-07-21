@@ -30,12 +30,12 @@ int makeselector(WINDOW *w, int optamt, char *options[]) {
 		mvwprintw(w, (y - optamt * 2) / 2 + i * 2, (x - strlenunicode(options[i])) / 2, options[i]);
 	}
 
-	int selected = 0;
-	int choose = 0;
+	Active.y = 0;
+	Active.mod_m = optamt;
 
 	for(;;) {
 		for(int i = 0; i < optamt; i++) { 
-			if(i == selected) {
+			if(i == Active.y) {
 				mvwchgat(w, (y - optamt * 2) / 2 + i * 2, (x - strlenunicode(options[i])) / 2, strlenunicode(options[i]), A_STANDOUT, GAMECORES.corMenuHL, NULL);
 			} else {
 				mvwchgat(w, (y - optamt * 2) / 2 + i * 2, (x - strlenunicode(options[i])) / 2, strlenunicode(options[i]), A_NORMAL, GAMECORES.corMenu, NULL);
@@ -44,10 +44,11 @@ int makeselector(WINDOW *w, int optamt, char *options[]) {
 
 		wrefresh(w);
 
-		int g = wgetch(w);
-		selected = menu_command_1(g, selected, optamt, &choose);
-		if(choose == 1) {
-			return selected;
+		g = wgetch(w);
+		key_command();
+		if(selecionado == 1) {
+			selecionado = 0;
+			return Active.y;
 		}
 	}
 }

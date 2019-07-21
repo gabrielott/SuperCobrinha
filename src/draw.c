@@ -118,9 +118,9 @@ void draw_state(void) {
 }
 
 void draw_credits(void) {
-	nodelay(inner, TRUE);
-
 	updatestate(CREDITOS);
+	
+	nodelay(inner, TRUE);
 
 	char *nomes[] = {"SUPERCOBRINHA", "Desenvolvido por:", "Filipe Castelo", "Gabriel Ottoboni", "João Pedro Silva", "Rodrigo Delpreti", "Obrigado por jogar!"};
 	int startl[7] = {-7, 1, 5, 8, 11, 14, 25};

@@ -35,7 +35,7 @@ comandos PRESS;
 int g; //fila(?)
 coord Active;
 int leave;
-int selecionado;
+int selecionado = 0;
 
 int xmody(int x, int y) {
 	if(x >= 0) {
@@ -75,10 +75,11 @@ void key_nulo() {
 
 // Alguns gamestates saem caso qualquer tecla seja pressionada
 void key_sair() {
-	leave = 1;
+	return;
+	//leave = 1;
 }
 
-// Funcoes basicas para movimentar a cobrinha conforme a variavel Active
+// Funcoes BEM BASICAS para se movimentar conforme a variavel Active
 void key_cima() {
 	Active.y = xmody(Active.y - 1, Active.mod_m);
 }
@@ -113,7 +114,7 @@ void key_select() {
 // Agrupar gamestates cujas teclas executem as mesmas funcoes para nao ficar uma funcao gigantesca
 // Inicializacao da variavel Active foi tranferida para ca
 void set_keys() {
-	if(GAMESTATE == IDLE || GAMESTATE == DEATH || GAMESTATE == CREDITOS) { // 0, 4 e 11
+	if(GAMESTATE == IDLE || GAMESTATE == DEATH || GAMESTATE == CREDITOS) { // 0, 4 e 11 desnecessarios
 		PRESS.UP = &key_nulo;
 		PRESS.DOWN = &key_nulo;
 		PRESS.LEFT = &key_nulo;
@@ -121,7 +122,7 @@ void set_keys() {
 		PRESS.SPACE = &key_nulo;
 		PRESS.ESC = &key_nulo;
 		PRESS.ANY = &key_sair;
-	} else if(GAMESTATE == READY) { //1
+	} else if(GAMESTATE == READY) { //1 pronto
 		Active.y = (maxiny / 2) - 1;
 		Active.x = (maxinx / 2) - 1;
 		Active.mod_m = maxiny - 2;
@@ -133,7 +134,7 @@ void set_keys() {
 		PRESS.SPACE = &key_cima;
 		PRESS.ESC = &key_nulo;
 		PRESS.ANY = &key_nulo;
-	} else if(GAMESTATE == RUNNING) { //2
+	} else if(GAMESTATE == RUNNING) { //2 pronto
 		PRESS.UP = &key_cima;
 		PRESS.DOWN = &key_baixo;
 		PRESS.LEFT = &key_esq;
@@ -141,7 +142,7 @@ void set_keys() {
 		PRESS.SPACE = &key_pause;
 		PRESS.ESC = &key_pausemenu;
 		PRESS.ANY = &key_nulo;
-	} else if(GAMESTATE == PAUSED) { //3
+	} else if(GAMESTATE == PAUSED) { //3 desnecessario
 		PRESS.UP = &key_nulo;
 		PRESS.DOWN = &key_nulo;
 		PRESS.LEFT = &key_nulo;
@@ -149,7 +150,7 @@ void set_keys() {
 		PRESS.SPACE = &key_sair;
 		PRESS.ESC = &key_nulo;
 		PRESS.ANY = &key_nulo;
-	} else if(GAMESTATE == MPRINCIPAL) { //5
+	} else if(GAMESTATE == MPRINCIPAL || GAMESTATE == MGAMEOVER || GAMESTATE == MPAUSE) { //5, 8 e 10 Sao os menus que usam a makeselector
 		PRESS.UP = &key_cima;
 		PRESS.DOWN = &key_baixo;
 		PRESS.LEFT = &key_nulo;
@@ -173,23 +174,7 @@ void set_keys() {
 		PRESS.SPACE = &key_sair;
 		PRESS.ESC = &key_nulo;
 		PRESS.ANY = &key_nulo;
-	} else if(GAMESTATE == MGAMEOVER) { //8
-		PRESS.UP = &key_cima;
-		PRESS.DOWN = &key_baixo;
-		PRESS.LEFT = &key_esq;
-		PRESS.RIGHT = &key_dir;
-		PRESS.SPACE = &key_select;
-		PRESS.ESC = &key_nulo;
-		PRESS.ANY = &key_nulo;
 	} else if(GAMESTATE == MSAVESCORE) { //9 - Estudar ainda como vou implementar isso aqui, LAYOUT DO TECLADO pode ferrar um pouco essa parte
-		PRESS.UP = &key_cima;
-		PRESS.DOWN = &key_baixo;
-		PRESS.LEFT = &key_nulo;
-		PRESS.RIGHT = &key_nulo;
-		PRESS.SPACE = &key_select;
-		PRESS.ESC = &key_nulo;
-		PRESS.ANY = &key_nulo;
-	} else if(GAMESTATE == MPAUSE) { //10
 		PRESS.UP = &key_cima;
 		PRESS.DOWN = &key_baixo;
 		PRESS.LEFT = &key_nulo;
@@ -217,38 +202,6 @@ void key_command() {
 	} else if(g != 0 && g != ERR) {
 		PRESS.ANY();
 	}
-}
-
-int key_command_old(int g, int direction) {
-
-	if(GAMESTATE == READY) {
-		if(key_pressed(g, 4, KEY_UP, ' ', '\n', ltrup)) {
-			return NORTH;
-		} else if(key_pressed(g, 2, KEY_LEFT, ltrlft)) {
-			return WEST;
-		} else if(key_pressed(g, 2, KEY_RIGHT, ltrrght)) {
-			return EAST;
-		} 
-		// Caso o usuario nao pressione algo valido
-		return -1;
-	}
-
-	if(GAMESTATE == RUNNING) {
-		if(key_pressed(g, 2, KEY_UP, ltrup) && direction != SOUTH) {
-			return NORTH;
-		} else if(key_pressed(g, 2, KEY_DOWN, ltrdwn) && direction != NORTH) {
-			return SOUTH;
-		} else if(key_pressed(g, 2, KEY_LEFT, ltrlft) && direction != EAST) {
-			return WEST;
-		} else if(key_pressed(g, 2, KEY_RIGHT, ltrrght) && direction != WEST) {
-			return EAST;
-		}
-		// Caso nada tenha sido pressionado, retorna a mesma direcao que ja estava antes
-		return direction;
-	}
-
-	// Caso ocorra algum erro
-	return 42;
 }
 
 int menu_command_1(int g, int selec, int optamt, int *choose) { // Usada na makeselector
