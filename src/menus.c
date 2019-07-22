@@ -259,23 +259,39 @@ void optionsmenu(void) {
 
 	int mapnum = 0;
 	while((ent = readdir(dir)) != NULL) {
-		if(ent->d_type != DT_DIR) mapnum++;
+		if(ent->d_type == DT_DIR) continue;
+
+		Map *m = newmap(ent->d_name);
+		if(m != NULL) mapnum++;
+		free(m);
 	}
 
 	rewinddir(dir);
-	char **map_op = malloc(mapnum * sizeof(char *));
 
-	int i = -1;
+	char **map_op = malloc(mapnum * sizeof(char *));
+	char **filenames = malloc(mapnum * sizeof(char *));
+	int i = 0;
 	while((ent = readdir(dir)) != NULL) {
 		if(ent->d_type == DT_DIR) continue;
-		char *c = malloc(strlen(ent->d_name) * sizeof(char));
-		strcpy(c, ent->d_name);
-		map_op[++i] = c;
+
+		Map *m = newmap(ent->d_name);
+		if(m == NULL) continue;
+
+		char *n = malloc((strlen(ent->d_name) + 1) * sizeof(char));
+		strcpy(n, ent->d_name);
+		filenames[strcmp(ent->d_name, "default") == 0 ? 0 : ++i] = n;
+
+		char *c = malloc((strlen(m->name) + 1) * sizeof(char));
+		strcpy(c, m->name);
+		map_op[strcmp(ent->d_name, "default") == 0 ? 0 : i] = c;
+
+		free(m);
 	}
 		
+	closedir(dir);
+
 	Selector *map = newselector("Mapa:", map_op, mapnum);
 
-	closedir(dir);
 
 	Selector *options[] = {layout, timer, border, speed, color, map};
 
@@ -323,7 +339,9 @@ void optionsmenu(void) {
 		savescheme();
 		redraw_all();
 
-		gamemap = newmap(options[5]->options[options[5]->selected]);
+		//endwin();
+		//printf("%s\n", filenames[1]);
+		gamemap = newmap(filenames[options[5]->selected]);
 		if(gamemap == NULL) wclear(wmain);
 
 		// Desalocando memoria usada
@@ -333,9 +351,11 @@ void optionsmenu(void) {
 
 		for(int i = 0; i < mapnum; i++) {
 			free(map_op[i]);
+			free(filenames[i]);
 		}
 
 		free(map_op);
+		free(filenames);
 	}
 
 	// Loop que controla a parte visual do menu. Nao eh necessario alterar nada aqui dentro
