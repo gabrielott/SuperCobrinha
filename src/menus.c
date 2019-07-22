@@ -217,103 +217,139 @@ void optionsmenu(void) {
 	wclear(inner);
 	draw_border(inner);
 
-	char *opt_options[] = {"Layout:", "Timer:", "Mapa:", "Speed:", "Colors:", "Voltar"};
-	int opt_amt = 6;
+	typedef struct Selector {
+		char *title;
+		char **options;
+		int optamt;
+		int selected;
+	} Selector;
 
-	char *layout_options[] = {"QWERTY", "Colemak"};
-	char *time_options[] = {"Normal", "00:30", "01:00", "03:00", "05:00"};
-	char *map_options[] = {"Com Borda", "Sem Borda"};
-	char *speed_options[] = {"Slow", "Normal", "Fast", "INSANE"};
-	char *color_options[] = {"Classic", "Scarlet"};
+	Selector *newselector(char *title, char **options, int optamt) {
+		Selector *s = malloc(sizeof(Selector));
+		s->title = title;
+		s->options = options;
+		s->optamt = optamt;
+		s->selected = 0;
+		return s;
+	}
 
-	char **opt_index[] = {layout_options, time_options, map_options, speed_options, color_options, opt_options};
-	int amt_index[] = {2, 5, 2, 4, 2};
+	// Para criar uma nova opcao, crie um novo Selector, aumente optamt em uma
+	// unidade e adicione o novo Selector no array options. A ordem das opcoes
+	// dentro do array determina a ordem como elas aparecerao no menu.
 
-	for(int i = 0; i < opt_amt; i++) {
-		if(i != (opt_amt - 1)) {
-			mvwprintw(inner, 3 + 2*i, 8, opt_options[i]);
-		} else {
-			mvwprintw(inner, 3 + 2*i, (32 - strlenunicode(opt_options[i]))/2, opt_options[i]);
+	char *layout_op[] = {"QWERTY", "Colemak"};
+	Selector *layout = newselector("Layout:", layout_op, 2);
+
+	char *timer_op[] = {"Não", "30s", "1min", "3min", "5min"};
+	Selector *timer = newselector("Timer:", timer_op, 4);
+
+	char *border_op[] = {"Sim", "Não"};
+	Selector *border = newselector("Borda:", border_op, 2);
+
+	char *speed_op[] = {"Slow", "Normal", "Fast", "INSANE"};
+	Selector *speed = newselector("Speed:", speed_op, 4);
+
+	char *color_op[] = {"Classic", "Scarlet"};
+	Selector *color = newselector("Cor:", color_op, 2);
+
+	Selector *options[] = {layout, timer, border, speed, color};
+
+	int optamt = 5;
+	int selected = 0;
+
+	int biggest = 0;
+	for(int i = 0; i < optamt; i++) {
+		if(strlenunicode(options[i]->title) + 1 > biggest) biggest = strlenunicode(options[i]->title) + 1;
+	}
+
+	for(int i = 0; i < optamt; i++) {
+		mvwprintw(inner, 3 + 2 * i, 8, options[i]->title);
+		mvwprintw(inner, 3 + 2 * i, 8 + biggest, options[i]->options[options[i]->selected]);
+	}
+
+	char *backtext = "Salvar e voltar";
+	mvwprintw(inner, 3 + 2 * optamt, (maxinx - strlenunicode(backtext)) / 2, backtext);
+
+	wrefresh(inner);
+
+	// A selecao inicial de cada opcao deve ser feita aqui. Modifique o atributo selected
+	// da sua instancia de Selector. Caso isso nao seja feito, o Selector tera a primeira
+	// opcao selecionada por padrao.
+	
+	int op_layout, op_timer, op_border, op_speed;
+	loadoptions(&op_layout, &op_timer, &op_border, &op_speed);
+
+	options[0]->selected = op_layout;
+	options[1]->selected = op_timer;
+	options[2]->selected = op_border;
+	options[3]->selected = op_speed;
+	options[4]->selected = GAMECORES.ID;
+
+	// A funcao onsave() eh chamada assim que o usuario seleciona a opcao de salvar no
+	// menu opcoes. Tudo que precisa acontecer para que sua opcao tenha efeito deve ser
+	// feito aqui dentro. Voce pode acessar os atributos do seu Selector por meio do 
+	// argumento options.
+
+	void onsave(Selector **options) {
+		setletters(options[0]->selected);
+		GAMECORES = setscheme(options[4]->selected);
+
+		saveoptions(options[0]->selected, options[1]->selected, options[2]->selected, options[3]->selected);
+		savescheme();
+		redraw_all();
+
+		for(int i = 0; i < optamt; i++) {
+			free(options[i]);
 		}
 	}
 
-	// Variaveis auxiliares, codigo deve ser otimizado futuramente
-	int op_teclado, op_tempo, op_mapa, op_speed;
-	loadoptions(&op_teclado, &op_tempo, &op_mapa, &op_speed);
-	int selected = 0, selX, HLsize;
-	int current[] = {op_teclado, op_tempo, op_mapa, op_speed, GAMECORES.ID};
-
-	void opt_print(void) {
-		mvwprintw(inner, 3, 16, layout_options[current[0]]);
-		mvwprintw(inner, 5, 16, time_options[current[1]]);
-		mvwprintw(inner, 7, 16, map_options[current[2]]);
-		mvwprintw(inner, 9, 16, speed_options[current[3]]);
-		mvwprintw(inner, 11, 16, color_options[current[4]]);
-	}
-	opt_print();
-
+	// Loop que controla a parte visual do menu. Nao eh necessario alterar nada aqui dentro
+	// para adicionar, remover ou mudar os efeitos de uma opcao, tudo isso pode ser feito
+	// onde os comentarios anteriores indicam.
+	
 	for(;;) {
-		if(selected != (opt_amt - 1)) {
-			HLsize = strlenunicode(opt_index[selected][current[selected]]);
-			selX = 16;
-		} else if(selected == (opt_amt - 1)) {
-			selX = 1 + (30 - strlenunicode(opt_options[(opt_amt - 1)]))/2;
-			HLsize = 6;
-		}
+		for(int i = 0; i < optamt + 1; i++) {
+			if(i == optamt) {
+				if(i == selected) {
+					mvwchgat(inner, 3 + 2 * optamt, (maxinx - strlenunicode(backtext)) / 2, strlenunicode(backtext), A_STANDOUT, GAMECORES.corMenuHL, NULL);
+				} else {
+					mvwchgat(inner, 3 + 2 * optamt, (maxinx - strlenunicode(backtext)) / 2, strlenunicode(backtext), A_NORMAL, GAMECORES.corMenu, NULL);
+				}
+				continue;
+			}
 
-		for(int i = 0; i < opt_amt; i++) {
-			mvwchgat(inner, 3 + 2*i, 2, 25, A_NORMAL, GAMECORES.corMenu, NULL);
+			char formatted[20];
+			strcpy(formatted, options[i]->options[options[i]->selected]);
+			strcat(formatted, "     ");
+
+			mvwprintw(inner, 3 + 2 * i, 8 + biggest, formatted);
+
+			if(i == selected) {
+				mvwchgat(inner, 3 + 2 * i, 8 + biggest, strlenunicode(options[i]->options[options[i]->selected]), A_STANDOUT, GAMECORES.corMenuHL, NULL);
+			} else {
+				mvwchgat(inner, 3 + 2 * i, 8 + biggest, strlenunicode(options[i]->options[options[i]->selected]), A_NORMAL, GAMECORES.corMenu, NULL);
+			}
 		}
-		mvwchgat(inner, 3 + selected*2, selX, HLsize, A_STANDOUT, GAMECORES.corMenuHL, NULL);
 
 		wrefresh(inner);
 
 		int g = wgetch(inner);
-		if(selected != opt_amt - 1) {
-			mvwprintw(inner, 3 + 2*selected, 16, "          ");
-		}
-		// Condicao para se mover no menu para cima e para baixo
 		if((g == KEY_UP || g == ltrup) && selected > 0) {
 			selected--;
 		} else if((g == KEY_UP || g == ltrup) && selected == 0) {
-			selected = opt_amt - 1;
-		} else if((g == KEY_DOWN || g == ltrdwn) && selected < opt_amt - 1) {
+			selected = optamt;
+		} else if((g == KEY_DOWN || g == ltrdwn) && selected < optamt) {
 			selected++;
-		} else if((g == KEY_DOWN || g == ltrdwn) && selected == opt_amt - 1) {
+		} else if((g == KEY_DOWN || g == ltrdwn) && selected == optamt) {
 			selected = 0;
-		} 
-		// Condicao para alterar as opcoes do menu para os lados
-		else if((g == KEY_LEFT || g == ltrlft) && selected != opt_amt - 1) {
-			if(current[selected] > 0) {
-				current[selected]--;
-			} else if(current[selected] == 0) {
-				current[selected] = amt_index[selected] - 1;
-			}
-			// Casos especiais
-			if(selected == 0) {
-				setletters(current[selected]);
-			} else if(selected == 4) {
-				GAMECORES = setscheme(current[selected]);
-				redraw_all();
-			}
-		} else if((g == KEY_RIGHT || g == ltrrght) && selected != opt_amt - 1) {
-			current[selected] = (current[selected] + 1) % amt_index[selected];
-			if(selected == 0) {
-				setletters(current[selected]);
-			} else if(selected == 4) {
-				GAMECORES = setscheme(current[selected]);
-				redraw_all();
-			}
+		} else if((g == ' ' || g == '\n') && selected == optamt) {
+			onsave(options);
+			break;
+		} else if(g == ' ' || g == '\n' || g == KEY_RIGHT || g == ltrrght) {
+			options[selected]->selected = options[selected]->selected == options[selected]->optamt - 1 ? 0 : options[selected]->selected + 1;
+		} else if(g == KEY_LEFT || g == ltrlft) {
+			options[selected]->selected = options[selected]->selected == 0 ? options[selected]->optamt - 1 : options[selected]->selected - 1;
 		}
-		// Condicao para salvar as opcoes e sair do menu
-		else if((g == ' ' || g == '\n') && selected == opt_amt - 1) {
-			saveoptions(current[0], current[1], current[2], current[3]);
-			savescheme();
-			return;
-		}
-
-		// Refaz as opcoes caso seja necessario corrigir
-		opt_print();
 	}
 }
 
