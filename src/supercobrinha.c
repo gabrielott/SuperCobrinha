@@ -8,6 +8,8 @@
 #include "menus.h"
 #include "datamanagement.h"
 #include "draw.h"
+#include "map.h"
+#include "game.h"
 
 #define LTR_QWERTY 0
 #define LTR_COLEMAK 1
@@ -116,6 +118,7 @@ int main(void) {
 
 	keypad(inner, TRUE);
 	setupsaves();
+	gamemap = newmap("default");
 	srand(time(NULL));
 
 	loadscheme();

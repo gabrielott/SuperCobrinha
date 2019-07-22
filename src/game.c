@@ -9,6 +9,7 @@
 #include "snake.h"
 #include "food.h"
 #include "draw.h"
+#include "map.h"
 
 #define INITIAL_SIZE 4
 #define FOOD_NUM 1
@@ -45,6 +46,7 @@ int timesq, map, spe;
 int times;
 
 Food *foods[FOOD_NUM];
+Map *gamemap;
 
 void showtime(time_t gametime){
 	mvwprintw(wmain, timery, timerx, "Tempo:  %li:%li", gametime/60, gametime%60);
@@ -94,6 +96,8 @@ void initialsetup(void) {
 		snake[i] = newpart(i, maxiny / 2 + i, maxinx / 2);
 		draw_part(snake[i], i == 0 ? GAMECORES.corSnakeHead : GAMECORES.corSnakePart);
 	}
+
+	drawmap(gamemap);
 
 	showtime(times);
 	mvwprintw(wmain, timery+2, timerx,"Score: %d", score);

@@ -12,6 +12,7 @@
 #define TIME_300 4
 
 #include "snake.h"
+#include "map.h"
 
 // Index do ultimo pedaco da cobrinha
 int maxindex;
@@ -24,6 +25,9 @@ int timerx, timery;
 
 // Array de ponteiros de cada parte da cobra
 Snakepart *snake[30*14];
+
+// Mapa que o jogo usara
+Map *gamemap;
 
 // Desenha o mapa inicial do jogo e inicializa as variaveis necessarias
 void initialsetup(void);

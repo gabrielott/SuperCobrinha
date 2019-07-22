@@ -28,7 +28,7 @@ Map *newmap(char *filename) {
 
 	char name[17];
 	fgets(name, 17, f);
-	if(name[16] != '\n' && name[16] != '\0') return NULL;
+	if(strchr(name, '\n') == NULL) return NULL;
 
 	Map *m = malloc(sizeof(Map));
 	if(m == NULL) return NULL;
@@ -39,15 +39,15 @@ Map *newmap(char *filename) {
 	for(int i = 0; i < 14; i++) {
 		char line[32];
 		fgets(line, 32, f);
-		if(line[31] != '\n') {
+		if(line[30] != '\n') {
 			free(m);
 			return NULL;
 		}
 
 		for(int ii = 0; ii < 30; ii++) {
 			Barrier b;
-			b.x = i + 1;
-			b.y = ii + 1;
+			b.y = i + 1;
+			b.x = ii + 1;
 
 			switch(line[ii]) {
 				case '*':

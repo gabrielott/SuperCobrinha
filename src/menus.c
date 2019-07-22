@@ -3,6 +3,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <dirent.h>
 
 #include "supercobrinha.h"
 #include "game.h"
@@ -252,9 +253,33 @@ void optionsmenu(void) {
 	char *color_op[] = {"Classic", "Scarlet"};
 	Selector *color = newselector("Cor:", color_op, 2);
 
-	Selector *options[] = {layout, timer, border, speed, color};
+	// Carregamento das opcoes de mapa
+	DIR *dir = opendir("maps");
+	struct dirent *ent;
 
-	int optamt = 5;
+	int mapnum = 0;
+	while((ent = readdir(dir)) != NULL) {
+		if(ent->d_type != DT_DIR) mapnum++;
+	}
+
+	rewinddir(dir);
+	char **map_op = malloc(mapnum * sizeof(char *));
+
+	int i = -1;
+	while((ent = readdir(dir)) != NULL) {
+		if(ent->d_type == DT_DIR) continue;
+		char *c = malloc(strlen(ent->d_name) * sizeof(char));
+		strcpy(c, ent->d_name);
+		map_op[++i] = c;
+	}
+		
+	Selector *map = newselector("Mapa:", map_op, mapnum);
+
+	closedir(dir);
+
+	Selector *options[] = {layout, timer, border, speed, color, map};
+
+	int optamt = 6;
 	int selected = 0;
 
 	int biggest = 0;
@@ -263,12 +288,12 @@ void optionsmenu(void) {
 	}
 
 	for(int i = 0; i < optamt; i++) {
-		mvwprintw(inner, 3 + 2 * i, 8, options[i]->title);
-		mvwprintw(inner, 3 + 2 * i, 8 + biggest, options[i]->options[options[i]->selected]);
+		mvwprintw(inner, 1 + 2 * i, 8, options[i]->title);
+		mvwprintw(inner, 1 + 2 * i, 8 + biggest, options[i]->options[options[i]->selected]);
 	}
 
 	char *backtext = "Salvar e voltar";
-	mvwprintw(inner, 3 + 2 * optamt, (maxinx - strlenunicode(backtext)) / 2, backtext);
+	mvwprintw(inner, 1 + 2 * optamt, (maxinx - strlenunicode(backtext)) / 2, backtext);
 
 	wrefresh(inner);
 
@@ -298,9 +323,19 @@ void optionsmenu(void) {
 		savescheme();
 		redraw_all();
 
+		gamemap = newmap(options[5]->options[options[5]->selected]);
+		if(gamemap == NULL) wclear(wmain);
+
+		// Desalocando memoria usada
 		for(int i = 0; i < optamt; i++) {
 			free(options[i]);
 		}
+
+		for(int i = 0; i < mapnum; i++) {
+			free(map_op[i]);
+		}
+
+		free(map_op);
 	}
 
 	// Loop que controla a parte visual do menu. Nao eh necessario alterar nada aqui dentro
@@ -311,9 +346,9 @@ void optionsmenu(void) {
 		for(int i = 0; i < optamt + 1; i++) {
 			if(i == optamt) {
 				if(i == selected) {
-					mvwchgat(inner, 3 + 2 * optamt, (maxinx - strlenunicode(backtext)) / 2, strlenunicode(backtext), A_STANDOUT, GAMECORES.corMenuHL, NULL);
+					mvwchgat(inner, 1 + 2 * optamt, (maxinx - strlenunicode(backtext)) / 2, strlenunicode(backtext), A_STANDOUT, GAMECORES.corMenuHL, NULL);
 				} else {
-					mvwchgat(inner, 3 + 2 * optamt, (maxinx - strlenunicode(backtext)) / 2, strlenunicode(backtext), A_NORMAL, GAMECORES.corMenu, NULL);
+					mvwchgat(inner, 1 + 2 * optamt, (maxinx - strlenunicode(backtext)) / 2, strlenunicode(backtext), A_NORMAL, GAMECORES.corMenu, NULL);
 				}
 				continue;
 			}
@@ -322,12 +357,12 @@ void optionsmenu(void) {
 			strcpy(formatted, options[i]->options[options[i]->selected]);
 			strcat(formatted, "     ");
 
-			mvwprintw(inner, 3 + 2 * i, 8 + biggest, formatted);
+			mvwprintw(inner, 1 + 2 * i, 8 + biggest, formatted);
 
 			if(i == selected) {
-				mvwchgat(inner, 3 + 2 * i, 8 + biggest, strlenunicode(options[i]->options[options[i]->selected]), A_STANDOUT, GAMECORES.corMenuHL, NULL);
+				mvwchgat(inner, 1 + 2 * i, 8 + biggest, strlenunicode(options[i]->options[options[i]->selected]), A_STANDOUT, GAMECORES.corMenuHL, NULL);
 			} else {
-				mvwchgat(inner, 3 + 2 * i, 8 + biggest, strlenunicode(options[i]->options[options[i]->selected]), A_NORMAL, GAMECORES.corMenu, NULL);
+				mvwchgat(inner, 1 + 2 * i, 8 + biggest, strlenunicode(options[i]->options[options[i]->selected]), A_NORMAL, GAMECORES.corMenu, NULL);
 			}
 		}
 
