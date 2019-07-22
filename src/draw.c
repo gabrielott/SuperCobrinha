@@ -8,6 +8,7 @@
 #include "menus.h"
 #include "snake.h"
 #include "game.h"
+#include "keyboard.h"
 
 #define WHITE 0
 #define GREEN 1
@@ -110,7 +111,7 @@ void draw_border(WINDOW *w) {
 }
 
 void draw_state(void) {
-	char *states[] = {"Idle    ", "Ready    ", "Running ", "Paused  ", "Death   ", "MenuPrin", "MenuOpt ", "MenuScoB", "MenuSavS", "MenuGaOv", "Creditos"};
+	char *states[] = {"Idle    ", "Ready    ", "Running ", "Paused  ", "Death   ", "MenuPrin", "MenuOpt ", "MenuScoB", "MenuSavS", "MenuGaOv", "Paused  ", "Creditos"};
 	wattron(wmain, COLOR_PAIR(GAMECORES.corStatus));
 	mvwprintw(wmain, maxy - 2, maxx - 20, "STATE: %s", states[GAMESTATE]);
 	wattroff(wmain, COLOR_PAIR(GAMECORES.corStatus));
@@ -139,7 +140,7 @@ void draw_credits(void) {
 		}
 
 		// Printa os creditos quando for a vez deles
-		wattron(wmain, COLOR_PAIR(GAMECORES.corCredits));
+		wattron(inner, COLOR_PAIR(GAMECORES.corCredits));
 		for (j=0; j<7; j++) {
 			if (j != 6 && i < (setup - startl[j]) && i > (setup - 15 - startl[j])) {
 				mvwprintw(inner, 1+((i+1+startl[j])%14), (maxinx - strlenunicode(nomes[j])) / 2, nomes[j]);
@@ -152,7 +153,7 @@ void draw_credits(void) {
 				}
 			}
 		}
-		wattroff(wmain, COLOR_PAIR(GAMECORES.corCredits));
+		wattroff(inner, COLOR_PAIR(GAMECORES.corCredits));
 		wrefresh(inner);
 
 		usleep(450000);

@@ -47,6 +47,7 @@ int xmody(int x, int y) {
 	return x;
 }
 
+// Funcao para verificar se uma ou mais teclas foram pressionadas
 int key_pressed(int keyvar, int quant, ...) {
 	va_list press;
 	va_start(press, quant);
@@ -73,10 +74,9 @@ void key_nulo() {
 	return;
 }
 
-// Alguns gamestates saem caso qualquer tecla seja pressionada
+// Opcao simples para sair do gamestate
 void key_sair() {
-	return;
-	//leave = 1;
+	leave = 1;
 }
 
 // Funcoes BEM BASICAS para se movimentar conforme a variavel Active
@@ -96,7 +96,27 @@ void key_dir() {
 	Active.x = xmody(Active.x + 1, Active.mod_n);
 }
 
-// Funcoes para os pauses do jogo
+// Verifica algumas condicoes especiais no menu de opcoes
+void check_special() {
+	if(Active.y == 0) {
+		setletters(Active.x);
+	} else if(Active.y == 4) {
+		GAMECORES = setscheme(Active.x);
+		redraw_all();
+	}
+}
+
+void key_esq_2() {
+	key_esq();
+	check_special();
+}
+
+void key_dir_2() {
+	key_dir();
+	check_special();
+}
+
+// Funcoes para os pauses do jogo, nao implementadas
 void key_pause() {
 
 }
@@ -114,15 +134,15 @@ void key_select() {
 // Agrupar gamestates cujas teclas executem as mesmas funcoes para nao ficar uma funcao gigantesca
 // Inicializacao da variavel Active foi tranferida para ca
 void set_keys() {
-	if(GAMESTATE == IDLE || GAMESTATE == DEATH || GAMESTATE == CREDITOS) { // 0, 4 e 11 desnecessarios
+	if(GAMESTATE == IDLE || GAMESTATE == PAUSED || GAMESTATE == DEATH || GAMESTATE == CREDITOS) { // 0, 3, 4 e 11 a principio desnecessarios
 		PRESS.UP = &key_nulo;
 		PRESS.DOWN = &key_nulo;
 		PRESS.LEFT = &key_nulo;
 		PRESS.RIGHT = &key_nulo;
 		PRESS.SPACE = &key_nulo;
 		PRESS.ESC = &key_nulo;
-		PRESS.ANY = &key_sair;
-	} else if(GAMESTATE == READY) { //1 pronto
+		PRESS.ANY = &key_nulo;
+	} else if(GAMESTATE == READY) { //1
 		Active.y = (maxiny / 2) - 1;
 		Active.x = (maxinx / 2) - 1;
 		Active.mod_m = maxiny - 2;
@@ -134,21 +154,13 @@ void set_keys() {
 		PRESS.SPACE = &key_cima;
 		PRESS.ESC = &key_nulo;
 		PRESS.ANY = &key_nulo;
-	} else if(GAMESTATE == RUNNING) { //2 pronto
+	} else if(GAMESTATE == RUNNING) { //2
 		PRESS.UP = &key_cima;
 		PRESS.DOWN = &key_baixo;
 		PRESS.LEFT = &key_esq;
 		PRESS.RIGHT = &key_dir;
 		PRESS.SPACE = &key_pause;
 		PRESS.ESC = &key_pausemenu;
-		PRESS.ANY = &key_nulo;
-	} else if(GAMESTATE == PAUSED) { //3 desnecessario
-		PRESS.UP = &key_nulo;
-		PRESS.DOWN = &key_nulo;
-		PRESS.LEFT = &key_nulo;
-		PRESS.RIGHT = &key_nulo;
-		PRESS.SPACE = &key_sair;
-		PRESS.ESC = &key_nulo;
 		PRESS.ANY = &key_nulo;
 	} else if(GAMESTATE == MPRINCIPAL || GAMESTATE == MGAMEOVER || GAMESTATE == MPAUSE) { //5, 8 e 10 Sao os menus que usam a makeselector
 		PRESS.UP = &key_cima;
@@ -158,23 +170,27 @@ void set_keys() {
 		PRESS.SPACE = &key_select;
 		PRESS.ESC = &key_nulo;
 		PRESS.ANY = &key_nulo;
-	} else if(GAMESTATE == MOPTIONS) { //6 - Falta os substates
+	} else if(GAMESTATE == MOPTIONS) { //6
 		PRESS.UP = &key_cima;
 		PRESS.DOWN = &key_baixo;
-		PRESS.LEFT = &key_esq;
-		PRESS.RIGHT = &key_dir;
-		PRESS.SPACE = &key_nulo;
-		PRESS.ESC = &key_nulo;
+		PRESS.LEFT = &key_esq_2;
+		PRESS.RIGHT = &key_dir_2;
+		PRESS.SPACE = &key_sair;
+		PRESS.ESC = &key_sair;
 		PRESS.ANY = &key_nulo;
 	} else if(GAMESTATE == MSCOREBOARD) { //7
+		Active.x = 0; // mapa
+		Active.mod_n = 2;
+		Active.y = 0; // timer
+		Active.mod_m = 5;
 		PRESS.UP = &key_cima;
 		PRESS.DOWN = &key_baixo;
 		PRESS.LEFT = &key_esq;
 		PRESS.RIGHT = &key_dir;
 		PRESS.SPACE = &key_sair;
-		PRESS.ESC = &key_nulo;
+		PRESS.ESC = &key_sair;
 		PRESS.ANY = &key_nulo;
-	} else if(GAMESTATE == MSAVESCORE) { //9 - Estudar ainda como vou implementar isso aqui, LAYOUT DO TECLADO pode ferrar um pouco essa parte
+	} else if(GAMESTATE == MSAVESCORE) { //9 - NAO IMPLEMENTADO
 		PRESS.UP = &key_cima;
 		PRESS.DOWN = &key_baixo;
 		PRESS.LEFT = &key_nulo;
@@ -202,68 +218,4 @@ void key_command() {
 	} else if(g != 0 && g != ERR) {
 		PRESS.ANY();
 	}
-}
-
-int menu_command_1(int g, int selec, int optamt, int *choose) { // Usada na makeselector
-	if(g == KEY_UP || g == ltrup) {
-		return xmody(selec - 1, optamt);
-	} else if(g == KEY_DOWN || g == ltrdwn) {
-		return xmody(selec + 1, optamt);
-	} else if(g == ' ' || g == '\n') {
-		*choose = 1;
-	}
-	return selec;
-}
-
-int menu_command_2(int g, int *map, int *gtime) { // Usada no menu do scoreboard
-	if(g == KEY_RIGHT || g == ltrrght) {
-		*map = xmody(*map + 1, 2);
-	} else if(g == KEY_LEFT || g == ltrlft) {
-		*map = xmody(*map - 1, 2);
-	} else if(g == KEY_UP || g == ltrup) {
-		*gtime = xmody(*gtime - 1, 5);
-	} else if(g == KEY_DOWN || g == ltrdwn) {
-		*gtime = xmody(*gtime + 1, 5);
-	} else if(g == ' ' || g == '\n') {
-		return 1;
-	}
-	return 0;
-}
-
-int menu_command_3(int g, int selected, int current[], int opt_amt, int amt_index[], int *goback) { // Usada no menu de opcoes
-	if(selected != opt_amt - 1) {
-		mvwprintw(inner, 3 + 2*selected, 16, "          ");
-	}
-	// Condicao para se mover no menu para cima e para baixo
-	if(g == KEY_UP || g == ltrup) {
-		return xmody(selected - 1, opt_amt);
-	} else if(g == KEY_DOWN || g == ltrdwn) {
-		return xmody(selected + 1, opt_amt);
-	} 
-	// Condicao para alterar as opcoes do menu para os lados (configurar como substates)
-	else if((g == KEY_LEFT || g == ltrlft) && selected != opt_amt - 1) {
-		current[selected] = xmody(current[selected] - 1, amt_index[selected]);
-		// Casos especiais
-		if(selected == 0) {
-			setletters(current[selected]);
-		} else if(selected == 4) {
-			GAMECORES = setscheme(current[selected]);
-			redraw_all();
-		}
-	} else if((g == KEY_RIGHT || g == ltrrght) && selected != opt_amt - 1) {
-		current[selected] = xmody(current[selected] + 1, amt_index[selected]);
-		if(selected == 0) {
-			setletters(current[selected]);
-		} else if(selected == 4) {
-			GAMECORES = setscheme(current[selected]);
-			redraw_all();
-		}
-	}
-	// Condicao para salvar as opcoes e sair do menu
-	else if((g == ' ' || g == '\n') && selected == opt_amt - 1) {
-		saveoptions(current[0], current[1], current[2], current[3]);
-		savescheme();
-		*goback = 1;
-	}
-	return selected;
 }

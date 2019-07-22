@@ -211,12 +211,11 @@ int game_start(void) {
 			if (cont > 0){	
 				cont--;
 			}
+		} else {
+			g = lastg;
 		}
 
 		// Atualiza a direcao da cobrinha, checando e corrigindo caso ela tente andar sobre si mesma
-		if(g == 0 || g == ERR) {
-			g = lastg;
-		}
 		Prev = Active;
 		key_command();
 		if(Aux.x == Active.x && Aux.y == Active.y) {

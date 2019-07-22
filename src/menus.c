@@ -117,15 +117,14 @@ void menu_scoreboard(void) {
 	mvwprintw(inner, 1, (maxinx - strlenunicode(title)) / 2, title);
 
 	nodelay(inner, FALSE);
-	int map = BORDER;
-	int gtime = 0;
-	char *s_times[] = {"Normal", "00:30 ", "01:00 ", "03:00 ", "05:00 "};
-	for(int exit = 0; exit != 1;) {
-		Score *scores[10];
-		int size = loadscores(scores, map, gtime);
-		mvwprintw(inner, 3, maxinx - 10, "%s", s_times[gtime]);
 
-		mvwprintw(inner, 3, 4, "%s", map == BORDER ? "Com bordas" : "Sem bordas");
+	char *s_times[] = {"Normal", "00:30 ", "01:00 ", "03:00 ", "05:00 "};
+	for(; leave != 1;) {
+		Score *scores[10];
+		int size = loadscores(scores, Active.x, Active.y);
+		mvwprintw(inner, 3, maxinx - 10, "%s", s_times[Active.y]);
+
+		mvwprintw(inner, 3, 4, "%s", Active.x == BORDER ? "Com bordas" : "Sem bordas");
 
 		for(int i = 0; i < 10; i++) {
 			mvwprintw(inner, 5 + i, 2, "                      ");
@@ -137,13 +136,14 @@ void menu_scoreboard(void) {
 
 		wrefresh(inner);
 
-		int g = wgetch(inner);
-		exit = menu_command_2(g, &map, &gtime);
+		g = wgetch(inner);
+		key_command();
 
 		for(int i = 0; i < size; i++) {
 			free(scores[i]);
 		}
 	}
+	leave = 0;
 }
 
 int menu_gameover(int map, int times, time_t totaltime, int deathcase) {
@@ -203,7 +203,8 @@ void menu_options(void) {
 	updatestate(MOPTIONS);
 
 	char *opt_options[] = {"Layout:", "Timer:", "Mapa:", "Speed:", "Colors:", "Voltar"};
-	int opt_amt = 6;
+	Active.y = 0;
+	Active.mod_m = 6;
 
 	char *layout_options[] = {"QWERTY", "Colemak"};
 	char *time_options[] = {"Normal", "00:30", "01:00", "03:00", "05:00"};
@@ -212,10 +213,10 @@ void menu_options(void) {
 	char *color_options[] = {"Classic", "Scarlet", "Random"};
 
 	char **opt_index[] = {layout_options, time_options, map_options, speed_options, color_options, opt_options};
-	int amt_index[] = {2, 5, 2, 4, 3};
+	int amt_index[] = {2, 5, 2, 4, 3, 1};
 
-	for(int i = 0; i < opt_amt; i++) {
-		if(i != (opt_amt - 1)) {
+	for(int i = 0; i < Active.mod_m; i++) {
+		if(i != (Active.mod_m - 1)) {
 			mvwprintw(inner, 3 + 2*i, 8, opt_options[i]);
 		} else {
 			mvwprintw(inner, 3 + 2*i, (32 - strlenunicode(opt_options[i]))/2, opt_options[i]);
@@ -225,8 +226,8 @@ void menu_options(void) {
 	// Variaveis auxiliares, codigo deve ser otimizado futuramente
 	int op_teclado, op_tempo, op_mapa, op_speed;
 	loadoptions(&op_teclado, &op_tempo, &op_mapa, &op_speed);
-	int selected = 0, selX, HLsize, go_back = 0;
-	int current[] = {op_teclado, op_tempo, op_mapa, op_speed, GAMECORES.ID};
+	int selX, HLsize;
+	int current[] = {op_teclado, op_tempo, op_mapa, op_speed, GAMECORES.ID, 0};
 
 	void opt_print(void) {
 		int strline = 3;
@@ -238,25 +239,40 @@ void menu_options(void) {
 	}
 	opt_print();
 
+	Active.x = current[Active.y];
+	Active.mod_n = amt_index[Active.y];
+
 	for(;;) {
-		if(selected != (opt_amt - 1)) {
-			HLsize = strlenunicode(opt_index[selected][current[selected]]);
+		if(Active.y != (Active.mod_m - 1)) {
+			HLsize = strlenunicode(opt_index[Active.y][current[Active.y]]);
 			selX = 16;
-		} else if(selected == (opt_amt - 1)) {
-			selX = 1 + (30 - strlenunicode(opt_options[(opt_amt - 1)]))/2;
+		} else if(Active.y == (Active.mod_m - 1)) {
+			selX = 1 + (30 - strlenunicode(opt_options[(Active.mod_m - 1)]))/2;
 			HLsize = 6;
 		}
 
-		for(int i = 0; i < opt_amt; i++) {
+		for(int i = 0; i < Active.mod_m; i++) {
 			mvwchgat(inner, 3 + 2*i, 2, 25, A_NORMAL, GAMECORES.corMenu, NULL);
 		}
-		mvwchgat(inner, 3 + selected*2, selX, HLsize, A_STANDOUT, GAMECORES.corMenuHL, NULL);
+		mvwchgat(inner, 3 + Active.y*2, selX, HLsize, A_STANDOUT, GAMECORES.corMenuHL, NULL);
 
 		wrefresh(inner);
 
-		int g = wgetch(inner);
-		selected = menu_command_3(g, selected, current, opt_amt, amt_index, &go_back);
-		if(go_back == 1) {
+		g = wgetch(inner);
+		if(Active.y != Active.mod_m - 1) {
+			mvwprintw(inner, 3 + 2*Active.y, 16, "          ");
+		}
+		key_command();
+		if(key_pressed(g, 4, KEY_UP, ltrup, KEY_DOWN, ltrdwn)) {
+			Active.x = current[Active.y];
+			Active.mod_n = amt_index[Active.y];
+		}
+		current[Active.y] = Active.x;
+		if(leave == 1) {
+			// Sair e salvar
+			saveoptions(current[0], current[1], current[2], current[3]);
+			savescheme();
+			leave = 0;
 			return;
 		}
 

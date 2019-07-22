@@ -82,7 +82,7 @@ void intro(void) {
 		} else {
 			py = rand() % (maxy-7);
 			px = rand() % (maxx-64);
-			cor = WHITE + i;
+			cor = WHITE + (i / 8);
 		}
 		draw_title(py, px, cor % 5);
 		usleep(100000);
