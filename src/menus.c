@@ -292,7 +292,8 @@ void optionsmenu(void) {
 
 	Selector *map = newselector("Mapa:", map_op, mapnum);
 
-
+	// Desenho inicial das opcoes, mude o array options e o int optamt para
+	// adicionar novas opcoes
 	Selector *options[] = {layout, timer, border, speed, color, map};
 
 	int optamt = 6;
@@ -339,8 +340,6 @@ void optionsmenu(void) {
 		savescheme();
 		redraw_all();
 
-		//endwin();
-		//printf("%s\n", filenames[1]);
 		gamemap = newmap(filenames[options[5]->selected]);
 		if(gamemap == NULL) wclear(wmain);
 
