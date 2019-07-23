@@ -374,7 +374,10 @@ void optionsmenu(void) {
 
 			char formatted[20];
 			strcpy(formatted, options[i]->options[options[i]->selected]);
-			strcat(formatted, "     ");
+
+			for(int ii = 0; ii < maxinx - 9 - biggest - strlenunicode(options[i]->options[options[i]->selected]); ii++) {
+				strcat(formatted, " ");
+			}
 
 			mvwprintw(inner, 1 + 2 * i, 8 + biggest, formatted);
 
