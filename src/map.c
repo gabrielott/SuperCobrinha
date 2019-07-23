@@ -27,13 +27,14 @@ Map *newmap(char *filename) {
 	if(f == NULL) return NULL;
 
 	char name[17];
+	char *linebrk;
 	fgets(name, 17, f);
-	if(strchr(name, '\n') == NULL) return NULL;
+	if((linebrk = strchr(name, '\n')) == NULL) return NULL;
 
 	Map *m = malloc(sizeof(Map));
 	if(m == NULL) return NULL;
 
-	strncpy(m->name, name, 15);
+	strncpy(m->name, name, linebrk - name);
 
 	int current = -1;
 	for(int i = 0; i < 14; i++) {
