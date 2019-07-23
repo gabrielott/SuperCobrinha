@@ -5,20 +5,18 @@
 #define LTR_QWERTY 0
 #define LTR_COLEMAK 1
 
-// Constantes para o estado do jogo
+// Constantes para os gamestates
 #define IDLE 0
 #define READY 1
 #define RUNNING 2
 #define PAUSED 3
 #define DEATH 4
-// Define os gamestates de cada menu
 #define MPRINCIPAL 5
 #define MOPTIONS 6
 #define MSCOREBOARD 7
 #define MGAMEOVER 8
 #define MSAVESCORE 9
 #define MPAUSE 10
-// Define o gamestate dos creditos
 #define CREDITOS 11
 
 #include <ncurses.h>

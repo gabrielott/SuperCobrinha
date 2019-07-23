@@ -6,11 +6,6 @@
 #include "datamanagement.h"
 #include "draw.h"
 
-#define NORTH 1
-#define SOUTH 2
-#define EAST 3
-#define WEST 4
-
 typedef struct comandos {
 	// Ponteiros para as funcoes de todas as teclas necessarias
 	// eu devia fazer um vetor unico ao inves dessa struct feia pra gastar menos memoria mas assim fica mais facil de visualizar
