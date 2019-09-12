@@ -42,7 +42,7 @@ int timesq, map, spe;
 int times;
 coord Prev, Aux;
 
-Food *foods[FOOD_NUM];
+Food apple;
 
 void showtime(time_t gametime) {
 	mvwprintw(wmain, timery, timerx, "Tempo:  %li:%li", gametime/60, gametime%60);
@@ -71,10 +71,6 @@ void set_game(void) {
 	// coordenadas do timer e do placar
 	timerx = ((maxx - 32) / 2) - 14;
 	timery = 8;
-	
-	// Inicializao de todas as comidas
-	foods[0] = newfood('o', TRUE, 0);
-	//foods[1] = newfood('!', TRUE, 7);
 
 	// Inicializacao do mapa, tempo e velocidade, salvos no arquivo options.dat
 	loadoptions(NULL, &timesq, &map, &spe);
@@ -91,6 +87,9 @@ void set_game(void) {
 		snake[i] = newpart(i, maxiny / 2 + i, maxinx / 2);
 		draw_part(snake[i], i == 0 ? GAMECORES.corSnakeHead : GAMECORES.corSnakePart);
 	}
+
+    // Inicializacao da comida
+    apple = newfood('o', 1);
 
 	showtime(times);
 	mvwprintw(wmain, timery+2, timerx,"Score: %d", score);
@@ -158,7 +157,7 @@ int game_start(void) {
 					mvwprintw(pause, 3, (maxinx - strlenunicode(message)) / 2, message);
 
 					char *options[] = {"Voltar ao jogo", "Sair"};
-					if(makeselector(pause, 2, options) == 1) { 
+					if(makeselector(pause, 2, options) == 1) {
 						clear_death(3);
 						clear_gameover();
 						wrefresh(wmain);
@@ -208,7 +207,7 @@ int game_start(void) {
 			}
 			// Esvazia o final da fila
 			fila[MAXQUE] = 0;
-			if (cont > 0){	
+			if (cont > 0){
 				cont--;
 			}
 		} else {
@@ -227,9 +226,7 @@ int game_start(void) {
 		Aux = Prev;
 
 		// Tenta gerar todas as comidas
-		for(int i = 0; i < FOOD_NUM; i++) {
-			generatefood(inner, foods[i]);
-		}
+		apple.onmap = draw_food(apple);
 
 		Snakepart *head = getpartwithindex(snake, maxindex + 1, 0);
 		Snakepart *tail = getpartwithindex(snake, maxindex + 1, maxindex);
@@ -257,12 +254,11 @@ int game_start(void) {
 		head = tail;
 
 		// Verifica colisao com cada tipo de comida
-		for(int i = 0; i < FOOD_NUM; i++) {
-			if(checkfoodcolision(foods[i], head)) {
-				grow = 1;
-				score++;
-			}
-		}
+        if(!checkfoodcolision(apple)) {
+            apple.onmap = checkfoodcolision(apple);
+            grow = 1;
+            score++;
+        }
 
 		// Verifica se o jogador venceu o jogo (na teoria)
 		if(maxindex == 30*14-1) {
@@ -281,7 +277,7 @@ int game_start(void) {
 				return menu_gameover(map, timesq, gametime, 0);
 			}
 		}
-		
+
 		// Verifica colisao com a propria cobrinha
 		for(int i = 0; i < maxindex + 1; i++) {
 			if(snake[i] == head) continue;

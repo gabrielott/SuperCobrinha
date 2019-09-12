@@ -1,6 +1,8 @@
 #ifndef DATAMANAGEMENT_HEADER
 #define DATAMANAGEMENT_HEADER
 
+#include <time.h>
+
 // Definicao do tipo Score, representacao de um recorde feito por um jogador.
 typedef struct Score {
 	// Nome de quem fez o score
