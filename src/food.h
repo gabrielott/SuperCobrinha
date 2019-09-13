@@ -17,9 +17,8 @@ typedef struct Food {
 	// Essa propriedade nao deve ser modificada manualmente.
 	int onmap;
 
-	// Inteiro de 0 a 10 que representa a chance do item aparecer em um loop
-	// do jogo. 0 significa que ele sempre aparece (a nao ser que a propriedade
-	// isunique e inonmap sejao 1 ao mesmo tempo) e 10 significa muito raro.
+	// Inteiro que representa a chance do item aparecer em um loop do jogo. [1-99]
+	// 1 significa que ele sempre aparece, entre 51 a 99 a chance eh de 1/100
 	int rarity;
 
 	// Inteiro que diz o "valor nutritivo" de uma comida.

@@ -29,6 +29,10 @@ void draw_food(Food *f) {
         return;
     }
 
+	if((rand() % 100) % f->rarity != 0){
+		return;
+	}
+
 	int foodx, foody;
     int valid = 0;
 	while(!valid) {

@@ -91,7 +91,7 @@ void set_game(void) {
 
     // Inicializacao das comidas
     apple = newfood('o', 1, 1);
-	banana = newfood('(', 1, 3);
+	banana = newfood('(', 91, 3);
 
 	showtime(times);
 	mvwprintw(wmain, timery+2, timerx,"Score: %d", score);
