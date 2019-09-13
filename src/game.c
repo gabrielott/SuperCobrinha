@@ -32,7 +32,7 @@ time_t gametime;
 int score;
 int timerx, timery;
 int direction;
-int grow;
+int grow = 0;
 int maxindex;
 int cont = 0;
 int lastg;
@@ -43,6 +43,7 @@ int times;
 coord Prev, Aux;
 
 Food apple;
+Food banana;
 
 void showtime(time_t gametime) {
 	mvwprintw(wmain, timery, timerx, "Tempo:  %li:%li", gametime/60, gametime%60);
@@ -88,8 +89,9 @@ void set_game(void) {
 		draw_part(snake[i], i == 0 ? GAMECORES.corSnakeHead : GAMECORES.corSnakePart);
 	}
 
-    // Inicializacao da comida
-    apple = newfood('o', 1);
+    // Inicializacao das comidas
+    apple = newfood('o', 1, 1);
+	banana = newfood('(', 1, 3);
 
 	showtime(times);
 	mvwprintw(wmain, timery+2, timerx,"Score: %d", score);
@@ -227,16 +229,17 @@ int game_start(void) {
 
 		// Tenta gerar todas as comidas
 		draw_food(&apple);
+		draw_food(&banana);
 
 		Snakepart *head = getpartwithindex(snake, maxindex + 1, 0);
 		Snakepart *tail = getpartwithindex(snake, maxindex + 1, maxindex);
 
 		// Verifica se a cobrinha deve crescer
-		if(grow == 1) {
+		if(grow > 0) {
 			maxindex++;
 			snake[maxindex] = newpart(maxindex, tail->y, tail->x);
 			tail = snake[maxindex];
-			grow = 0;
+			grow--;
 		} else {
 			mvwprintw(inner, tail->y, tail->x, " ");
 		}
@@ -253,11 +256,8 @@ int game_start(void) {
 		tail->index = 0;
 		head = tail;
 
-		// Verifica colisao com cada tipo de comida
-        if(checkfoodcolision(&apple) == 1) {
-            grow = 1;
-            score++;
-        }
+		// Verifica colisao com cada comida (a funcao tambem atualiza o score externamente)
+        grow += checkfoodcolision(2, &apple, &banana);
 
 		// Verifica se o jogador venceu o jogo (na teoria)
 		if(maxindex == 30*14-1) {

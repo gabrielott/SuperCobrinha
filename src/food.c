@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdarg.h>
 
 #include "supercobrinha.h"
 #include "game.h"
@@ -11,13 +12,15 @@ typedef struct Food {
 	coord onde;
 	int onmap;
 	int rarity;
+	int size;
 } Food;
 
-Food newfood(char c, int rare) {
+Food newfood(char c, int rare, int fat) {
 	Food f;
 	f.caracter = c;
 	f.onmap = 0;
 	f.rarity = rare;
+	f.size = fat;
 	return f;
 }
 
@@ -56,10 +59,21 @@ void draw_food(Food *f) {
 	f->onmap = 1;
 }
 
-int checkfoodcolision(Food *f) {
-	if(Active.x + 1 == f->onde.x && Active.y + 1 == f->onde.y) {
-		f->onmap = 0;
-		return 1;
+int checkfoodcolision(int quant, ...) {
+	va_list comidas;
+	va_start(comidas, quant);
+	
+	int r = 0;
+
+	for(int i = 0; i < quant; i++) {
+		Food *f = va_arg(comidas, Food*);
+		if(Active.x + 1 == f->onde.x && Active.y + 1 == f->onde.y) {
+			f->onmap = 0;
+			r = f->size;
+			score += r;
+			//break; //deixei comentado para que o tempo gasto em cada loop seja igual
+		}
 	}
-	return 0;
+	va_end(comidas);
+	return r;
 }
