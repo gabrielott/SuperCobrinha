@@ -226,13 +226,13 @@ int game_start(void) {
 		Aux = Prev;
 
 		// Tenta gerar todas as comidas
-		apple.onmap = draw_food(apple);
+		draw_food(&apple);
 
 		Snakepart *head = getpartwithindex(snake, maxindex + 1, 0);
 		Snakepart *tail = getpartwithindex(snake, maxindex + 1, maxindex);
 
 		// Verifica se a cobrinha deve crescer
-		if(grow) {
+		if(grow == 1) {
 			maxindex++;
 			snake[maxindex] = newpart(maxindex, tail->y, tail->x);
 			tail = snake[maxindex];
@@ -254,8 +254,7 @@ int game_start(void) {
 		head = tail;
 
 		// Verifica colisao com cada tipo de comida
-        if(!checkfoodcolision(apple)) {
-            apple.onmap = checkfoodcolision(apple);
+        if(checkfoodcolision(&apple) == 1) {
             grow = 1;
             score++;
         }

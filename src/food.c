@@ -21,42 +21,45 @@ Food newfood(char c, int rare) {
 	return f;
 }
 
-int draw_food(Food f){
-    if(f.onmap == 1){
-        return 1;
+void draw_food(Food *f) {
+    if(f->onmap == 1) {
+        return;
     }
 
+	int foodx, foody;
     int valid = 0;
 	while(!valid) {
 		valid = 1;
 
-		f.onde.y = rand() % (maxiny - 1);
-		f.onde.x = rand() % (maxinx - 1);
+		foody = rand() % (maxiny - 1);
+		foodx = rand() % (maxinx - 1);
 
-		if(f.onde.y == maxiny || f.onde.y == 0) {
+		if(foody == maxiny || foody == 0) {
             valid = 0;
 		}
-		if(f.onde.x == maxinx || f.onde.x == 0) {
+		if(foodx == maxinx || foodx == 0) {
             valid = 0;
         }
 
 		for(int i = 0; i < maxindex + 1; i++) {
-			if(f.onde.x == snake[i]->x && f.onde.y == snake[i]->y) {
+			if(foodx == snake[i]->x && foody == snake[i]->y) {
                 valid = 0;
 			}
 		}
 	}
 
+	f->onde.y = foody;
+	f->onde.x = foodx;
     wattron(inner, COLOR_PAIR(GAMECORES.corFood));
-	mvwprintw(inner, f.onde.y, f.onde.x, "%c", f.caracter);
+	mvwprintw(inner, foody, foodx, "%c", f->caracter);
 	wattroff(inner, COLOR_PAIR(GAMECORES.corFood));
-
-	return 1;
+	f->onmap = 1;
 }
 
-int checkfoodcolision(Food f) {
-	if(Active.x == f.onde.x && Active.y == f.onde.y) {
-		return 0;
+int checkfoodcolision(Food *f) {
+	if(Active.x + 1 == f->onde.x && Active.y + 1 == f->onde.y) {
+		f->onmap = 0;
+		return 1;
 	}
-	return 1;
+	return 0;
 }

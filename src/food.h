@@ -27,9 +27,9 @@ typedef struct Food {
 Food newfood(char c, int rare);
 
 // Tenta desenhar a comida se ela nao estiver no mapa.
-int draw_food(Food f);
+void draw_food(Food *f);
 
 // Verifica se o item colidiu com uma parte da cobra. Retorn 1 se sim e 0 se nao.
-int checkfoodcolision(Food f);
+int checkfoodcolision(Food *f);
 
 #endif
