@@ -50,7 +50,7 @@ typedef struct Scheme {
 } Scheme;
 
 // Variavel global que guarda as cores atualmente utilizadas no jogo
-Scheme GAMECORES;
+extern Scheme GAMECORES;
 
 // Retorna o esquema de cores selecionado
 Scheme setscheme(int choice);

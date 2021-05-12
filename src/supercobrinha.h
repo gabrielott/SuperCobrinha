@@ -15,25 +15,25 @@
 #include <ncurses.h>
 
 // Coordenadas y e x maximas da janela principal
-int maxy, maxx;
+extern int maxy, maxx;
 
 // Coordenadas y e x maximas da janela interna
-int maxiny, maxinx;
+extern int maxiny, maxinx;
 
 // Coordendas y e x do meio da janela principal
-int middlex, middley;
+extern int middlex, middley;
 
 // Teclas utilizadas para movimento (variam de acordo com layout selecionado)
-int ltrup, ltrdwn, ltrrght, ltrlft;
+extern int ltrup, ltrdwn, ltrrght, ltrlft;
 
 // Variavel que indica o estado do jogo
-int GAMESTATE;
+extern int GAMESTATE;
 
 // Layout selecionado atualmente
-int layout;
+extern int layout;
 
 // Janelas principal e interna
-WINDOW *wmain, *inner;
+extern WINDOW *wmain, *inner;
 
 // Atualiza as variaveis maxy, maxx, maxiny, maxinx, middlex, middley com o tamanho
 // atual das janelas

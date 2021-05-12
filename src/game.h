@@ -14,16 +14,16 @@
 #include "snake.h"
 
 // Index do ultimo pedaco da cobrinha
-int maxindex;
+extern int maxindex;
 
 //Pontuacao do jogo
-int score;
+extern int score;
 
 // Coordenadas do timer
-int timerx, timery;
+extern int timerx, timery;
 
 // Array de ponteiros de cada parte da cobra
-Snakepart *snake[30*14];
+extern Snakepart *snake[30*14];
 
 // Desenha o mapa inicial do jogo e inicializa as variaveis necessarias
 void initialsetup(void);
